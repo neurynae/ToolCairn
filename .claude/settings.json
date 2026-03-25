@@ -1,0 +1,91 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm:*)",
+      "Bash(docker:*)",
+      "Bash(docker compose:*)",
+      "Bash(git:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx turbo:*)",
+      "Bash(npx biome:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx playwright:*)",
+      "Bash(curl:*)",
+      "Bash(bash:*)",
+      "Read",
+      "Glob",
+      "Grep",
+      "WebSearch",
+      "WebFetch"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(sudo:*)",
+      "Edit(.env.local*)",
+      "Edit(.env.production*)",
+      "Write(.env.local)",
+      "Write(.env.production)"
+    ]
+  },
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /d/ToolPilot/.claude/scripts/live-context.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r \".tool_input.file_path // .tool_input.filePath // empty\"); if [ -n \"$FILE\" ] && [[ \"$FILE\" == *.ts || \"$FILE\" == *.tsx ]]; then npx biome check --write \"$FILE\" 2>/dev/null; fi; exit 0'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r \".tool_input.command\"); if echo \"$CMD\" | grep -qE \"(rm -rf /|DROP DATABASE|DROP TABLE|git push.*--force.*main|cat .env)\"; then echo \"BLOCKED: Destructive or sensitive command detected\" >&2; exit 2; fi; if echo \"$CMD\" | grep -qE \"git clone\" && echo \"$CMD\" | grep -qE \"(/tmp|/var/tmp|AppData/Local/Temp)\"; then echo \"BLOCKED: Clone destination must be inside workspace, not temp directories\" >&2; exit 2; fi; exit 0'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'echo \"{\\\"systemMessage\\\": \\\"Session saved. Tip: /review, /test, /remember, /infra\\\"}\"'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "github",
+    "playwright",
+    "context7",
+    "memgraph",
+    "qdrant",
+    "postgres"
+  ]
+}

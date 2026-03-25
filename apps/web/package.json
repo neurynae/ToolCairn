@@ -1,0 +1,34 @@
+{
+  "name": "@toolpilot/web",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev --port 3001",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "clean": "rimraf .next dist"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.1.1",
+    "@toolpilot/core": "workspace:*",
+    "@toolpilot/search": "workspace:*",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@toolpilot/tsconfig": "workspace:*",
+    "@types/node": "^22.10.7",
+    "@types/react": "^19.0.6",
+    "@types/react-dom": "^19.0.3",
+    "rimraf": "^6.0.1",
+    "tailwindcss": "^4.0.3",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.4"
+  }
+}
