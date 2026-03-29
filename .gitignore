@@ -54,3 +54,4 @@ pnpm-debug.log*
 ai-toolkit/
 ToolPilot Dev/
 ToolPilot_Real_Test/
+.playwright-mcp/
