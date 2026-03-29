@@ -97,6 +97,24 @@ model OutcomeReport {
   @@index([chosen_tool])
 }
 
+// ─── MCP Event Tracking ────────────────────────────────────────────────────
+
+/// Lightweight event log for every MCP tool invocation.
+/// Written asynchronously — never blocks tool responses.
+/// Powers the standalone tracker dashboard at .toolpilot/tracker.html
+model McpEvent {
+  id          String   @id @default(uuid())
+  tool_name   String
+  query_id    String?
+  duration_ms Int
+  status      String   // "ok" | "error"
+  metadata    Json?    // tool-specific extra data (result summary, flags, etc.)
+  created_at  DateTime @default(now())
+
+  @@index([tool_name, created_at])
+  @@index([created_at])
+}
+
 // ─── Indexer Tracking ──────────────────────────────────────────────────────
 
 /// Tracks the indexing state of each tool to enable incremental updates

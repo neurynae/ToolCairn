@@ -2,6 +2,7 @@
   "name": "@toolpilot/vector",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

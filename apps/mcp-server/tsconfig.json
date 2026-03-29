@@ -9,6 +9,7 @@
     { "path": "../../packages/config" },
     { "path": "../../packages/core" },
     { "path": "../../packages/db" },
+    { "path": "../../packages/graph" },
     { "path": "../../packages/queue" },
     { "path": "../../packages/search" }
   ]

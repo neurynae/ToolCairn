@@ -2,6 +2,7 @@
   "name": "@toolpilot/queue",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,6 +21,7 @@
   },
   "dependencies": {
     "@toolpilot/config": "workspace:*",
+    "@toolpilot/core": "workspace:*",
     "ioredis": "^5.4.2",
     "pino": "^9.6.0"
   },

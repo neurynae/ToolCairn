@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "build": "prisma generate && tsc",
+    "build": "tsc",
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
     "db:migrate": "prisma migrate dev",
@@ -30,9 +30,11 @@
     "@types/node": "^22.10.7",
     "prisma": "^6.3.1",
     "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma"
+    "schema": "prisma/schema.prisma",
+    "seed": "tsx prisma/seed.ts"
   }
 }

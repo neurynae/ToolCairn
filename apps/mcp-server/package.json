@@ -18,8 +18,10 @@
     "@toolpilot/config": "workspace:*",
     "@toolpilot/core": "workspace:*",
     "@toolpilot/db": "workspace:*",
+    "@toolpilot/graph": "workspace:*",
     "@toolpilot/queue": "workspace:*",
     "@toolpilot/search": "workspace:*",
+    "@toolpilot/vector": "workspace:*",
     "pino": "^9.6.0",
     "zod": "^3.24.1"
   },

@@ -205,9 +205,7 @@ export interface GraphNode {
 
 // ─── Result Pattern ────────────────────────────────────────────────────────
 
-export type Result<T, E = string> =
-  | { ok: true; data: T }
-  | { ok: false; error: E };
+export type Result<T, E = string> = { ok: true; data: T } | { ok: false; error: E };
 
 export const ok = <T>(data: T): Result<T> => ({ ok: true, data });
 export const err = <T = never>(error: string): Result<T> => ({ ok: false, error });

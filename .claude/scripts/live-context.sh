@@ -2,6 +2,8 @@
 # Layer 3: Live Context Injection
 # Runs at SessionStart — injects git state + Docker health before first user message.
 
+echo "[SessionStart] Live context script starting..." >&2
+
 cd /d/ToolPilot 2>/dev/null || cd "D:/ToolPilot" 2>/dev/null || exit 0
 
 BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
@@ -19,7 +21,7 @@ jq -n \
     hookSpecificOutput: {
       hookEventName: "SessionStart",
       additionalContext: (
-        "## Live Project Context (auto-injected at session start)\n" +
+        "**[SessionStart] Live context script executed successfully**\n\n" +
         "**Branch**: " + $branch + "\n\n" +
         "**Last 5 Commits**:\n" + $commits + "\n\n" +
         "**Modified Files**:\n" + (if $modified == "" then "clean" else $modified end) + "\n\n" +
@@ -27,3 +29,5 @@ jq -n \
       )
     }
   }' 2>/dev/null || true
+
+echo "[SessionStart] Live context script completed." >&2

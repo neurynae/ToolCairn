@@ -1,5 +1,21 @@
 {
   "mcpServers": {
+    "toolpilot": {
+      "command": "node",
+      "args": [
+        "D:\\ToolPilot\\apps\\mcp-server\\dist\\index.js"
+      ],
+      "env": {
+        "MEMGRAPH_URL": "bolt://localhost:7687",
+        "MEMGRAPH_USER": "",
+        "MEMGRAPH_PASSWORD": "",
+        "QDRANT_URL": "http://localhost:6333",
+        "DATABASE_URL": "postgresql://toolpilot:toolpilot@localhost:5432/toolpilot",
+        "REDIS_URL": "redis://localhost:6379",
+        "NODE_ENV": "development",
+        "LOG_LEVEL": "warn"
+      }
+    },
     "github": {
       "command": "docker",
       "args": [
@@ -20,7 +36,9 @@
         "/c",
         "npx",
         "-y",
-        "@playwright/mcp@latest"
+        "@playwright/mcp@latest",
+        "--browser",
+        "chromium"
       ]
     },
     "context7": {

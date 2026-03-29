@@ -42,7 +42,21 @@
       ".turbo",
       "coverage",
       "*.generated.ts",
-      "prisma/generated/**"
+      "prisma/generated/**",
+      "apps/web/src/app/**",
+      "apps/web/next-env.d.ts",
+      "apps/web/next.config.ts",
+      "apps/web/vitest.config.ts",
+      "apps/public/src/app/**",
+      "apps/public/next-env.d.ts",
+      "apps/public/next.config.ts",
+      "apps/public/vitest.config.ts",
+      "ToolPilot Dev/**",
+      ".mcp.json",
+      ".claude/settings.json",
+      "**/tsconfig.json",
+      "**/tsconfig*.json",
+      "ai-toolkit/**"
     ]
   }
 }
