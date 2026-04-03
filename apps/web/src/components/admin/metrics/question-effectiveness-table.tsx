@@ -1,3 +1,12 @@
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import type { ClarificationEffectiveness } from '@/lib/admin/metrics.service';
 
 interface QuestionEffectivenessTableProps {
@@ -6,40 +15,46 @@ interface QuestionEffectivenessTableProps {
 
 export function QuestionEffectivenessTable({ data }: QuestionEffectivenessTableProps) {
   if (data.length === 0) {
-    return <p className="text-sm text-gray-400 py-4 text-center">No clarification data yet.</p>;
+    return (
+      <p className="text-sm text-muted-foreground py-4 text-center">No clarification data yet.</p>
+    );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
-      <table className="min-w-full divide-y divide-gray-200 text-sm">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-4 py-2.5 text-left font-medium text-gray-500">Question</th>
-            <th className="px-4 py-2.5 text-right font-medium text-gray-500">Asked</th>
-            <th className="px-4 py-2.5 text-right font-medium text-gray-500">Answered</th>
-            <th className="px-4 py-2.5 text-right font-medium text-gray-500">Answer Rate</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100 bg-white">
-          {data.map((row) => {
-            const ratePct = Math.round(row.answerRate * 100);
-            const rateColor =
-              ratePct >= 70
-                ? 'text-emerald-600'
-                : ratePct >= 40
-                  ? 'text-amber-600'
-                  : 'text-red-500';
-            return (
-              <tr key={row.question} className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-2.5 text-gray-800 max-w-xs truncate">{row.question}</td>
-                <td className="px-4 py-2.5 text-right text-gray-600">{row.totalAsked}</td>
-                <td className="px-4 py-2.5 text-right text-gray-600">{row.answeredCount}</td>
-                <td className={`px-4 py-2.5 text-right font-medium ${rateColor}`}>{ratePct}%</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Question</TableHead>
+              <TableHead className="text-right">Asked</TableHead>
+              <TableHead className="text-right">Answered</TableHead>
+              <TableHead className="text-right">Answer Rate</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((row) => {
+              const ratePct = Math.round(row.answerRate * 100);
+              const rateColor =
+                ratePct >= 70
+                  ? 'text-emerald-400'
+                  : ratePct >= 40
+                    ? 'text-amber-400'
+                    : 'text-red-400';
+              return (
+                <TableRow key={row.question}>
+                  <TableCell className="max-w-xs truncate">{row.question}</TableCell>
+                  <TableCell className="text-right">{row.totalAsked}</TableCell>
+                  <TableCell className="text-right">{row.answeredCount}</TableCell>
+                  <TableCell className={`text-right font-medium ${rateColor}`}>
+                    {ratePct}%
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

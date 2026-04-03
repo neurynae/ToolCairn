@@ -338,7 +338,7 @@ export function GraphCanvas3D({ initialData }: GraphCanvas3DProps) {
   const lastFrameTimeRef = useRef(0);
 
   // Cursor velocity tracking for sudden movement detection
-  const cursorPosRef = useRef({ x: 0, y: 0 });
+  const _cursorPosRef = useRef({ x: 0, y: 0 });
   const lastCursorPosRef = useRef({ x: 0, y: 0 });
   const cursorVelocityRef = useRef(0);
   const lastCursorMoveTimeRef = useRef(0);

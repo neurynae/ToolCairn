@@ -38,5 +38,5 @@ export async function POST(request: Request): Promise<NextResponse> {
     secure: process.env.NODE_ENV === 'production',
   });
 
-  return NextResponse.json({ ok: true, data: { redirectTo: '/admin/graph' } });
+  return NextResponse.json({ ok: true, data: { redirectTo: '/admin/dashboard' } });
 }

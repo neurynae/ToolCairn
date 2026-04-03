@@ -1,4 +1,14 @@
 import type { ToolHealthRow } from '@/app/api/admin/weights/route';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface ToolHealthGridProps {
   tools: ToolHealthRow[];
@@ -6,66 +16,66 @@ interface ToolHealthGridProps {
 
 function ScoreBadge({ score }: { score: number }) {
   const pct = Math.round(score * 100);
-  const color =
+  const className =
     pct >= 70
-      ? 'bg-emerald-100 text-emerald-700'
+      ? 'text-emerald-400 border-emerald-400/30 bg-emerald-400/10'
       : pct >= 40
-        ? 'bg-amber-100 text-amber-700'
-        : 'bg-red-100 text-red-600';
+        ? 'text-amber-400 border-amber-400/30 bg-amber-400/10'
+        : 'text-red-400 border-red-400/30 bg-red-400/10';
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${color}`}
-    >
+    <Badge variant="outline" className={className}>
       {pct}%
-    </span>
+    </Badge>
   );
 }
 
 export function ToolHealthGrid({ tools }: ToolHealthGridProps) {
   if (tools.length === 0) {
     return (
-      <p className="text-sm text-gray-400 py-8 text-center">
-        No tools found. Add tools to the graph first.
-      </p>
+      <Card>
+        <CardContent className="py-8 text-center text-sm text-muted-foreground">
+          No tools found. Add tools to the graph first.
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
-      <table className="min-w-full divide-y divide-gray-200 text-sm">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-4 py-2.5 text-left font-medium text-gray-500">Tool</th>
-            <th className="px-4 py-2.5 text-left font-medium text-gray-500">Category</th>
-            <th className="px-4 py-2.5 text-right font-medium text-gray-500">Health</th>
-            <th className="px-4 py-2.5 text-right font-medium text-gray-500">Stars</th>
-            <th className="px-4 py-2.5 text-right font-medium text-gray-500">+90d</th>
-            <th className="px-4 py-2.5 text-right font-medium text-gray-500">Commits/30d</th>
-            <th className="px-4 py-2.5 text-right font-medium text-gray-500">Contributors</th>
-            <th className="px-4 py-2.5 text-right font-medium text-gray-500">Open Issues</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100 bg-white">
-          {tools.map((tool) => (
-            <tr key={tool.id} className="hover:bg-gray-50 transition-colors">
-              <td className="px-4 py-2.5 font-medium text-gray-900">{tool.displayName}</td>
-              <td className="px-4 py-2.5 text-gray-500 capitalize">{tool.category}</td>
-              <td className="px-4 py-2.5 text-right">
-                <ScoreBadge score={tool.maintenanceScore} />
-              </td>
-              <td className="px-4 py-2.5 text-right text-gray-700">
-                {tool.stars.toLocaleString()}
-              </td>
-              <td className="px-4 py-2.5 text-right text-emerald-600">
-                +{tool.starsVelocity90d.toLocaleString()}
-              </td>
-              <td className="px-4 py-2.5 text-right text-gray-700">{tool.commitVelocity30d}</td>
-              <td className="px-4 py-2.5 text-right text-gray-700">{tool.contributorCount}</td>
-              <td className="px-4 py-2.5 text-right text-gray-700">{tool.openIssues}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Tool</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead className="text-right">Health</TableHead>
+              <TableHead className="text-right">Stars</TableHead>
+              <TableHead className="text-right">+90d</TableHead>
+              <TableHead className="text-right">Commits/30d</TableHead>
+              <TableHead className="text-right">Contributors</TableHead>
+              <TableHead className="text-right">Open Issues</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {tools.map((tool) => (
+              <TableRow key={tool.id}>
+                <TableCell className="font-medium">{tool.displayName}</TableCell>
+                <TableCell className="text-muted-foreground capitalize">{tool.category}</TableCell>
+                <TableCell className="text-right">
+                  <ScoreBadge score={tool.maintenanceScore} />
+                </TableCell>
+                <TableCell className="text-right">{tool.stars.toLocaleString()}</TableCell>
+                <TableCell className="text-right text-emerald-400">
+                  +{tool.starsVelocity90d.toLocaleString()}
+                </TableCell>
+                <TableCell className="text-right">{tool.commitVelocity30d}</TableCell>
+                <TableCell className="text-right">{tool.contributorCount}</TableCell>
+                <TableCell className="text-right">{tool.openIssues}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

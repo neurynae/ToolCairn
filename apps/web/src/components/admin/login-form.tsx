@@ -1,5 +1,8 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
@@ -32,33 +35,27 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-sm">
-      <div className="flex flex-col gap-1">
-        <label htmlFor="passphrase" className="text-sm font-medium text-gray-700">
-          Admin passphrase
-        </label>
-        <input
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="passphrase">Admin passphrase</Label>
+        <Input
           id="passphrase"
           type="password"
           value={passphrase}
           onChange={(e) => setPassphrase(e.target.value)}
           required
-          className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           placeholder="Enter passphrase"
+          autoFocus
         />
       </div>
       {error && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-destructive">
           {error}
         </p>
       )}
-      <button
-        type="submit"
-        disabled={isPending || !passphrase}
-        className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
+      <Button type="submit" disabled={isPending || !passphrase} className="w-full">
         {isPending ? 'Signing in…' : 'Sign in'}
-      </button>
+      </Button>
     </form>
   );
 }

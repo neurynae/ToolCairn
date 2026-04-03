@@ -5,13 +5,20 @@ import {
   OutcomeDistributionChartLoader as OutcomeDistributionChart,
   SessionFunnelChartLoader as SessionFunnelChart,
 } from '@/components/admin/metrics/metric-charts-loader';
+import { PageHeader } from '@/components/admin/page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-gray-900">{value}</p>
-    </div>
+    <Card>
+      <CardHeader className="pb-1">
+        <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-3xl font-bold">{value}</p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -26,25 +33,26 @@ export default async function MetricsPage() {
 
   if (!data) {
     return (
-      <div className="flex flex-col gap-4">
-        <h1 className="text-lg font-semibold text-gray-900">Metrics</h1>
-        <p className="text-sm text-red-500">Could not load metrics. Is Postgres running?</p>
-      </div>
+      <>
+        <PageHeader title="Metrics" description="Search session analytics" />
+        <Card className="border-destructive/50">
+          <CardContent className="pt-6 text-sm text-muted-foreground">
+            Could not load metrics. Is PostgreSQL running?
+          </CardContent>
+        </Card>
+      </>
     );
   }
 
   const completionRatePct = Math.round(data.sessionStats.completionRate * 100);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-lg font-semibold text-gray-900">Metrics</h1>
-        <p className="text-sm text-gray-500">
-          Search session funnel, clarification effectiveness, and outcome distribution (last 30 days).
-        </p>
-      </div>
+    <>
+      <PageHeader
+        title="Metrics"
+        description="Search session funnel, clarification effectiveness, and outcome distribution (last 30 days)"
+      />
 
-      {/* Summary stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard label="Total Sessions" value={data.sessionStats.total} />
         <StatCard label="Completed" value={data.sessionStats.completed} />
@@ -52,43 +60,43 @@ export default async function MetricsPage() {
         <StatCard label="Completion Rate" value={`${completionRatePct}%`} />
       </div>
 
-      {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">Daily Session Volume</h2>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            Daily Session Volume
+          </p>
           <SessionFunnelChart dailyVolume={data.dailySessionVolume} />
         </div>
         <div>
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">Outcome Distribution</h2>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            Outcome Distribution
+          </p>
           <OutcomeDistributionChart distribution={data.outcomeDistribution} />
         </div>
       </div>
 
-      {/* Top chosen tools */}
       {data.topChosenTools.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">Top Chosen Tools</h2>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            Top Chosen Tools
+          </p>
           <div className="flex flex-wrap gap-2">
             {data.topChosenTools.map((t) => (
-              <span
-                key={t.tool}
-                className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-sm text-indigo-700 font-medium"
-              >
+              <Badge key={t.tool} variant="outline" className="gap-1.5 px-3 py-1">
                 {t.tool}
-                <span className="text-indigo-400 text-xs">{t.count}</span>
-              </span>
+                <span className="text-muted-foreground text-xs">{t.count}</span>
+              </Badge>
             ))}
           </div>
         </div>
       )}
 
-      {/* Clarification effectiveness */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-700 mb-3">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
           Clarification Question Effectiveness
-        </h2>
+        </p>
         <QuestionEffectivenessTable data={data.clarificationEffectiveness} />
       </div>
-    </div>
+    </>
   );
 }

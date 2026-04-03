@@ -62,6 +62,8 @@
       "**/*.config.mjs",
       "**/*.config.js",
       "apps/public/src/components/**",
+      "apps/web/src/components/ui/**",
+      "apps/web/src/hooks/**",
       "apps/mcp-server/test-e2e.mjs",
       "apps/mcp-server/bin/**"
     ]

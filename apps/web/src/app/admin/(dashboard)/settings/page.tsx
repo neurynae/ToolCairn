@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/admin/prisma';
 import { SettingsForm, type AppSettingsClient } from './settings-form';
+import { PageHeader } from '@/components/admin/page-header';
 
 interface AppSettingsServer {
   id: string;
@@ -17,9 +18,7 @@ interface AppSettingsServer {
 
 async function fetchSettings(): Promise<AppSettingsServer | null> {
   try {
-    const settings = await prisma.appSettings.findUnique({
-      where: { id: 'global' },
-    });
+    const settings = await prisma.appSettings.findUnique({ where: { id: 'global' } });
     return settings as AppSettingsServer | null;
   } catch {
     return null;
@@ -29,14 +28,13 @@ async function fetchSettings(): Promise<AppSettingsServer | null> {
 export default async function SettingsPage() {
   const settings = await fetchSettings();
 
-  // Provide defaults if no settings exist
   const defaults: AppSettingsServer = {
     id: 'global',
     reindex_scheduler_enabled: true,
     discovery_scheduler_enabled: false,
     discovery_topics: [
       'ai', 'mcp', 'mcp-server', 'vector-db', 'llm', 'rag', 'embedding',
-      'chatbot', 'agent', 'autonomous-agent', 'machine-learning'
+      'chatbot', 'agent', 'autonomous-agent', 'machine-learning',
     ],
     discovery_batch_size: 20,
     discovery_interval_hours: 24,
@@ -55,15 +53,12 @@ export default async function SettingsPage() {
   } as AppSettingsClient;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-lg font-semibold text-gray-900">Settings</h1>
-        <p className="text-sm text-gray-500">
-          Configure indexer schedulers and discovery options.
-        </p>
-      </div>
-
+    <>
+      <PageHeader
+        title="Settings"
+        description="Configure indexer schedulers and discovery options."
+      />
       <SettingsForm settings={data} />
-    </div>
+    </>
   );
 }

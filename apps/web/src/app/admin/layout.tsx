@@ -1,10 +1,6 @@
-import { AdminNav } from '@/components/admin/admin-nav';
+import type { ReactNode } from 'react';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex min-h-screen bg-white">
-      <AdminNav />
-      <main className="flex-1 overflow-auto p-6">{children}</main>
-    </div>
-  );
+// Minimal pass-through — sidebar layout lives in (dashboard)/layout.tsx
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }

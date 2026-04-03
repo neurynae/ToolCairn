@@ -36,7 +36,7 @@ function edgeColor(type: string): string {
 export function WeightHistoryChart({ edgeWeightSummary }: WeightHistoryChartProps) {
   if (edgeWeightSummary.length === 0) {
     return (
-      <div className="h-72 flex items-center justify-center text-sm text-gray-400">
+      <div className="h-72 flex items-center justify-center text-sm text-muted-foreground">
         No edge data yet.
       </div>
     );
@@ -52,16 +52,16 @@ export function WeightHistoryChart({ edgeWeightSummary }: WeightHistoryChartProp
     <div className="h-72">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 4, right: 16, left: 0, bottom: 40 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
           <XAxis
             dataKey="type"
-            tick={{ fontSize: 11, fill: '#6b7280' }}
+            tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
             angle={-30}
             textAnchor="end"
             interval={0}
           />
           <YAxis
-            tick={{ fontSize: 11, fill: '#6b7280' }}
+            tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
             domain={[0, 1]}
             tickFormatter={(v: number) => v.toFixed(1)}
           />
@@ -70,7 +70,12 @@ export function WeightHistoryChart({ edgeWeightSummary }: WeightHistoryChartProp
               name === 'avgWeight' ? `${(value * 100).toFixed(0)}%` : value,
               name === 'avgWeight' ? 'Avg effective weight' : 'Edge count',
             ]}
-            contentStyle={{ fontSize: 12 }}
+            contentStyle={{
+              fontSize: 12,
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              color: 'hsl(var(--foreground))',
+            }}
           />
           <Bar dataKey="avgWeight" radius={[4, 4, 0, 0]}>
             {data.map((entry) => (

@@ -3,8 +3,9 @@ import { GET_GRAPH_TOPOLOGY, getMemgraphSession, type TopologyRow } from '@toolp
 import { GraphCanvasLoader } from '@/components/admin/graph/graph-canvas-loader';
 import type { GraphTopologyResult } from '@/lib/admin/graph-topology';
 import { mapTopologyRows } from '@/lib/admin/graph-topology';
+import { PageHeader } from '@/components/admin/page-header';
+import { Button } from '@/components/ui/button';
 
-/** Convert neo4j Integer objects to plain JS numbers */
 function toNum(val: unknown): number {
   if (val == null) return 0;
   if (typeof val === 'number') return val;
@@ -58,16 +59,19 @@ export default async function GraphPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 h-full">
-      <div>
-        <h1 className="text-lg font-semibold text-gray-900">Graph Mesh</h1>
-        <p className="text-sm text-gray-500">
-          Tool nodes and relationship edges — hover an edge to inspect weights.
-        </p>
-      </div>
-      <div className="flex-1 min-h-0">
+    <>
+      <PageHeader
+        title="Graph Mesh"
+        description={`${initialData.stats.totalNodes} tools · ${initialData.stats.totalEdges} edges — hover an edge to inspect weights`}
+        actions={
+          <Button render={<a href="/admin/graph/edges" />} size="sm" variant="outline">
+            Browse Edges
+          </Button>
+        }
+      />
+      <div className="flex-1 min-h-0 rounded-lg border border-border overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
         <GraphCanvasLoader initialData={initialData} />
       </div>
-    </div>
+    </>
   );
 }

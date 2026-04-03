@@ -18,6 +18,7 @@
     { "path": "../../packages/db" },
     { "path": "../../packages/graph" },
     { "path": "../../packages/search" },
-    { "path": "../../packages/queue" }
+    { "path": "../../packages/queue" },
+    { "path": "../../packages/vector" }
   ]
 }

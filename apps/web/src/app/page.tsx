@@ -1,9 +1,5 @@
-// ToolPilot — Landing page (Phase 7)
+import { redirect } from 'next/navigation';
+
 export default function HomePage() {
-  return (
-    <main>
-      <h1>ToolPilot</h1>
-      <p>Agent-first tool intelligence platform — coming soon.</p>
-    </main>
-  );
+  redirect('/admin');
 }

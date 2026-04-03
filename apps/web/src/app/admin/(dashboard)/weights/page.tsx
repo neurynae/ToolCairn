@@ -7,8 +7,8 @@ import type { ToolHealthRow } from '@/app/api/admin/weights/route';
 import { WeightChartLoader } from '@/components/admin/weights/weight-chart-loader';
 import { EmergingToolsList } from '@/components/admin/weights/emerging-tools-list';
 import { ToolHealthGrid } from '@/components/admin/weights/tool-health-grid';
+import { PageHeader } from '@/components/admin/page-header';
 
-/** Convert neo4j Integer objects to plain JS numbers */
 function toNum(val: unknown): number {
   if (val == null) return 0;
   if (typeof val === 'number') return val;
@@ -81,35 +81,34 @@ export default async function WeightsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-lg font-semibold text-gray-900">Weights</h1>
-        <p className="text-sm text-gray-500">
-          Tool health signals and edge weight distribution across the graph.
-        </p>
-      </div>
+    <>
+      <PageHeader
+        title="Weights"
+        description={`Tool health signals and edge weight distribution — ${tools.length} tools`}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">Edge Weight by Type</h2>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            Edge Weight by Type
+          </p>
           <WeightChartLoader edgeWeightSummary={edgeWeightSummary} />
         </div>
-
         <div>
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">
-            Emerging Tools <span className="text-gray-400 font-normal">(90d star velocity)</span>
-          </h2>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            Emerging Tools{' '}
+            <span className="normal-case font-normal">(90d star velocity)</span>
+          </p>
           <EmergingToolsList tools={tools} />
         </div>
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold text-gray-700 mb-3">
-          Tool Health Grid{' '}
-          <span className="text-gray-400 font-normal">({tools.length} tools)</span>
-        </h2>
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+          Tool Health Grid
+        </p>
         <ToolHealthGrid tools={tools} />
       </div>
-    </div>
+    </>
   );
 }
