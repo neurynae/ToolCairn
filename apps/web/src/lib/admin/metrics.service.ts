@@ -103,17 +103,17 @@ export async function getMetrics(days: number): Promise<MetricsData> {
   const completed = sessions.filter((s: { status: string }) => s.status === 'completed').length;
   const abandoned = sessions.filter((s: { status: string }) => s.status === 'abandoned').length;
 
+  type ClarificationEntry = { question: string; answer?: string | null };
   const clarificationHistories = sessions
-    .map(
-      (s: { clarification_history: unknown }) =>
-        s.clarification_history as Array<{ question: string; answer?: string | null }>,
-    )
-    .filter((h) => h.length > 0);
+    .map((s: { clarification_history: unknown }) => s.clarification_history as ClarificationEntry[])
+    .filter((h: ClarificationEntry[]) => h.length > 0);
 
-  const outcomeDistribution: OutcomeDistribution[] = outcomes.map((o) => ({
-    outcome: o.outcome ?? 'unknown',
-    count: o._count.outcome,
-  }));
+  const outcomeDistribution: OutcomeDistribution[] = outcomes.map(
+    (o: { outcome: string | null; _count: { outcome: number } }) => ({
+      outcome: o.outcome ?? 'unknown',
+      count: o._count.outcome,
+    }),
+  );
 
   return {
     sessionStats: {
@@ -124,7 +124,7 @@ export async function getMetrics(days: number): Promise<MetricsData> {
     },
     clarificationEffectiveness: aggregateClarifications(clarificationHistories),
     outcomeDistribution,
-    topChosenTools: topTools.map((t) => ({
+    topChosenTools: topTools.map((t: { chosen_tool: string; _count: { chosen_tool: number } }) => ({
       tool: t.chosen_tool,
       count: t._count.chosen_tool,
     })),
