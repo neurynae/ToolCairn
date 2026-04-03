@@ -1,12 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { getMetrics } from '@/lib/admin/metrics.service';
+import { withProxyGet } from '@/lib/admin/api-proxy';
 
 const QuerySchema = z.object({
   days: z.coerce.number().int().min(1).max(90).default(30),
 });
 
-export async function GET(request: NextRequest) {
+async function directGET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = request.nextUrl;
   const parsed = QuerySchema.safeParse({ days: searchParams.get('days') ?? 30 });
 
@@ -22,3 +23,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
+
+export const GET = withProxyGet('/metrics', directGET);

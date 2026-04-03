@@ -3,6 +3,9 @@ import type { ClarificationAnswer, ClarificationQuestion, SearchContext } from '
 
 const SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
+// Prisma 6 JSON field type — used to cast Json/JsonNullable fields for writes
+type JsonInput = unknown;
+
 export class SearchSessionManager {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -36,12 +39,13 @@ export class SearchSessionManager {
     const history = [
       ...(session.clarification_history as unknown[]),
       { questions, answers, timestamp: new Date().toISOString() },
-    ] as Parameters<typeof this.prisma.searchSession.update>[0]['data']['clarification_history'];
+    ] as JsonInput;
 
     await this.prisma.searchSession.update({
       where: { id: sessionId },
       data: {
-        clarification_history: history,
+        // biome-ignore lint/suspicious/noExplicitAny: Prisma 6 Json[] field
+        clarification_history: history as any,
         stage: session.stage + 1,
         expires_at: new Date(Date.now() + SESSION_TTL_MS),
         updated_at: new Date(),
@@ -53,10 +57,8 @@ export class SearchSessionManager {
     await this.prisma.searchSession.update({
       where: { id: sessionId },
       data: {
-        // Prisma expects InputJsonValue — cast through unknown to satisfy the type
-        results: results as Parameters<
-          typeof this.prisma.searchSession.update
-        >[0]['data']['results'],
+        // biome-ignore lint/suspicious/noExplicitAny: Prisma 6 Json field
+        results: results as any,
         status: 'completed',
         updated_at: new Date(),
       },
@@ -77,36 +79,26 @@ export class SearchSessionManager {
     await this.prisma.searchSession.update({
       where: { id: sessionId },
       data: {
-        context: context as unknown as Parameters<
-          typeof this.prisma.searchSession.update
-        >[0]['data']['context'],
+        // biome-ignore lint/suspicious/noExplicitAny: Prisma 6 Json field
+        context: context as any,
         updated_at: new Date(),
       },
     });
   }
 
-  /**
-   * Persist Stage 1 candidate IDs into the session context so that
-   * search_tools_respond can resume from Stage 2 without re-running Stage 1.
-   */
   async saveCandidates(sessionId: string, ids: string[]): Promise<void> {
     const session = await this.prisma.searchSession.findUnique({ where: { id: sessionId } });
     const existing = (session?.context as Record<string, unknown> | null) ?? {};
     await this.prisma.searchSession.update({
       where: { id: sessionId },
       data: {
-        context: { ...existing, stage1_ids: ids } as Parameters<
-          typeof this.prisma.searchSession.update
-        >[0]['data']['context'],
+        // biome-ignore lint/suspicious/noExplicitAny: Prisma 6 Json field
+        context: { ...existing, stage1_ids: ids } as any,
         updated_at: new Date(),
       },
     });
   }
 
-  /**
-   * Retrieve the Stage 1 candidate IDs saved by saveCandidates.
-   * Returns an empty array if none were saved.
-   */
   async getCandidates(sessionId: string): Promise<string[]> {
     const session = await this.prisma.searchSession.findUnique({ where: { id: sessionId } });
     const ctx = session?.context as Record<string, unknown> | null;
@@ -114,10 +106,6 @@ export class SearchSessionManager {
     return Array.isArray(ids) ? (ids as string[]) : [];
   }
 
-  /**
-   * Return the set of clarification dimensions already asked in this session,
-   * so the ClarificationEngine doesn't repeat questions.
-   */
   async getAskedDimensions(sessionId: string): Promise<Set<string>> {
     const session = await this.prisma.searchSession.findUnique({ where: { id: sessionId } });
     const history = session?.clarification_history as Array<{

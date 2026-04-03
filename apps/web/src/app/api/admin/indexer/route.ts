@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/admin/prisma';
+import { withProxyGet } from '@/lib/admin/api-proxy';
 
-export async function GET() {
+async function directGET(): Promise<NextResponse> {
   try {
     const [statusCounts, recentlyIndexed, recentFailures, lastIndexedAt] = await Promise.all([
       prisma.indexedTool.groupBy({
@@ -57,3 +58,5 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
+
+export const GET = withProxyGet('/indexer/status', directGET);

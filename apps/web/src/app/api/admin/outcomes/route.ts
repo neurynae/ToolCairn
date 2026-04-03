@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/admin/prisma';
+import { withProxyGet } from '@/lib/admin/api-proxy';
 
 const QuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -9,7 +10,7 @@ const QuerySchema = z.object({
   processed: z.coerce.boolean().optional(),
 });
 
-export async function GET(request: NextRequest) {
+async function directGET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = request.nextUrl;
   const parsed = QuerySchema.safeParse(Object.fromEntries(searchParams));
   if (!parsed.success) {
@@ -42,3 +43,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
+
+export const GET = withProxyGet('/outcomes', directGET);

@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import pino from 'pino';
 import { prisma } from '@/lib/admin/prisma';
+import { PROXY_ENABLED, proxyPatch, withProxyGet } from '@/lib/admin/api-proxy';
 
 const logger = pino({ name: 'api:admin:settings' });
 
@@ -15,7 +16,7 @@ const PatchSettingsSchema = z.object({
   discovery_last_pushed_days: z.number().int().min(1).max(365).optional(),
 });
 
-export async function GET() {
+async function directGET(): Promise<NextResponse> {
   try {
     const settings = await prisma.appSettings.findUnique({
       where: { id: 'global' },
@@ -45,7 +46,7 @@ export async function GET() {
   }
 }
 
-export async function PATCH(request: Request) {
+async function directPATCH(request: Request): Promise<NextResponse> {
   try {
     const raw = await request.json();
     const parsed = PatchSettingsSchema.safeParse(raw);
@@ -87,4 +88,16 @@ export async function PATCH(request: Request) {
     logger.error({ err }, 'Failed to update settings');
     return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
   }
+}
+
+export const GET = withProxyGet('/settings', directGET);
+
+export async function PATCH(req: NextRequest): Promise<NextResponse> {
+  if (PROXY_ENABLED) {
+    const body = await req.json().catch(() => null);
+    const res = await proxyPatch('/settings', body);
+    const text = await res.text();
+    return new NextResponse(text, { status: res.status, headers: { 'Content-Type': 'application/json' } });
+  }
+  return directPATCH(req);
 }

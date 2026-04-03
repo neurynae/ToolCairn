@@ -1,13 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { listPendingReview } from '@/lib/admin/staged-review.service';
+import { withProxyGet } from '@/lib/admin/api-proxy';
 
 const QuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
 });
 
-export async function GET(request: NextRequest) {
+async function directGET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = request.nextUrl;
   const parsed = QuerySchema.safeParse({
     page: searchParams.get('page') ?? 1,
@@ -26,3 +27,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
+
+export const GET = withProxyGet('/review/nodes', directGET);
