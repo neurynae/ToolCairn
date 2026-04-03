@@ -21,46 +21,46 @@ export function StagedNodeCard({
   rejectPending,
 }: StagedNodeCardProps) {
   const confidencePct = Math.round(item.confidence * 100);
-  const confColor =
+  const confBadgeClass =
     confidencePct >= 70
-      ? 'text-emerald-400'
+      ? 'text-emerald-400 border-emerald-400/30 bg-emerald-400/10'
       : confidencePct >= 40
-        ? 'text-amber-400'
-        : 'text-red-400';
+        ? 'text-amber-400 border-amber-400/30 bg-amber-400/10'
+        : 'text-red-400 border-red-400/30 bg-red-400/10';
 
   const displayName =
     (item.nodeData.display_name as string) ?? (item.nodeData.name as string) ?? item.id;
   const description = (item.nodeData.description as string) ?? '';
 
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="text-xs uppercase tracking-wider">
-                {item.nodeType}
-              </Badge>
-              <span className="text-xs text-muted-foreground">{item.source}</span>
-            </div>
-            <h3 className="mt-1.5 text-sm font-semibold truncate">{displayName}</h3>
-            {description && (
-              <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{description}</p>
-            )}
-          </div>
-          <div className="shrink-0 text-right">
-            <p className={`text-lg font-bold ${confColor}`}>{confidencePct}%</p>
-            <p className="text-[10px] text-muted-foreground">confidence</p>
-          </div>
+        {/* Badge row: type + source + confidence all inline, no overflow */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge variant="outline" className="text-xs uppercase tracking-wider shrink-0">
+            {item.nodeType}
+          </Badge>
+          <span className="text-xs text-muted-foreground shrink-0">{item.source}</span>
+          <Badge
+            variant="outline"
+            className={`ml-auto text-xs font-semibold shrink-0 ${confBadgeClass}`}
+          >
+            {confidencePct}%
+          </Badge>
         </div>
+        {/* Title — truncates correctly within card width */}
+        <h3 className="mt-2 text-sm font-semibold leading-snug line-clamp-2">{displayName}</h3>
+        {description && (
+          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{description}</p>
+        )}
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex items-center justify-between">
+      <CardContent className="pt-0 mt-auto">
+        <div className="flex items-center justify-between gap-2">
           <p className="text-[10px] text-muted-foreground">
             {item.supportingQueries.length} supporting{' '}
             {item.supportingQueries.length === 1 ? 'query' : 'queries'}
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0">
             <Button
               size="sm"
               variant="outline"
