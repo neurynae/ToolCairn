@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/admin/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -60,6 +61,7 @@ function scoreBadgeClass(score: number): string {
 }
 
 export default function ToolsPage() {
+  const router = useRouter();
   const [data, setData] = useState<ToolsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -175,7 +177,11 @@ export default function ToolsPage() {
                 : data?.tools.map((tool) => {
                     const pct = Math.round(tool.maintenanceScore * 100);
                     return (
-                      <TableRow key={tool.id} className="cursor-pointer">
+                      <TableRow
+                        key={tool.id}
+                        className="cursor-pointer"
+                        onClick={() => router.push(`/admin/tools/${encodeURIComponent(tool.name)}`)}
+                      >
                         <TableCell>
                           <div>
                             <p className="font-medium text-sm">{tool.displayName}</p>

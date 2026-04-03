@@ -1,0 +1,44 @@
+import { NextResponse, type NextRequest } from 'next/server';
+import { z } from 'zod';
+import { prisma } from '@/lib/admin/prisma';
+
+const QuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  outcome: z.enum(['success', 'failure', 'replaced', 'pending']).optional(),
+  processed: z.coerce.boolean().optional(),
+});
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+  const parsed = QuerySchema.safeParse(Object.fromEntries(searchParams));
+  if (!parsed.success) {
+    return NextResponse.json({ ok: false, error: parsed.error.flatten() }, { status: 400 });
+  }
+
+  const { page, pageSize, outcome, processed } = parsed.data;
+  const where = {
+    ...(outcome && { outcome }),
+    ...(processed !== undefined && { processed }),
+  };
+
+  try {
+    const [items, total] = await Promise.all([
+      prisma.outcomeReport.findMany({
+        where,
+        orderBy: { created_at: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.outcomeReport.count({ where }),
+    ]);
+
+    return NextResponse.json({
+      ok: true,
+      data: { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+  }
+}

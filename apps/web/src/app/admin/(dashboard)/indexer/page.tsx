@@ -1,5 +1,8 @@
+import { Redis } from 'ioredis';
+import { config } from '@toolpilot/config';
 import { prisma } from '@/lib/admin/prisma';
 import { PageHeader } from '@/components/admin/page-header';
+import { IndexerActions } from '@/components/admin/indexer/indexer-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -65,6 +68,22 @@ async function fetchIndexerStats(): Promise<IndexerStats> {
   };
 }
 
+async function fetchQueueDepth(): Promise<{ index: number; scheduler: number }> {
+  const redis = new Redis(config.REDIS_URL, { lazyConnect: true, connectTimeout: 3000 });
+  try {
+    await redis.connect();
+    const [indexLen, schedulerLen] = await Promise.all([
+      redis.xlen('toolpilot:index').catch(() => 0),
+      redis.xlen('toolpilot:scheduler').catch(() => 0),
+    ]);
+    return { index: indexLen, scheduler: schedulerLen };
+  } catch {
+    return { index: 0, scheduler: 0 };
+  } finally {
+    redis.disconnect();
+  }
+}
+
 const STATUS_BADGE: Record<string, { label: string; className: string }> = {
   indexed: { label: 'indexed', className: 'text-emerald-400 border-emerald-400/30 bg-emerald-400/10' },
   pending: { label: 'pending', className: 'text-amber-400 border-amber-400/30 bg-amber-400/10' },
@@ -83,10 +102,15 @@ function StatusBadge({ status }: { status: string }) {
 
 export default async function IndexerPage() {
   let stats: IndexerStats | null = null;
+  let queueDepth = { index: 0, scheduler: 0 };
+
   try {
-    stats = await fetchIndexerStats();
+    [stats, queueDepth] = await Promise.all([fetchIndexerStats(), fetchQueueDepth()]);
   } catch {
-    // Postgres unavailable
+    // Postgres/Redis unavailable
+    if (!stats) {
+      try { stats = await fetchIndexerStats(); } catch { /* ignore */ }
+    }
   }
 
   if (!stats) {
@@ -112,6 +136,9 @@ export default async function IndexerPage() {
         title="Indexer"
         description={`${stats.total} tools tracked · Last indexed: ${lastIndexedLabel}`}
       />
+
+      {/* Actions + queue depth */}
+      <IndexerActions queueDepth={queueDepth} />
 
       {/* Status counters */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
