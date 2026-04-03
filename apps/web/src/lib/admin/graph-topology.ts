@@ -1,6 +1,7 @@
 import type { TopologyRow } from '@toolpilot/graph';
 
-// React Flow node/edge types (inline to avoid SSR import of @xyflow/react in server code)
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 export interface FlowNode {
   id: string;
   type: 'toolNode';
@@ -9,6 +10,7 @@ export interface FlowNode {
     name: string;
     displayName: string;
     category: string;
+    nodeType: 'Tool' | 'UseCase' | 'Pattern' | 'Stack';
     maintenanceScore: number;
     stars: number;
   };
@@ -40,47 +42,52 @@ export interface GraphTopologyResult {
   };
 }
 
-// Category → hue mapping for edge colouring (deterministic)
-const CATEGORY_COLORS: Record<string, string> = {
-  ai: '#6366f1',
-  search: '#0ea5e9',
-  database: '#10b981',
-  devtools: '#f59e0b',
-  monitoring: '#ef4444',
-  infra: '#8b5cf6',
-  messaging: '#ec4899',
-  storage: '#14b8a6',
-};
-
-function categoryColor(category: string): string {
-  return CATEGORY_COLORS[category.toLowerCase()] ?? '#94a3b8';
+// Topic edge from the second Memgraph query
+export interface TopicEdge {
+  toolId: string;
+  topicId: string;
+  topicNodeType: string;
+  edgeType: string;
 }
 
-/**
- * Cluster nodes by category in a radial layout.
- * Categories arranged in a circle; nodes within each cluster on a sub-grid.
- */
+// ─── Edge colors ──────────────────────────────────────────────────────────────
+
+const EDGE_COLORS: Record<string, string> = {
+  REQUIRES: '#818cf8', // violet
+  INTEGRATES_WITH: '#34d399', // emerald
+  SOLVES: '#f59e0b', // amber
+  FOLLOWS: '#f97316', // orange
+  BELONGS_TO: '#0ea5e9', // sky
+  REPLACES: '#f43f5e', // rose
+  CONFLICTS_WITH: '#ef4444', // red
+  COMPATIBLE_WITH: '#06b6d4', // cyan
+  POPULAR_WITH: '#a855f7', // purple
+};
+
+function edgeColor(edgeType: string): string {
+  return EDGE_COLORS[edgeType] ?? '#94a3b8';
+}
+
+// ─── Layout ───────────────────────────────────────────────────────────────────
+
 function computePositions(nodes: FlowNode[]): void {
-  // Group by category
   const clusters = new Map<string, FlowNode[]>();
   for (const node of nodes) {
-    const cat = node.data.category;
-    if (!clusters.has(cat)) clusters.set(cat, []);
-    clusters.get(cat)?.push(node);
+    const key = `${node.data.nodeType}:${node.data.category}`;
+    if (!clusters.has(key)) clusters.set(key, []);
+    clusters.get(key)?.push(node);
   }
 
-  const categories = [...clusters.keys()];
+  const clusterKeys = [...clusters.keys()];
   const CLUSTER_RADIUS = 400;
   const NODE_SPACING = 160;
   const NODES_PER_ROW = 4;
 
-  categories.forEach((cat, catIdx) => {
-    const angle = (2 * Math.PI * catIdx) / categories.length - Math.PI / 2;
+  clusterKeys.forEach((key, idx) => {
+    const angle = (2 * Math.PI * idx) / clusterKeys.length - Math.PI / 2;
     const cx = Math.cos(angle) * CLUSTER_RADIUS;
     const cy = Math.sin(angle) * CLUSTER_RADIUS;
-
-    // biome-ignore lint/style/noNonNullAssertion: cat was just inserted into clusters above
-    const clusterNodes = clusters.get(cat)!;
+    const clusterNodes = clusters.get(key)!;
     clusterNodes.forEach((node, i) => {
       const col = i % NODES_PER_ROW;
       const row = Math.floor(i / NODES_PER_ROW);
@@ -95,54 +102,45 @@ function computePositions(nodes: FlowNode[]): void {
   });
 }
 
-/**
- * Map raw Memgraph topology rows to React Flow nodes + edges.
- *
- * Key rules:
- * - Deduplicate nodes by sourceId (rows fan out for each edge).
- * - Skip edge creation when targetId is null (isolated node).
- * - Deduplicate edges by source+target+edgeType.
- * - Edge strokeWidth is proportional to effectiveWeight (1–6px range).
- */
-export function mapTopologyRows(rows: TopologyRow[]): GraphTopologyResult {
+// ─── Mapper ───────────────────────────────────────────────────────────────────
+
+export function mapTopologyRows(
+  rows: TopologyRow[],
+  topicEdges: TopicEdge[] = [],
+): GraphTopologyResult {
   const nodeMap = new Map<string, FlowNode>();
   const edgeSet = new Set<string>();
   const edges: FlowEdge[] = [];
 
+  // ── Tool nodes + Tool-to-Tool edges ──────────────────────────────────────
   for (const row of rows) {
-    // Upsert source node
     if (!nodeMap.has(row.sourceId)) {
       nodeMap.set(row.sourceId, {
         id: row.sourceId,
         type: 'toolNode',
-        position: { x: 0, y: 0 }, // positioned after all nodes are collected
+        position: { x: 0, y: 0 },
         data: {
           name: row.sourceName,
           displayName: row.sourceDisplayName ?? row.sourceName,
           category: row.sourceCategory,
+          nodeType: 'Tool',
           maintenanceScore: row.sourceMaintenanceScore ?? 0,
           stars: row.sourceStars ?? 0,
         },
       });
     }
 
-    // Skip edge rows with no target
-    if (row.targetId == null || row.edgeType == null || row.effectiveWeight == null) {
-      continue;
-    }
+    if (row.targetId == null || row.edgeType == null || row.effectiveWeight == null) continue;
 
-    // Deduplicate edges (undirected — canonicalize source < target)
     const [a, b] =
       row.sourceId < row.targetId ? [row.sourceId, row.targetId] : [row.targetId, row.sourceId];
-    const edgeKey = `${a}__${b}__${row.edgeType}`;
-    if (edgeSet.has(edgeKey)) continue;
-    edgeSet.add(edgeKey);
+    const key = `${a}__${b}__${row.edgeType}`;
+    if (edgeSet.has(key)) continue;
+    edgeSet.add(key);
 
     const weight = Math.max(0, Math.min(1, row.effectiveWeight));
-    const strokeWidth = 1 + weight * 5; // 1–6 px
-
     edges.push({
-      id: edgeKey,
+      id: key,
       source: row.sourceId,
       target: row.targetId,
       type: 'default',
@@ -153,25 +151,62 @@ export function mapTopologyRows(rows: TopologyRow[]): GraphTopologyResult {
         confidence: row.confidence ?? 0,
         edgeSource: row.edgeSource ?? '',
       },
-      style: {
-        strokeWidth,
-        stroke: categoryColor(row.sourceCategory),
+      style: { strokeWidth: 1 + weight * 5, stroke: edgeColor(row.edgeType) },
+    });
+  }
+
+  // ── Topic nodes (UseCase/Pattern/Stack) + their edges to Tools ───────────
+  for (const te of topicEdges) {
+    // Add topic node if not already present
+    const topicNodeType = te.topicNodeType as 'UseCase' | 'Pattern' | 'Stack';
+    if (!nodeMap.has(te.topicId)) {
+      nodeMap.set(te.topicId, {
+        id: te.topicId,
+        type: 'toolNode',
+        position: { x: 0, y: 0 },
+        data: {
+          name: te.topicId,
+          displayName: te.topicId,
+          category: topicNodeType.toLowerCase(),
+          nodeType: topicNodeType,
+          maintenanceScore: 0,
+          stars: 0,
+        },
+      });
+    }
+
+    // Topic edge: Tool → UseCase/Pattern/Stack
+    const edgeKey = `${te.toolId}__${te.topicId}__${te.edgeType}`;
+    if (edgeSet.has(edgeKey)) continue;
+    edgeSet.add(edgeKey);
+
+    edges.push({
+      id: edgeKey,
+      source: te.toolId,
+      target: te.topicId,
+      type: 'default',
+      data: {
+        edgeType: te.edgeType,
+        baseWeight: 0.5,
+        effectiveWeight: 0.5,
+        confidence: 0,
+        edgeSource: '',
       },
+      style: { strokeWidth: 1.5, stroke: edgeColor(te.edgeType) },
     });
   }
 
   const nodes = [...nodeMap.values()];
   computePositions(nodes);
 
-  const categories = [...new Set(nodes.map((n) => n.data.category))].sort();
+  // Only include Tool categories in the category filter
+  const categories = [
+    ...new Set(nodes.filter((n) => n.data.nodeType === 'Tool').map((n) => n.data.category)),
+  ].sort();
 
   return {
     nodes,
     edges,
-    stats: {
-      totalNodes: nodes.length,
-      totalEdges: edges.length,
-      categories,
-    },
+    stats: { totalNodes: nodes.length, totalEdges: edges.length, categories },
   };
 }

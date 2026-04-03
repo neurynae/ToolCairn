@@ -1,10 +1,28 @@
 import neo4j from 'neo4j-driver';
 import { GET_GRAPH_TOPOLOGY, getMemgraphSession, type TopologyRow } from '@toolpilot/graph';
 import { GraphCanvasLoader } from '@/components/admin/graph/graph-canvas-loader';
-import type { GraphTopologyResult } from '@/lib/admin/graph-topology';
+import type { GraphTopologyResult, TopicEdge } from '@/lib/admin/graph-topology';
 import { mapTopologyRows } from '@/lib/admin/graph-topology';
 import { PageHeader } from '@/components/admin/page-header';
 import { Button } from '@/components/ui/button';
+
+const TOPIC_LIMIT = 40;
+
+const GET_TOOL_TOPIC_EDGES = `
+UNWIND $toolIds AS toolId
+MATCH (t:Tool {id: toolId})-[e]->(topic)
+WHERE topic:UseCase OR topic:Pattern OR topic:Stack
+WITH topic.name AS topicId,
+     CASE WHEN topic:UseCase THEN 'UseCase'
+          WHEN topic:Pattern THEN 'Pattern'
+          ELSE 'Stack' END AS topicNodeType,
+     collect({toolId: t.id, edgeType: type(e)}) AS edges,
+     count(DISTINCT t.id) AS connCount
+ORDER BY connCount DESC
+LIMIT ${TOPIC_LIMIT}
+UNWIND edges AS edge
+RETURN edge.toolId AS toolId, topicId, topicNodeType, edge.edgeType AS edgeType
+`;
 
 function toNum(val: unknown): number {
   if (val == null) return 0;
@@ -13,11 +31,6 @@ function toNum(val: unknown): number {
     return (val as { toNumber(): number }).toNumber();
   }
   return Number(val) || 0;
-}
-
-function toNumOrNull(val: unknown): number | null {
-  if (val == null) return null;
-  return toNum(val);
 }
 
 async function fetchTopology(): Promise<GraphTopologyResult> {
@@ -37,13 +50,28 @@ async function fetchTopology(): Promise<GraphTopologyResult> {
       sourceStars: toNum(r.get('sourceStars')),
       targetId: r.get('targetId') as string | null,
       edgeType: r.get('edgeType') as string | null,
-      baseWeight: toNumOrNull(r.get('baseWeight')),
-      effectiveWeight: toNumOrNull(r.get('effectiveWeight')),
-      confidence: toNumOrNull(r.get('confidence')),
+      baseWeight: r.get('baseWeight') as number | null,
+      effectiveWeight: r.get('effectiveWeight') as number | null,
+      confidence: r.get('confidence') as number | null,
       edgeSource: r.get('edgeSource') as string | null,
     }));
 
-    return mapTopologyRows(rows);
+    const toolIds = [...new Set(rows.map((r) => r.sourceId))];
+    const topicEdges: TopicEdge[] = [];
+
+    if (toolIds.length > 0) {
+      const topicResult = await session.run(GET_TOOL_TOPIC_EDGES, { toolIds });
+      for (const rec of topicResult.records) {
+        topicEdges.push({
+          toolId: rec.get('toolId') as string,
+          topicId: rec.get('topicId') as string,
+          topicNodeType: rec.get('topicNodeType') as string,
+          edgeType: rec.get('edgeType') as string,
+        });
+      }
+    }
+
+    return mapTopologyRows(rows, topicEdges);
   } finally {
     await session.close();
   }
@@ -62,7 +90,7 @@ export default async function GraphPage() {
     <>
       <PageHeader
         title="Graph Mesh"
-        description={`${initialData.stats.totalNodes} tools · ${initialData.stats.totalEdges} edges — hover an edge to inspect weights`}
+        description={`${initialData.stats.totalNodes} nodes · ${initialData.stats.totalEdges} edges — hover to inspect, drag to rotate`}
         actions={
           <Button render={<a href="/admin/graph/edges" />} size="sm" variant="outline">
             Browse Edges

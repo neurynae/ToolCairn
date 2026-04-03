@@ -1,5 +1,13 @@
 'use client';
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
 interface GraphControlsProps {
   categories: string[];
   selectedCategory: string;
@@ -22,50 +30,49 @@ export function GraphControls({
   totalEdges,
 }: GraphControlsProps) {
   return (
-    <div className="flex items-center gap-4 flex-wrap">
+    <div className="flex items-center gap-3 flex-wrap px-3 py-2 border-b border-border bg-background/80 backdrop-blur-sm">
       <div className="flex items-center gap-2">
-        <label htmlFor="category-filter" className="text-xs text-gray-500 whitespace-nowrap">
-          Category
-        </label>
-        <select
-          id="category-filter"
-          value={selectedCategory}
-          onChange={(e) => onCategoryChange(e.target.value)}
-          className="text-sm border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="">All</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
+        <span className="text-xs text-muted-foreground whitespace-nowrap">Category</span>
+        <Select value={selectedCategory || ''} onValueChange={(v) => onCategoryChange(v ?? '')}>
+          <SelectTrigger size="sm" className="w-36">
+            <SelectValue placeholder="All" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex items-center gap-2">
-        <label htmlFor="node-limit" className="text-xs text-gray-500 whitespace-nowrap">
-          Limit
-        </label>
-        <select
-          id="node-limit"
-          value={nodeLimit}
-          onChange={(e) => onNodeLimitChange(Number(e.target.value))}
-          className="text-sm border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        <span className="text-xs text-muted-foreground whitespace-nowrap">Limit</span>
+        <Select
+          value={String(nodeLimit)}
+          onValueChange={(v) => onNodeLimitChange(Number(v ?? '50'))}
         >
-          {LIMITS.map((l) => (
-            <option key={l} value={l}>
-              {l}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger size="sm" className="w-20">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {LIMITS.map((l) => (
+              <SelectItem key={l} value={String(l)}>
+                {l}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <div className="ml-auto flex items-center gap-3 text-xs text-gray-400">
+      <div className="ml-auto flex items-center gap-3 text-xs text-muted-foreground">
         <span>
-          <span className="font-semibold text-gray-700">{totalNodes}</span> nodes
+          <span className="font-semibold text-foreground">{totalNodes}</span> nodes
         </span>
         <span>
-          <span className="font-semibold text-gray-700">{totalEdges}</span> edges
+          <span className="font-semibold text-foreground">{totalEdges}</span> edges
         </span>
       </div>
     </div>

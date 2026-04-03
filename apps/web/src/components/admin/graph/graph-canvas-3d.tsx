@@ -16,6 +16,7 @@ interface Graph3DNode {
   name: string;
   displayName: string;
   category: string;
+  nodeType: 'Tool' | 'UseCase' | 'Pattern' | 'Stack';
   maintenanceScore: number;
   stars: number;
   ox: number;
@@ -139,12 +140,36 @@ function getGlowTexture(): THREE.CanvasTexture | null {
 // would require a new callback reference which causes ForceGraph3D to
 // destroy and recreate EVERY node object, causing the shake + edge flicker.
 
-function makeBead(node: Graph3DNode): THREE.Mesh {
-  const score = node.maintenanceScore ?? 0;
-  const radius = 2.5 + score * 2.5;
-  const color = nodeHex(node.category);
+// Topic node colors (fixed, not category-based)
+const TOPIC_NODE_HEX: Record<string, number> = {
+  UseCase: 0x8b5cf6, // violet
+  Pattern: 0xf59e0b, // amber
+  Stack: 0x0ea5e9, // sky
+};
+const TOPIC_NODE_CSS: Record<string, string> = {
+  UseCase: '#8b5cf6',
+  Pattern: '#f59e0b',
+  Stack: '#0ea5e9',
+};
 
-  const geo = new THREE.SphereGeometry(radius, 16, 16);
+function makeBead(node: Graph3DNode): THREE.Mesh {
+  const isTopicNode = node.nodeType !== 'Tool';
+  const score = node.maintenanceScore ?? 0;
+  // Topic nodes are smaller, fixed size; Tools scale with health score
+  const radius = isTopicNode ? 3 : 2.5 + score * 2.5;
+  const color = isTopicNode ? (TOPIC_NODE_HEX[node.nodeType] ?? 0x8b5cf6) : nodeHex(node.category);
+
+  // Different geometry per node type
+  let geo: THREE.BufferGeometry;
+  if (node.nodeType === 'UseCase') {
+    geo = new THREE.OctahedronGeometry(radius * 1.2, 0);
+  } else if (node.nodeType === 'Pattern') {
+    geo = new THREE.TetrahedronGeometry(radius * 1.4, 0);
+  } else if (node.nodeType === 'Stack') {
+    geo = new THREE.BoxGeometry(radius * 1.6, radius * 1.6, radius * 1.6);
+  } else {
+    geo = new THREE.SphereGeometry(radius, 16, 16);
+  }
   const mat = new THREE.MeshPhongMaterial({
     color,
     emissive: color,
@@ -186,6 +211,7 @@ function toGraph3DData(topo: GraphTopologyResult): {
       name: n.data.name,
       displayName: n.data.displayName,
       category: n.data.category,
+      nodeType: (n.data.nodeType ?? 'Tool') as Graph3DNode['nodeType'],
       maintenanceScore: n.data.maintenanceScore,
       stars: n.data.stars,
       ox: pos.x,
@@ -220,7 +246,10 @@ function toGraph3DData(topo: GraphTopologyResult): {
 function HoverCard({ state }: { state: HoveredNodeState }) {
   const { node, screenX, screenY } = state;
   const score = Math.round((node.maintenanceScore ?? 0) * 100);
-  const color = nodeCss(node.category);
+  const color =
+    node.nodeType !== 'Tool'
+      ? (TOPIC_NODE_CSS[node.nodeType] ?? '#8b5cf6')
+      : nodeCss(node.category);
   const scoreColor = score >= 70 ? '#34d399' : score >= 40 ? '#fbbf24' : '#f87171';
 
   return (
@@ -456,8 +485,18 @@ export function GraphCanvas3D({ initialData }: GraphCanvas3DProps) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally empty
   const linkThreeObject = useCallback((linkRaw: object): THREE.Line => {
     const link = linkRaw as Graph3DLink;
-    // Brighter colors for better visibility
-    const color = link.edgeType === 'REQUIRES' ? 0xa78bfa : 0x6ee7b7;
+    const EDGE_HEX: Record<string, number> = {
+      REQUIRES: 0xa78bfa, // violet
+      INTEGRATES_WITH: 0x6ee7b7, // emerald
+      SOLVES: 0xfcd34d, // amber
+      FOLLOWS: 0xfb923c, // orange
+      BELONGS_TO: 0x38bdf8, // sky
+      REPLACES: 0xfb7185, // rose
+      CONFLICTS_WITH: 0xf87171, // red
+      COMPATIBLE_WITH: 0x22d3ee, // cyan
+      POPULAR_WITH: 0xc084fc, // purple
+    };
+    const color = EDGE_HEX[link.edgeType] ?? 0x94a3b8;
     const geo = new THREE.BufferGeometry();
     const pos = new THREE.BufferAttribute(new Float32Array(6), 3);
     pos.setUsage(THREE.DynamicDrawUsage);
@@ -786,38 +825,52 @@ export function GraphCanvas3D({ initialData }: GraphCanvas3DProps) {
 
         {/* Legend */}
         <div
-          className="absolute bottom-3 left-3 flex flex-col gap-1.5 pointer-events-none"
+          className="absolute bottom-3 left-3 flex gap-4 pointer-events-none"
           style={{
-            background: 'rgba(7,11,24,0.75)',
+            background: 'rgba(7,11,24,0.82)',
             border: '1px solid rgba(255,255,255,0.06)',
-            borderRadius: '8px',
-            padding: '8px 12px',
+            borderRadius: '10px',
+            padding: '10px 14px',
           }}
         >
-          <p className="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Edge type</p>
-          <div className="flex items-center gap-2">
-            <span
-              style={{
-                display: 'inline-block',
-                width: 24,
-                height: 2,
-                background: '#818cf8',
-                borderRadius: 1,
-              }}
-            />
-            <span className="text-[10px] text-slate-400">REQUIRES</span>
+          {/* Edge types */}
+          <div className="flex flex-col gap-1">
+            <p className="text-[9px] text-slate-500 uppercase tracking-widest mb-0.5">Edges</p>
+            {[
+              { color: '#a78bfa', label: 'REQUIRES' },
+              { color: '#6ee7b7', label: 'INTEGRATES_WITH' },
+              { color: '#fcd34d', label: 'SOLVES' },
+              { color: '#fb923c', label: 'FOLLOWS' },
+              { color: '#38bdf8', label: 'BELONGS_TO' },
+            ].map(({ color, label }) => (
+              <div key={label} className="flex items-center gap-2">
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: 20,
+                    height: 2,
+                    background: color,
+                    borderRadius: 1,
+                  }}
+                />
+                <span className="text-[9px] text-slate-400">{label}</span>
+              </div>
+            ))}
           </div>
-          <div className="flex items-center gap-2">
-            <span
-              style={{
-                display: 'inline-block',
-                width: 24,
-                height: 2,
-                background: '#34d399',
-                borderRadius: 1,
-              }}
-            />
-            <span className="text-[10px] text-slate-400">INTEGRATES_WITH</span>
+          {/* Node types */}
+          <div className="flex flex-col gap-1">
+            <p className="text-[9px] text-slate-500 uppercase tracking-widest mb-0.5">Nodes</p>
+            {[
+              { color: '#94a3b8', label: 'Tool', shape: '●' },
+              { color: '#8b5cf6', label: 'UseCase', shape: '◆' },
+              { color: '#f59e0b', label: 'Pattern', shape: '▲' },
+              { color: '#0ea5e9', label: 'Stack', shape: '■' },
+            ].map(({ color, label, shape }) => (
+              <div key={label} className="flex items-center gap-2">
+                <span style={{ color, fontSize: 10 }}>{shape}</span>
+                <span className="text-[9px] text-slate-400">{label}</span>
+              </div>
+            ))}
           </div>
         </div>
 
