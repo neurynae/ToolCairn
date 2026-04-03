@@ -31,13 +31,17 @@ export interface EdgeWeightSummaryRow {
  * Fetch Tool nodes and their edges for graph mesh visualization.
  * Uses OPTIONAL MATCH so isolated nodes (no edges) still appear as rows with null target fields.
  * Computes temporal decay (effective_weight) inline at query time.
+ * Only returns edges where both source and target are in the selected node set.
  */
 export const GET_GRAPH_TOPOLOGY = {
   text: `MATCH (t:Tool)
 WHERE $category = '' OR t.category = $category
 WITH t LIMIT $nodeLimit
+WITH collect(t) AS nodes
+WITH nodes, [n IN nodes | n.id] AS nodeIds
+UNWIND nodes AS t
 OPTIONAL MATCH (t)-[e]-(related:Tool)
-WHERE ($category = '' OR related.category = $category) AND id(related) <> id(t)
+WHERE related.id IN nodeIds AND id(related) <> id(t)
 WITH t, related, e,
      CASE WHEN e IS NULL THEN null
           WHEN e.last_verified IS NULL THEN e.weight

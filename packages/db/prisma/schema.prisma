@@ -132,3 +132,20 @@ model IndexedTool {
   @@index([index_status])
   @@index([last_indexed_at])
 }
+
+// ─── App Settings ─────────────────────────────────────────────────────────────
+
+/// Global application settings and feature toggles
+model AppSettings {
+  id                          String   @id @default("global")
+  reindex_scheduler_enabled   Boolean  @default(true)
+  discovery_scheduler_enabled Boolean  @default(false)
+  discovery_topics            String[] @default([])
+  discovery_batch_size        Int      @default(20)
+  discovery_interval_hours    Int      @default(24)
+  discovery_min_stars         Int      @default(100)
+  discovery_last_pushed_days  Int      @default(90)
+  last_discovery_run          DateTime?
+  last_reindex_run            DateTime?
+  updated_at                  DateTime @updatedAt
+}

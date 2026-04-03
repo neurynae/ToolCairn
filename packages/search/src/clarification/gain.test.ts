@@ -33,6 +33,7 @@ function makeTool(overrides: Partial<ToolNode> & Pick<ToolNode, 'id' | 'name'>):
     package_managers: {},
     health: makeHealth(),
     docs: {},
+    topics: [],
     created_at: '2024-01-01',
     updated_at: '2024-01-01',
     ...overrides,
@@ -78,40 +79,40 @@ describe('InformationGainCalculator', () => {
     });
 
     it('should return positive gain when values are evenly split across a dimension', () => {
-      // category dimension has 2 tools each with a distinct category.
+      // topics dimension has 2 tools each with a distinct first topic.
       // Entropy of [1,1] = -0.5*log2(0.5) - 0.5*log2(0.5) = 1 bit.
       const calc = new InformationGainCalculator();
       const tools = [
-        makeTool({ id: 'a', name: 'a', category: 'vector-database' }),
-        makeTool({ id: 'b', name: 'b', category: 'graph-database' }),
+        makeTool({ id: 'a', name: 'a', topics: ['vector-database'] }),
+        makeTool({ id: 'b', name: 'b', topics: ['graph-database'] }),
       ];
       const result = calc.compute(tools);
-      const categoryGain = result.get('category') ?? 0;
-      expect(categoryGain).toBeGreaterThan(IG_THRESHOLD);
+      const topicsGain = result.get('topics') ?? 0;
+      expect(topicsGain).toBeGreaterThan(IG_THRESHOLD);
     });
 
     it('should return higher gain for a more-evenly-split dimension vs a skewed dimension', () => {
-      // category: 4 distinct values (max entropy) vs license: all same value (0 entropy).
+      // topics: 4 distinct first-topics (max entropy) vs license: all same value (0 entropy).
       const calc = new InformationGainCalculator();
       const tools = [
-        makeTool({ id: 'a', name: 'a', category: 'vector-database', license: 'MIT' }),
-        makeTool({ id: 'b', name: 'b', category: 'graph-database', license: 'MIT' }),
-        makeTool({ id: 'c', name: 'c', category: 'llm-framework', license: 'MIT' }),
-        makeTool({ id: 'd', name: 'd', category: 'testing', license: 'MIT' }),
+        makeTool({ id: 'a', name: 'a', topics: ['vector-database'], license: 'MIT' }),
+        makeTool({ id: 'b', name: 'b', topics: ['graph-database'], license: 'MIT' }),
+        makeTool({ id: 'c', name: 'c', topics: ['llm-framework'], license: 'MIT' }),
+        makeTool({ id: 'd', name: 'd', topics: ['testing'], license: 'MIT' }),
       ];
       const result = calc.compute(tools);
-      const categoryGain = result.get('category') ?? 0;
+      const topicsGain = result.get('topics') ?? 0;
       const licenseGain = result.get('license') ?? 0;
-      expect(categoryGain).toBeGreaterThan(licenseGain);
+      expect(topicsGain).toBeGreaterThan(licenseGain);
     });
 
     it('should sort dimensions in descending order of information gain', () => {
-      // category is diverse, license is uniform — category should appear before license in iteration.
+      // topics is diverse, license is uniform — topics should appear before license in iteration.
       const calc = new InformationGainCalculator();
       const tools = [
-        makeTool({ id: 'a', name: 'a', category: 'vector-database', license: 'MIT' }),
-        makeTool({ id: 'b', name: 'b', category: 'graph-database', license: 'MIT' }),
-        makeTool({ id: 'c', name: 'c', category: 'llm-framework', license: 'MIT' }),
+        makeTool({ id: 'a', name: 'a', topics: ['vector-database'], license: 'MIT' }),
+        makeTool({ id: 'b', name: 'b', topics: ['graph-database'], license: 'MIT' }),
+        makeTool({ id: 'c', name: 'c', topics: ['llm-framework'], license: 'MIT' }),
       ];
       const result = calc.compute(tools);
       const entries = [...result.entries()];
@@ -170,13 +171,13 @@ describe('InformationGainCalculator', () => {
     });
 
     it('should compute exactly 1 bit of entropy for a perfectly balanced binary split', () => {
-      // 2 tools, each with a different category: entropy = -0.5*log2(0.5)*2 = 1.
+      // 2 tools, each with different values for every dimension: entropy = 1 bit each.
       const calc = new InformationGainCalculator();
       const tools = [
         makeTool({
           id: 'a',
           name: 'a',
-          category: 'vector-database',
+          topics: ['vector-database'],
           license: 'MIT',
           language: 'TypeScript',
           deployment_models: ['cloud'],
@@ -185,7 +186,7 @@ describe('InformationGainCalculator', () => {
         makeTool({
           id: 'b',
           name: 'b',
-          category: 'graph-database',
+          topics: ['graph-database'],
           license: 'Apache-2.0',
           language: 'Go',
           deployment_models: ['self-hosted'],

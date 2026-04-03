@@ -7,7 +7,7 @@ const B = 0.75;
 const FIELD_WEIGHTS = {
   name: 3.0,
   description: 1.0,
-  category: 0.5,
+  topics: 0.5,
 } as const;
 
 type Field = keyof typeof FIELD_WEIGHTS;
@@ -16,7 +16,7 @@ interface DocTokens {
   id: string;
   name: string[];
   description: string[];
-  category: string[];
+  topics: string[];
   len: number;
 }
 
@@ -33,28 +33,42 @@ function tokenize(text: string): string[] {
     .filter((t) => t.length > 1);
 }
 
+/**
+ * Tokenize a tool name for BM25 indexing.
+ * Uses the full identifier as a single token instead of splitting on word boundaries.
+ * e.g. "node-bunyan" → ["node-bunyan"] — not ["node", "bunyan"]
+ *
+ * This prevents platform prefix tokens like "node" from matching unrelated tools
+ * (node-bunyan, node-redis, node-cron) when a query mentions "Node.js" as context.
+ * Semantic relevance is handled by vector search; BM25 handles exact name lookup.
+ */
+function tokenizeName(name: string): string[] {
+  const lower = name.toLowerCase().trim();
+  return lower.length > 0 ? [lower] : [];
+}
+
 export function buildBm25Index(tools: ToolNode[]): Bm25IndexData {
   const docs = new Map<string, DocTokens>();
   const df = new Map<string, number>();
   let totalLen = 0;
 
   for (const tool of tools) {
-    const nameTokens = tokenize(`${tool.name} ${tool.display_name}`);
+    const nameTokens = tokenizeName(tool.name);
     const descTokens = tokenize(tool.description);
-    const catTokens = tokenize(tool.category);
-    const len = nameTokens.length + descTokens.length + catTokens.length;
+    const topicTokens = tokenize((tool.topics ?? []).join(' '));
+    const len = nameTokens.length + descTokens.length + topicTokens.length;
 
     docs.set(tool.id, {
       id: tool.id,
       name: nameTokens,
       description: descTokens,
-      category: catTokens,
+      topics: topicTokens,
       len,
     });
     totalLen += len;
 
     const seen = new Set<string>();
-    for (const token of [...nameTokens, ...descTokens, ...catTokens]) {
+    for (const token of [...nameTokens, ...descTokens, ...topicTokens]) {
       if (!seen.has(token)) {
         seen.add(token);
         df.set(token, (df.get(token) ?? 0) + 1);

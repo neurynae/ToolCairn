@@ -1,106 +1,131 @@
+/**
+ * check_issue — Checks GitHub directly for known issues matching an error.
+ *
+ * IMPORTANT: This is a last-resort tool. The agent should:
+ *   1. Try to fix the error itself (2 retries)
+ *   2. Consult the tool's documentation (2 more retries)
+ *   3. ONLY THEN call check_issue (pass retry_count≥4, docs_consulted=true)
+ *
+ * This prevents spamming the GitHub API for errors that are config issues,
+ * environment problems, or things the docs would explain.
+ *
+ * Flow:
+ *   1. Gate: enforce retry + docs requirements
+ *   2. Look up tool's github_url in Memgraph
+ *   3. Search GitHub Issues API directly (no local DB — live data)
+ *   4. Also search for PRs that may fix the issue
+ *   5. Return one of four statuses:
+ *      - not_found:           no matching issue on GitHub → agent handles it
+ *      - fix_in_progress:     open issue + open PR exists → track PR
+ *      - known_issue_no_fix:  open issue, no PR → gist + ask user intent
+ *      - fixed_in_version:    closed issue → which version fixed it
+ *   6. In real-issue cases (3/4): add 👍 reaction to the issue via GitHub API
+ */
+
 import { config } from '@toolpilot/config';
 import { MemgraphToolRepository } from '@toolpilot/graph';
-import { ISSUES_COLLECTION_NAME, embedText, qdrantClient } from '@toolpilot/vector';
 import pino from 'pino';
 import { errResult, okResult } from '../utils.js';
 
 const logger = pino({ name: '@toolpilot/mcp-server:check-issue' });
 const repo = new MemgraphToolRepository();
 
-const THRESHOLD_CONFIRMED = 0.8;
-const THRESHOLD_POSSIBLY = 0.6;
-const SEARCH_LIMIT = 5;
+const DOCS_RETRY_THRESHOLD = 4; // total retries before check_issue is appropriate
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── GitHub API helpers ───────────────────────────────────────────────────────
 
-interface IssuePayload {
-  tool_name: string;
-  issue_number: number;
+interface GitHubIssue {
+  number: number;
   title: string;
-  body: string;
-  state: string;
-  labels: string[];
-  github_url: string;
-  repo_url: string;
+  body: string | null;
+  state: 'open' | 'closed';
+  html_url: string;
+  pull_request?: { merged_at: string | null; html_url: string };
+  labels: Array<{ name: string }>;
+  comments: number;
   created_at: string;
   updated_at: string;
+  closed_at: string | null;
+  reactions?: { '+1': number; total_count: number };
 }
 
-interface ScoredHit {
-  payload: IssuePayload;
-  score: number;
+interface GitHubSearchResult {
+  total_count: number;
+  items: GitHubIssue[];
 }
 
-// ─── Inline BM25 scorer for keyword fallback ──────────────────────────────────
-
-function tokenize(text: string): string[] {
-  return text
-    .toLowerCase()
-    .split(/\W+/)
-    .filter((t) => t.length > 1);
-}
-
-function bm25IssueScore(query: string, title: string, body: string): number {
-  const K1 = 1.5;
-  const B = 0.75;
-  const AVG_LEN = 50;
-  const qTokens = tokenize(query);
-  const titleToks = tokenize(title);
-  const bodyToks = tokenize(body);
-  const len = titleToks.length + bodyToks.length;
-  let score = 0;
-  for (const qt of qTokens) {
-    const tf =
-      titleToks.filter((t) => t === qt).length * 3.0 + bodyToks.filter((t) => t === qt).length;
-    if (tf === 0) continue;
-    score += (tf * (K1 + 1)) / (tf + K1 * (1 - B + B * (len / AVG_LEN)));
+function githubHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
+  if (config.GITHUB_TOKEN) {
+    headers['Authorization'] = `Bearer ${config.GITHUB_TOKEN}`;
   }
-  return score;
+  return headers;
 }
 
-// ─── Response builder ─────────────────────────────────────────────────────────
+async function searchGitHubIssues(
+  owner: string,
+  repoName: string,
+  query: string,
+  type: 'issue' | 'pr',
+): Promise<GitHubIssue[]> {
+  const q = encodeURIComponent(`${query} repo:${owner}/${repoName} type:${type}`);
+  const url = `https://api.github.com/search/issues?q=${q}&sort=relevance&per_page=5`;
 
-function buildResponse(toolName: string, issueTitle: string, hits: ScoredHit[], isBm25: boolean) {
-  const top = hits[0];
-  const searchMode = isBm25 ? 'bm25_fallback' : 'vector';
-
-  if (!top || top.score < THRESHOLD_POSSIBLY) {
-    return okResult({
-      status: 'unreported',
-      tool: toolName,
-      message: `No matching issue found for '${toolName}'. This may be unreported.`,
-      search_mode: searchMode,
-      matches: [],
-    });
+  const res = await fetch(url, { headers: githubHeaders() });
+  if (!res.ok) {
+    if (res.status === 422 || res.status === 403) return []; // rate limit or bad query
+    throw new Error(`GitHub Search API error: ${res.status}`);
   }
+  const data = (await res.json()) as GitHubSearchResult;
+  return data.items ?? [];
+}
 
-  const status = top.score >= THRESHOLD_CONFIRMED ? 'confirmed_known_issue' : 'possibly_related';
-  const p = top.payload;
+async function addReaction(owner: string, repoName: string, issueNumber: number): Promise<boolean> {
+  if (!config.GITHUB_TOKEN) return false; // reactions require auth
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${owner}/${repoName}/issues/${issueNumber}/reactions`,
+      {
+        method: 'POST',
+        headers: { ...githubHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: '+1' }),
+      },
+    );
+    return res.ok || res.status === 200;
+  } catch {
+    return false;
+  }
+}
 
-  return okResult({
-    status,
-    tool: toolName,
-    top_match: {
-      issue_number: p.issue_number,
-      title: p.title,
-      state: p.state,
-      labels: p.labels,
-      github_url: p.github_url,
-      similarity: Math.round(top.score * 1000) / 1000,
-    },
-    message:
-      status === 'confirmed_known_issue'
-        ? `This is a confirmed known issue in ${toolName}. See: ${p.github_url}`
-        : `Possibly related to a known issue in ${toolName}. Review: ${p.github_url}`,
-    search_mode: searchMode,
-    matches: hits.slice(0, SEARCH_LIMIT).map((h) => ({
-      issue_number: h.payload.issue_number,
-      title: h.payload.title,
-      state: h.payload.state,
-      github_url: h.payload.github_url,
-      similarity: Math.round(h.score * 1000) / 1000,
-    })),
-  });
+/**
+ * Extract a concise gist from an issue (title + key labels + first 500 chars of body).
+ */
+function buildIssueGist(issue: GitHubIssue): string {
+  const labels = issue.labels.map((l) => l.name).join(', ');
+  const bodySnippet = (issue.body ?? '').slice(0, 500).replace(/\r?\n/g, ' ');
+  return [
+    `Title: ${issue.title}`,
+    labels ? `Labels: ${labels}` : null,
+    bodySnippet
+      ? `Description: ${bodySnippet}${issue.body && issue.body.length > 500 ? '...' : ''}`
+      : null,
+    `State: ${issue.state}`,
+    `Comments: ${issue.comments}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+/**
+ * Parse owner/repo from a GitHub URL.
+ */
+function parseGitHubRepo(githubUrl: string): { owner: string; repo: string } | null {
+  const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/i);
+  if (!match) return null;
+  return { owner: match[1]!, repo: match[2]!.replace(/\.git$/, '') };
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
@@ -108,89 +133,180 @@ function buildResponse(toolName: string, issueTitle: string, hits: ScoredHit[], 
 export async function handleCheckIssue(args: {
   tool_name: string;
   issue_title: string;
+  retry_count?: number;
+  docs_consulted?: boolean;
   issue_url?: string;
 }) {
   try {
-    logger.info({ tool_name: args.tool_name, issue_title: args.issue_title }, 'check_issue called');
+    const retryCount = args.retry_count ?? 0;
+    const docsConsulted = args.docs_consulted ?? false;
 
-    // 1. Verify tool exists in Memgraph
+    logger.info(
+      { tool_name: args.tool_name, issue_title: args.issue_title, retryCount, docsConsulted },
+      'check_issue called',
+    );
+
+    // ── Gate: enforce "docs first, then issues" protocol ─────────────────────
+    if (retryCount < DOCS_RETRY_THRESHOLD || !docsConsulted) {
+      const nextStep = !docsConsulted
+        ? "Consult the documentation link in the tool's prompt_hint before calling check_issue. Read the changelog and README carefully — most errors are config or version issues."
+        : `Retry at least ${DOCS_RETRY_THRESHOLD} times total before checking GitHub issues. You have tried ${retryCount} time(s).`;
+
+      return okResult({
+        status: 'too_early',
+        message: 'check_issue is a last resort. Exhaust documentation and retries first.',
+        retry_count: retryCount,
+        docs_consulted: docsConsulted,
+        next_step: nextStep,
+        agent_instructions: [
+          '1. Try to fix the error yourself (up to 2 retries).',
+          "2. Read the tool's documentation — use the docs_url/readme_url from search_tools results.",
+          '3. Apply documentation guidance and retry (up to 2 more retries).',
+          '4. Only call check_issue after 4+ total retries AND docs_consulted=true.',
+        ].join(' '),
+      });
+    }
+
+    // ── Look up tool in Memgraph to get github_url ────────────────────────────
     const toolResult = await repo.findByName(args.tool_name);
     if (!toolResult.ok) {
       return errResult('db_error', toolResult.error.message);
     }
     if (!toolResult.data) {
-      return errResult('tool_not_found', `Tool '${args.tool_name}' is not in the ToolPilot index`);
+      return errResult(
+        'tool_not_found',
+        `Tool '${args.tool_name}' is not in the ToolPilot index. Try search_tools to find the correct tool name.`,
+      );
+    }
+    const tool = toolResult.data;
+
+    const parsed = parseGitHubRepo(tool.github_url);
+    if (!parsed) {
+      return errResult('parse_error', `Cannot parse GitHub repo from: ${tool.github_url}`);
+    }
+    const { owner, repo: repoName } = parsed;
+
+    // ── Search GitHub Issues + PRs directly ──────────────────────────────────
+    logger.info({ owner, repo: repoName, query: args.issue_title }, 'Searching GitHub issues');
+
+    const [issues, prs] = await Promise.all([
+      searchGitHubIssues(owner, repoName, args.issue_title, 'issue'),
+      searchGitHubIssues(owner, repoName, args.issue_title, 'pr'),
+    ]);
+
+    // ── CASE 1: Nothing found ─────────────────────────────────────────────────
+    if (issues.length === 0 && prs.length === 0) {
+      return okResult({
+        status: 'not_found',
+        tool: args.tool_name,
+        message: `No matching issue found on GitHub for '${args.tool_name}'. The problem may be specific to your environment or configuration.`,
+        github_issues_url: `${tool.github_url}/issues`,
+        agent_instructions: [
+          'No known GitHub issue matches this error.',
+          'Investigate: (1) environment/config differences, (2) version mismatch, (3) incorrect usage pattern.',
+          'Re-read the documentation section relevant to this error.',
+          'Consider searching GitHub manually with different keywords.',
+        ].join(' '),
+      });
     }
 
-    // 2. Vector search path (when NOMIC_API_KEY is available)
-    if (config.NOMIC_API_KEY) {
-      const queryVector = await embedText(args.issue_title, 'search_query');
-      const results = await qdrantClient().search(ISSUES_COLLECTION_NAME, {
-        vector: queryVector,
-        limit: SEARCH_LIMIT,
-        with_payload: true,
-        filter: {
-          must: [{ key: 'tool_name', match: { value: args.tool_name } }],
-        },
+    // Find the most relevant open issue
+    const openIssues = issues.filter((i) => i.state === 'open');
+    const closedIssues = issues.filter((i) => i.state === 'closed');
+    const topIssue = openIssues[0] ?? closedIssues[0];
+
+    // Find related open PRs (not merged yet)
+    const openPrs = prs.filter((pr) => pr.state === 'open');
+    const mergedPrs = prs.filter((pr) => pr.pull_request?.merged_at != null);
+    const topPr = openPrs[0] ?? mergedPrs[0];
+
+    // ── CASE 4: Fixed in a closed issue + merged PR ───────────────────────────
+    if (!topIssue || topIssue.state === 'closed') {
+      const fixInfo = mergedPrs[0]
+        ? `PR #${mergedPrs[0].number} was merged: ${mergedPrs[0].html_url}`
+        : `Issue was closed: ${topIssue?.html_url ?? tool.github_url + '/issues'}`;
+
+      return okResult({
+        status: 'fixed_in_version',
+        tool: args.tool_name,
+        issue: topIssue
+          ? {
+              number: topIssue.number,
+              title: topIssue.title,
+              github_url: topIssue.html_url,
+              closed_at: topIssue.closed_at,
+            }
+          : null,
+        fix_info: fixInfo,
+        message: `This issue appears to have been fixed. ${fixInfo}`,
+        agent_instructions:
+          'Update the tool to the latest version to get this fix. Check the PR/release notes for the specific version.',
       });
-
-      const hits: ScoredHit[] = (results as Array<{ payload: unknown; score: number }>).map(
-        (r) => ({ payload: r.payload as IssuePayload, score: r.score }),
-      );
-
-      logger.info(
-        { tool_name: args.tool_name, hits: hits.length, topScore: hits[0]?.score },
-        'check_issue vector search complete',
-      );
-
-      return buildResponse(args.tool_name, args.issue_title, hits, false);
     }
 
-    // 3. BM25 fallback (no NOMIC_API_KEY) — scroll all issues for this tool
-    logger.warn({ tool_name: args.tool_name }, 'NOMIC_API_KEY absent — using BM25 fallback');
+    // ── Add 👍 reaction to the issue (signal that others have hit this too) ───
+    const reactionAdded = await addReaction(owner, repoName, topIssue.number);
+    logger.info({ issue: topIssue.number, reactionAdded }, 'Attempted to add 👍 reaction to issue');
 
-    const allPoints: Array<{ payload: unknown }> = [];
-    let offset: string | number | null = null;
-
-    do {
-      const page = await qdrantClient().scroll(ISSUES_COLLECTION_NAME, {
-        filter: {
-          must: [{ key: 'tool_name', match: { value: args.tool_name } }],
+    // ── CASE 2: Open issue + open PR exists ───────────────────────────────────
+    if (topPr && topPr.state === 'open') {
+      return okResult({
+        status: 'fix_in_progress',
+        tool: args.tool_name,
+        issue: {
+          number: topIssue.number,
+          title: topIssue.title,
+          github_url: topIssue.html_url,
+          gist: buildIssueGist(topIssue),
         },
-        limit: 100,
-        with_payload: true,
-        with_vector: false,
-        ...(offset != null ? { offset } : {}),
+        pr: {
+          number: topPr.number,
+          title: topPr.title,
+          github_url: topPr.html_url,
+          state: 'open',
+        },
+        reaction_added: reactionAdded,
+        message: `Known issue — a fix is in progress (PR #${topPr.number}). Your 👍 reaction was ${reactionAdded ? 'added' : 'not added (no GitHub token)'} to signal impact.`,
+        agent_instructions:
+          'A fix is in progress. Consider: (1) checking if a pre-release/nightly build has the fix, (2) applying a temporary workaround, (3) tracking the PR for a stable release.',
       });
-      allPoints.push(...(page.points as Array<{ payload: unknown }>));
-      offset = (page.next_page_offset as string | number | null | undefined) ?? null;
-    } while (offset != null);
+    }
 
-    const scored = allPoints
-      .map((p) => {
-        const payload = p.payload as IssuePayload;
-        return {
-          payload,
-          score: bm25IssueScore(args.issue_title, payload.title, payload.body),
-        };
-      })
-      .filter((r) => r.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, SEARCH_LIMIT);
-
-    // Normalize scores to [0, 1] (max item = 1.0)
-    const maxScore = scored[0]?.score ?? 1;
-    const hits: ScoredHit[] = scored.map((r) => ({
-      payload: r.payload,
-      score: r.score / maxScore,
-    }));
-
-    logger.info(
-      { tool_name: args.tool_name, totalScanned: allPoints.length, hits: hits.length },
-      'check_issue BM25 search complete',
-    );
-
-    return buildResponse(args.tool_name, args.issue_title, hits, true);
+    // ── CASE 3: Open issue, no PR ─────────────────────────────────────────────
+    return okResult({
+      status: 'known_issue_no_fix',
+      tool: args.tool_name,
+      issue: {
+        number: topIssue.number,
+        title: topIssue.title,
+        github_url: topIssue.html_url,
+        state: topIssue.state,
+        comments: topIssue.comments,
+        created_at: topIssue.created_at,
+        gist: buildIssueGist(topIssue),
+      },
+      reaction_added: reactionAdded,
+      other_matching_issues: openIssues.slice(1, 3).map((i) => ({
+        number: i.number,
+        title: i.title,
+        github_url: i.html_url,
+      })),
+      message: `Known open issue (#${topIssue.number}): "${topIssue.title}". Your 👍 reaction was ${reactionAdded ? 'added' : 'not added'} to signal impact.`,
+      user_action_required: {
+        question:
+          'What would you like to do? Options: (a) Create a new issue report if your case has additional detail, (b) Handle it later, (c) Ignore.',
+        if_create_issue:
+          "Ask the agent to generate an issue template — you can copy and paste it to GitHub manually. The agent will follow the repo's issue template format.",
+        github_new_issue_url: `${tool.github_url}/issues/new`,
+      },
+      agent_instructions: [
+        `Issue #${topIssue.number} is open with no fix yet.`,
+        'Ask the user whether they want to: (a) create a new issue, (b) handle it later, (c) ignore.',
+        "If user wants to create an issue: generate a detailed issue template using the repo's issue format, present it for the user to copy-paste manually.",
+        'Do NOT auto-submit any GitHub issue — always require explicit user action.',
+        'In the meantime, explore workarounds: different config, version pinning, or alternative approaches.',
+      ].join(' '),
+    });
   } catch (e) {
     logger.error({ err: e, tool_name: args.tool_name }, 'check_issue failed');
     return errResult('internal_error', e instanceof Error ? e.message : String(e));

@@ -3,6 +3,7 @@ import {
   type AgentType,
   getInstructionsForAgent,
   getMcpConfigEntry,
+  getOpenCodeMcpEntry,
 } from '../templates/agent-instructions.js';
 import { errResult, okResult } from '../utils.js';
 import { generateTrackerHtml } from './generate-tracker.js';
@@ -19,11 +20,16 @@ export async function handleToolpilotInit(args: {
     logger.info({ agent: args.agent, project_root: args.project_root }, 'toolpilot_init called');
 
     const instructions = getInstructionsForAgent(args.agent);
-    const mcpConfigEntry = getMcpConfigEntry(args.server_path);
+    // OpenCode uses opencode.json "mcp" key format; all other agents use .mcp.json
+    const isOpenCode = args.agent === 'opencode';
+    const mcpConfigEntry = isOpenCode
+      ? getOpenCodeMcpEntry(args.server_path)
+      : getMcpConfigEntry(args.server_path);
+    const mcpConfigFile = isOpenCode ? 'opencode.json' : '.mcp.json';
 
-    // Determine if .mcp.json already seems to exist based on detected files
+    // Determine if the agent's MCP config file already exists based on detected files
     const hasMcpJson = args.detected_files?.some(
-      (f) => f === '.mcp.json' || f.endsWith('/.mcp.json'),
+      (f) => f === mcpConfigFile || f.endsWith(`/${mcpConfigFile}`),
     );
     const hasInstructionFile = args.detected_files?.some((f) => f.endsWith(instructions.file_path));
     const hasToolpilotConfig = args.detected_files?.some((f) =>
@@ -56,14 +62,21 @@ export async function handleToolpilotInit(args: {
     });
 
     // Step 2: MCP config
+    const mcpContent = isOpenCode
+      ? JSON.stringify({ mcp: mcpConfigEntry }, null, 2)
+      : JSON.stringify({ mcpServers: mcpConfigEntry }, null, 2);
+    const mcpMergeNote = isOpenCode
+      ? `Merge the toolpilot entry into your existing ${mcpConfigFile} under "mcp"`
+      : `Merge the toolpilot entry into your existing ${mcpConfigFile} under "mcpServers"`;
+    const mcpCreateNote = isOpenCode
+      ? `Create ${mcpConfigFile} with this content (OpenCode MCP config format)`
+      : `Create ${mcpConfigFile} with this content`;
     setupSteps.push({
       step: step++,
       action: hasMcpJson ? 'merge' : 'create',
-      file: '.mcp.json',
-      content: JSON.stringify({ mcpServers: mcpConfigEntry }, null, 2),
-      note: hasMcpJson
-        ? 'Merge the toolpilot entry into your existing .mcp.json under "mcpServers"'
-        : 'Create .mcp.json with this content',
+      file: mcpConfigFile,
+      content: mcpContent,
+      note: hasMcpJson ? mcpMergeNote : mcpCreateNote,
     });
 
     // Step 3: Project config
@@ -104,6 +117,8 @@ export async function handleToolpilotInit(args: {
       cursor: '.cursorrules',
       windsurf: '.windsurfrules',
       copilot: '.github/copilot-instructions.md',
+      'copilot-cli': '.github/copilot-instructions.md',
+      opencode: 'AGENTS.md',
       generic: 'AI_INSTRUCTIONS.md',
     };
 

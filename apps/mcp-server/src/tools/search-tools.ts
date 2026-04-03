@@ -64,12 +64,16 @@ export async function handleSearchTools(args: {
         { sessionId, candidateCount: candidates.length, questionCount: questions.length },
         'Clarification needed',
       );
+      const askedDimsList = [...askedDimensions];
+      const clarificationRound = pipeline.getClarificationRound(askedDimsList);
       return okResult({
         query_id: sessionId,
         status: 'clarification_needed',
         stage: 1,
+        clarification_round: clarificationRound,
         candidate_count: candidates.length,
         questions,
+        hint: 'Answer to narrow the search. Up to 2 more rounds of clarification may follow.',
       });
     }
 

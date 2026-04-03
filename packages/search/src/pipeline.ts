@@ -104,6 +104,21 @@ export class SearchPipeline {
   }
 
   /**
+   * Determine which clarification round we're on based on previously asked dimensions.
+   * Round 1: topic/usecase clarification
+   * Round 2: constraint clarification (deployment, language)
+   * Round 3: decisive (is_stable)
+   */
+  getClarificationRound(askedDimensions: string[]): number {
+    if (askedDimensions.length === 0) return 1;
+    if (askedDimensions.includes('topics') && !askedDimensions.includes('deployment_model'))
+      return 2;
+    if (askedDimensions.includes('deployment_model') && !askedDimensions.includes('is_stable'))
+      return 3;
+    return 4; // All rounds done, proceed to results
+  }
+
+  /**
    * Load the full tool corpus from Qdrant (payload stored at index time).
    * Public so callers (e.g. search_tools handler) can build the BM25 index themselves.
    */

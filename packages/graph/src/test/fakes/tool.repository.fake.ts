@@ -128,6 +128,20 @@ export class FakeToolRepository implements ToolRepository {
     return { ok: true, data: [] };
   }
 
+  async findByUseCases(_useCaseNames: string[], _limit?: number): Promise<ToolResult<ToolNode[]>> {
+    return { ok: true, data: [] };
+  }
+
+  async getAllToolNames(): Promise<ToolResult<string[]>> {
+    try {
+      const names = Array.from(this.tools.keys());
+      return { ok: true, data: names };
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return { ok: false, error: { code: 'DB_ERROR', message } };
+    }
+  }
+
   /** Reset all data - useful between test cases */
   clear(): void {
     this.tools.clear();

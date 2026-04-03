@@ -2,7 +2,14 @@
 // Each function returns the section content to inject into the agent's instruction file.
 // The agent writes the content to the appropriate file — MCP server never touches the filesystem.
 
-export type AgentType = 'claude' | 'cursor' | 'windsurf' | 'copilot' | 'generic';
+export type AgentType =
+  | 'claude'
+  | 'cursor'
+  | 'windsurf'
+  | 'copilot'
+  | 'copilot-cli'
+  | 'opencode'
+  | 'generic';
 
 interface InstructionTemplate {
   /** Target file path relative to project root */
@@ -102,6 +109,24 @@ export function getCopilotInstructions(): InstructionTemplate {
   };
 }
 
+export function getCopilotCliInstructions(): InstructionTemplate {
+  // GitHub Copilot CLI reads .github/copilot-instructions.md and AGENTS.md
+  return {
+    file_path: '.github/copilot-instructions.md',
+    mode: 'append',
+    content: CORE_RULES,
+  };
+}
+
+export function getOpenCodeInstructions(): InstructionTemplate {
+  // OpenCode reads AGENTS.md (falls back to CLAUDE.md if absent)
+  return {
+    file_path: 'AGENTS.md',
+    mode: 'append',
+    content: CORE_RULES,
+  };
+}
+
 export function getGenericInstructions(): InstructionTemplate {
   return {
     file_path: 'AI_INSTRUCTIONS.md',
@@ -120,6 +145,10 @@ export function getInstructionsForAgent(agent: AgentType): InstructionTemplate {
       return getWindsurfInstructions();
     case 'copilot':
       return getCopilotInstructions();
+    case 'copilot-cli':
+      return getCopilotCliInstructions();
+    case 'opencode':
+      return getOpenCodeInstructions();
     case 'generic':
       return getGenericInstructions();
   }
@@ -134,4 +163,22 @@ export function getMcpConfigEntry(serverPath?: string): Record<string, unknown> 
     };
   }
   return entry;
+}
+
+/** Returns OpenCode-specific MCP config (opencode.json format under "mcp" key). */
+export function getOpenCodeMcpEntry(serverPath?: string): Record<string, unknown> {
+  const resolvedPath = serverPath ?? '<path-to-toolpilot>/apps/mcp-server/dist/index.js';
+  return {
+    toolpilot: {
+      type: 'local',
+      command: ['node', resolvedPath],
+      env: {
+        MEMGRAPH_URL: 'bolt://localhost:7687',
+        QDRANT_URL: 'http://localhost:6333',
+        DATABASE_URL: 'postgresql://toolpilot:toolpilot@localhost:5432/toolpilot',
+        REDIS_URL: 'redis://localhost:6379',
+      },
+      enabled: true,
+    },
+  };
 }

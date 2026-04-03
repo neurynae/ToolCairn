@@ -7,10 +7,13 @@ const logger = pino({ name: '@toolpilot/queue:consumer' });
 
 const INDEX_STREAM = 'toolpilot:index';
 const SEARCH_STREAM = 'toolpilot:search';
+const SCHEDULER_STREAM = 'toolpilot:scheduler';
 
 export interface QueueHandlers {
   onIndexJob: (toolId: string, priority: number) => Promise<void>;
   onSearchEvent: (query: string, sessionId: string) => Promise<void>;
+  onRunDiscovery?: () => Promise<void>;
+  onRunReindex?: () => Promise<void>;
 }
 
 let redisClient: Redis | undefined;
@@ -46,8 +49,9 @@ export async function readFromStream(
 
   await ensureConsumerGroup(INDEX_STREAM, group);
   await ensureConsumerGroup(SEARCH_STREAM, group);
+  await ensureConsumerGroup(SCHEDULER_STREAM, group);
 
-  const [indexResult, searchResult] = await Promise.all([
+  const [indexResult, searchResult, schedulerResult] = await Promise.all([
     redis.xreadgroup(
       'GROUP',
       group,
@@ -68,6 +72,16 @@ export async function readFromStream(
       SEARCH_STREAM,
       '>',
     ),
+    redis.xreadgroup(
+      'GROUP',
+      group,
+      consumer,
+      'COUNT',
+      String(count),
+      'STREAMS',
+      SCHEDULER_STREAM,
+      '>',
+    ),
   ]);
 
   const messages: StreamMessage[] = [];
@@ -75,6 +89,7 @@ export async function readFromStream(
   const streams: Array<[typeof indexResult, string]> = [
     [indexResult, INDEX_STREAM],
     [searchResult, SEARCH_STREAM],
+    [schedulerResult, SCHEDULER_STREAM],
   ];
 
   for (const [streamResult, streamKey] of streams) {
@@ -143,6 +158,10 @@ export async function startConsumer(handlers: QueueHandlers): Promise<void> {
           } else if (msg.type === 'search-event') {
             const { query, sessionId } = msg.payload as { query: string; sessionId: string };
             await handlers.onSearchEvent(query, sessionId);
+          } else if (msg.type === 'run-discovery' && handlers.onRunDiscovery) {
+            await handlers.onRunDiscovery();
+          } else if (msg.type === 'run-reindex' && handlers.onRunReindex) {
+            await handlers.onRunReindex();
           }
         } catch (e) {
           logger.error(
@@ -158,9 +177,13 @@ export async function startConsumer(handlers: QueueHandlers): Promise<void> {
       const searchIds = messages
         .filter((m) => m._streamKey === SEARCH_STREAM)
         .map((m) => m._entryId);
+      const schedulerIds = messages
+        .filter((m) => m._streamKey === SCHEDULER_STREAM)
+        .map((m) => m._entryId);
 
       if (indexIds.length > 0) await redis.xack(INDEX_STREAM, group, ...indexIds);
       if (searchIds.length > 0) await redis.xack(SEARCH_STREAM, group, ...searchIds);
+      if (schedulerIds.length > 0) await redis.xack(SCHEDULER_STREAM, group, ...schedulerIds);
     }
   } finally {
     process.off('SIGTERM', shutdown);

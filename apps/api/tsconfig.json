@@ -1,0 +1,12 @@
+{
+  "extends": "@toolpilot/tsconfig/node.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/config" },
+    { "path": "../../packages/tools" }
+  ]
+}

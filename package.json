@@ -17,6 +17,7 @@
     "db:seed": "turbo run db:seed --filter=@toolpilot/db",
     "db:migrate": "turbo run db:migrate --filter=@toolpilot/db",
     "indexer:run": "turbo run start --filter=@toolpilot/indexer",
+    "indexer:migrate-topics": "pnpm --filter=@toolpilot/indexer migrate-topics",
     "clean": "turbo run clean && rimraf node_modules"
   },
   "devDependencies": {

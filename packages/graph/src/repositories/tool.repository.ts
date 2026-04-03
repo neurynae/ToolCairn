@@ -1,5 +1,5 @@
 import type { GraphEdge, ToolCategory, ToolNode } from '@toolpilot/core';
-import type { Session } from 'neo4j-driver';
+import neo4j, { type Session } from 'neo4j-driver';
 import { getMemgraphSession } from '../client.js';
 import {
   CREATE_TOOL,
@@ -8,6 +8,7 @@ import {
   FIND_TOOLS_BY_CATEGORIES,
   FIND_TOOLS_BY_CATEGORY,
   FIND_TOOL_BY_NAME,
+  GET_ALL_TOOL_NAMES,
   GET_DIRECT_EDGES_BETWEEN,
   GET_RELATED_TOOLS,
   GET_TOOL_NEIGHBORHOOD,
@@ -18,6 +19,7 @@ import {
   mapRecordToToolNode,
 } from '../queries/tool.queries.js';
 import type { ToolNeighborhood } from '../queries/tool.queries.js';
+import { FIND_TOOLS_BY_USE_CASES } from '../queries/usecase.queries.js';
 import type { DirectEdge, RepositoryError, ToolRepository } from './interfaces.js';
 
 type ToolResult<T> = { ok: true; data: T } | { ok: false; error: RepositoryError };
@@ -56,6 +58,7 @@ export class MemgraphToolRepository implements ToolRepository {
       docs_docs_url: tool.docs.docs_url ?? null,
       docs_api_url: tool.docs.api_url ?? null,
       docs_changelog_url: tool.docs.changelog_url ?? null,
+      topics: tool.topics ?? [],
       created_at: tool.created_at,
       updated_at: tool.updated_at,
     };
@@ -230,6 +233,38 @@ export class MemgraphToolRepository implements ToolRepository {
         }));
 
       return { ok: true, data: edges };
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return { ok: false, error: { code: 'DB_ERROR', message } };
+    } finally {
+      await session.close();
+    }
+  }
+
+  async getAllToolNames(): Promise<ToolResult<string[]>> {
+    const session = this.session();
+    try {
+      const result = await session.run(GET_ALL_TOOL_NAMES.text);
+      const names = result.records.map((r) => String(r.get('name')));
+      return { ok: true, data: names };
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return { ok: false, error: { code: 'DB_ERROR', message } };
+    } finally {
+      await session.close();
+    }
+  }
+
+  async findByUseCases(useCaseNames: string[], limit = 20): Promise<ToolResult<ToolNode[]>> {
+    if (useCaseNames.length === 0) return { ok: true, data: [] };
+    const session = this.session();
+    try {
+      const result = await session.run(FIND_TOOLS_BY_USE_CASES.text, {
+        names: useCaseNames,
+        limit: neo4j.int(Math.floor(Number(limit))),
+      });
+      const tools = result.records.map((r) => mapRecordToToolNode(r.toObject()));
+      return { ok: true, data: tools };
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       return { ok: false, error: { code: 'DB_ERROR', message } };

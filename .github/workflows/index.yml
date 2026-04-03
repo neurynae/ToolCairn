@@ -1,0 +1,25 @@
+name: Daily Indexer
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 03:00 UTC daily
+  workflow_dispatch: {}    # manual trigger any time
+
+jobs:
+  trigger-indexer:
+    name: Trigger indexer on VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run indexer via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: deploy
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 120m
+          script: |
+            cd /opt/toolcairn
+            echo "Starting indexer at $(date)"
+            docker compose -f docker-compose.prod.yml run --rm indexer
+            echo "Indexer finished at $(date)"

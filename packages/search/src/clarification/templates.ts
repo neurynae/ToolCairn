@@ -10,11 +10,20 @@ export interface ClarificationTemplate {
 export function getClarificationTemplates(): ClarificationTemplate[] {
   return [
     {
-      dimension: 'category',
+      dimension: 'topics',
       buildQuestion: (tools) => ({
-        dimension: 'category',
+        dimension: 'topics',
         question: 'What type of tool are you looking for?',
-        options: [...new Set(tools.map((t) => t.category))].sort(),
+        options: [
+          ...new Set(
+            tools.flatMap((t) =>
+              t.topics && t.topics.length > 0 ? t.topics : [t.category ?? 'other'],
+            ),
+          ),
+        ]
+          .filter(Boolean)
+          .sort()
+          .slice(0, 8),
       }),
     },
     {

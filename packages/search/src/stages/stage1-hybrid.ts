@@ -7,7 +7,6 @@ import {
   embedText,
   qdrantClient,
   rrfFusion,
-  toolEmbedText,
 } from '@toolpilot/vector';
 import type { Stage1Result } from '../types.js';
 
@@ -22,7 +21,7 @@ export async function stage1HybridSearch(
   // Try vector embedding — falls back to BM25-only when NOMIC_API_KEY is absent
   let queryVector: number[] | null = null;
   try {
-    queryVector = await embedText(toolEmbedText(query, query, ''));
+    queryVector = await embedText(query, 'search_query');
   } catch {
     // No API key — BM25-only mode
   }
@@ -31,14 +30,17 @@ export async function stage1HybridSearch(
 
   let vectorIds: string[] = [];
   if (queryVector) {
-    const vectorResults = await qdrantClient().search(COLLECTION_NAME, {
-      vector: queryVector,
-      limit: 100,
-      with_payload: false,
-    });
-    vectorIds = (vectorResults as Array<{ id: string | number }>).map((r) => String(r.id));
+    try {
+      const vectorResults = await qdrantClient().search(COLLECTION_NAME, {
+        vector: queryVector,
+        limit: 100,
+        with_payload: false,
+      });
+      vectorIds = (vectorResults as Array<{ id: string | number }>).map((r) => String(r.id));
+    } catch {
+      // Vector search unavailable — fall back to BM25-only
+    }
   }
-
   const bm25Ids = bm25Results.map((r) => r.id);
 
   // If both retrieval paths returned nothing, fall back to all tools sorted by maintenance score

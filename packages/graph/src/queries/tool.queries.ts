@@ -33,6 +33,7 @@ export interface CreateToolParams {
   docs_docs_url: string | null;
   docs_api_url: string | null;
   docs_changelog_url: string | null;
+  topics: string[];
   created_at: string;
   updated_at: string;
 }
@@ -127,6 +128,7 @@ export const CREATE_TOOL = {
        t.docs_docs_url = $docs_docs_url,
        t.docs_api_url = $docs_api_url,
        t.docs_changelog_url = $docs_changelog_url,
+       t.topics = $topics,
        t.created_at = $created_at,
        t.updated_at = $updated_at
    RETURN t`,
@@ -175,18 +177,26 @@ export const TOOL_EXISTS = {
   text: 'MATCH (t:Tool { name: $name }) RETURN count(t) AS count',
 };
 
+export const GET_ALL_TOOL_NAMES = {
+  text: 'MATCH (t:Tool) RETURN t.name AS name ORDER BY t.name',
+};
+
 export const GET_TOOL_GRAPH_RERANK = {
   text: `MATCH (t:Tool)
-   WHERE t.name IN $names
-   OPTIONAL MATCH (t)-[e]-(related:Tool)
-   WHERE related.name IN $names
-   WITH t, e, related,
-        CASE WHEN related IS NULL THEN 0
-             ELSE e.weight * exp(-e.decay_rate * CASE WHEN e.last_verified IS NULL THEN 0 ELSE (datetime() - datetime(e.last_verified)).day END)
-        END AS effective_weight
-   WITH t, sum(effective_weight) AS graph_score
-   RETURN t, graph_score
-   ORDER BY graph_score DESC`,
+WHERE t.name IN $names
+OPTIONAL MATCH (t)-[e]-(related:Tool)
+WHERE related.name IN $names
+WITH t,
+     sum(CASE WHEN e IS NULL THEN 0
+          WHEN e.last_verified IS NULL THEN e.weight
+          ELSE e.weight * exp(-e.decay_rate *
+               (datetime() - datetime(e.last_verified)).day)
+     END) AS direct_score
+OPTIONAL MATCH (t)-[:SOLVES]->(u:UseCase)<-[:SOLVES]-(other:Tool)
+WHERE other.name IN $names AND other <> t
+WITH t, direct_score, count(DISTINCT u) * 0.3 AS usecase_overlap
+RETURN t, direct_score + usecase_overlap AS graphScore
+ORDER BY graphScore DESC`,
 };
 
 export const GET_TOOL_NEIGHBORHOOD = {
@@ -345,7 +355,8 @@ export function mapRecordToToolNodeWithScore(record: Record<string, unknown>): {
   graphScore: number;
 } {
   // neo4j-driver may return Integer or BigInt — coerce to plain JS number
-  const raw = record.graph_score;
+  // The query now returns "graphScore" (camelCase); support legacy "graph_score" too
+  const raw = record.graphScore ?? record.graph_score;
   const graphScore =
     raw == null
       ? 0
@@ -417,6 +428,7 @@ export function mapRecordToToolNode(record: Record<string, unknown>): ToolNode {
       api_url: typeof t.docs_api_url === 'string' ? t.docs_api_url : undefined,
       changelog_url: typeof t.docs_changelog_url === 'string' ? t.docs_changelog_url : undefined,
     },
+    topics: Array.isArray(t.topics) ? (t.topics as string[]) : [],
     created_at: requireString(t.created_at, 't.created_at'),
     updated_at: requireString(t.updated_at, 't.updated_at'),
   };

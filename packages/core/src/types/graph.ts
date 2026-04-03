@@ -3,23 +3,7 @@
 
 // ─── Enums & Unions ────────────────────────────────────────────────────────
 
-export type ToolCategory =
-  | 'vector-database'
-  | 'graph-database'
-  | 'relational-database'
-  | 'llm-framework'
-  | 'agent-framework'
-  | 'web-framework'
-  | 'auth'
-  | 'testing'
-  | 'devops'
-  | 'mcp-server'
-  | 'queue'
-  | 'cache'
-  | 'search'
-  | 'embedding'
-  | 'monitoring'
-  | 'other';
+export type ToolCategory = string;
 
 export type DeploymentModel = 'self-hosted' | 'cloud' | 'embedded' | 'serverless';
 
@@ -34,6 +18,8 @@ export type EdgeSource =
 
 export type EdgeType =
   | 'SOLVES'
+  | 'FOLLOWS'
+  | 'BELONGS_TO'
   | 'REQUIRES'
   | 'INTEGRATES_WITH'
   | 'REPLACES'
@@ -101,6 +87,8 @@ export interface ToolNode {
   package_managers: Record<string, string>;
   health: HealthSignals;
   docs: DocumentationLinks;
+  /** GitHub topics / npm keywords — community-curated tags, persisted for graph mesh */
+  topics: string[];
   created_at: string;
   updated_at: string;
 }

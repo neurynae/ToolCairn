@@ -1,9 +1,9 @@
 import type { ToolNode } from '@toolpilot/core';
 
-export type Dimension = 'category' | 'deployment_model' | 'language' | 'license' | 'is_stable';
+export type Dimension = 'topics' | 'deployment_model' | 'language' | 'license' | 'is_stable';
 
 export const DIMENSIONS: Dimension[] = [
-  'category',
+  'topics',
   'deployment_model',
   'language',
   'license',
@@ -24,8 +24,11 @@ function entropy(counts: number[]): number {
 
 function getDimensionValue(tool: ToolNode, dim: Dimension): string {
   switch (dim) {
-    case 'category':
-      return tool.category;
+    case 'topics': {
+      const topics = tool.topics ?? [];
+      // Fall back to category when topics not yet populated in Qdrant payload (transition state)
+      return topics.length > 0 ? topics[0]! : (tool.category ?? 'other');
+    }
     case 'deployment_model':
       return tool.deployment_models[0] ?? 'unknown';
     case 'language':

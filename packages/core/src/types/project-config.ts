@@ -13,8 +13,12 @@ export interface ConfirmedTool {
   github_url?: string;
   /** Pinned version, e.g. "^5.0.0" */
   version?: string;
-  /** ISO timestamp when confirmed */
+  /** ISO timestamp when confirmed (canonical field) */
   chosen_at: string;
+  /** Alias for chosen_at used in some older configs */
+  confirmed_at?: string;
+  /** ISO timestamp of last verification/re-check (used for staleness) */
+  last_verified?: string;
   /** Why this tool was chosen */
   chosen_reason: string;
   /** Tool names that were considered but not chosen */

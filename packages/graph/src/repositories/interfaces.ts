@@ -25,4 +25,47 @@ export interface ToolRepository {
   getDirectEdges(nameA: string, nameB: string): Promise<Result<DirectEdge[], RepositoryError>>;
   deleteTool(name: string): Promise<Result<void, RepositoryError>>;
   toolExists(name: string): Promise<Result<boolean, RepositoryError>>;
+  getAllToolNames(): Promise<Result<string[], RepositoryError>>;
+  findByUseCases(
+    useCaseNames: string[],
+    limit?: number,
+  ): Promise<Result<ToolNode[], RepositoryError>>;
+}
+
+export type TopicNodeType = 'UseCase' | 'Pattern' | 'Stack';
+
+export interface TopicNode {
+  name: string;
+  description: string;
+  node_type: TopicNodeType;
+}
+
+export interface TopicEdgeParams {
+  tool_id: string;
+  node_name: string;
+  node_type: TopicNodeType;
+  weight: number;
+  confidence: number;
+  last_verified: string;
+  source: string;
+  decay_rate: number;
+}
+
+export interface UseCaseRepository {
+  mergeTopicNode(node: {
+    id: string;
+    name: string;
+    description: string;
+    node_type: TopicNodeType;
+    created_at: string;
+    updated_at: string;
+  }): Promise<Result<void, RepositoryError>>;
+  upsertTopicEdge(params: TopicEdgeParams): Promise<Result<void, RepositoryError>>;
+  findToolsByUseCases(
+    names: string[],
+    limit?: number,
+  ): Promise<Result<ToolNode[], RepositoryError>>;
+  getAllUseCases(): Promise<
+    Result<Array<{ name: string; description: string; tool_count: number }>, RepositoryError>
+  >;
 }

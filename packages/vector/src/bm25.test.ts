@@ -33,6 +33,7 @@ function makeTool(overrides: Partial<ToolNode> & Pick<ToolNode, 'id' | 'name'>):
     package_managers: {},
     health: makeHealth(),
     docs: {},
+    topics: [],
     created_at: '2024-01-01',
     updated_at: '2024-01-01',
     ...overrides,

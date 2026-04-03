@@ -1,13 +1,15 @@
 import { config } from '@toolpilot/config';
 import { VectorError } from './errors.js';
 
-const NOMIC_API_URL = 'https://api.nomic.ai/v1/embeddings';
-const NOMIC_MODEL = 'nomic-embed-code-v1.5';
+const NOMIC_API_URL = 'https://api-atlas.nomic.ai/v1/embedding/text';
+const NOMIC_MODEL = 'nomic-embed-text-v1.5';
 const BATCH_SIZE = 100;
+
+export type EmbedTaskType = 'search_document' | 'search_query' | 'classification';
 
 export async function embedText(
   text: string,
-  taskType: 'search_document' | 'search_query' = 'search_document',
+  taskType: EmbedTaskType = 'search_document',
 ): Promise<number[]> {
   const results = await embedBatch([text], taskType);
   const result = results[0];
@@ -17,7 +19,7 @@ export async function embedText(
 
 export async function embedBatch(
   texts: string[],
-  taskType: 'search_document' | 'search_query' = 'search_document',
+  taskType: EmbedTaskType = 'search_document',
 ): Promise<number[][]> {
   const apiKey = config.NOMIC_API_KEY;
   if (!apiKey) throw new VectorError('NOMIC_API_KEY is not configured');
@@ -51,7 +53,11 @@ export async function embedBatch(
   return embeddings;
 }
 
-/** Canonical text for embedding a ToolNode. */
-export function toolEmbedText(name: string, description: string, category: string): string {
-  return `${name}\n${description}\n${category}`;
+/** Canonical text for embedding a ToolNode.
+ * Uses topics instead of category — category is a derived field that can
+ * be wrong; topics are the ground truth from GitHub maintainers.
+ */
+export function toolEmbedText(name: string, description: string, topics?: string[]): string {
+  const topicText = topics && topics.length > 0 ? `\nTopics: ${topics.join(', ')}` : '';
+  return `${name}\n${description}${topicText}`;
 }

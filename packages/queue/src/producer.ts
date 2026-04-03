@@ -99,3 +99,71 @@ export async function enqueueSearchEvent(
     return err(e instanceof Error ? e.message : String(e));
   }
 }
+
+// ─── Scheduler Triggers ───────────────────────────────────────────────────────
+
+const SCHEDULER_STREAM = 'toolpilot:scheduler';
+
+/**
+ * Enqueue a trigger to run the discovery scheduler.
+ */
+export async function enqueueDiscoveryTrigger(): Promise<Result<string, QueueError>> {
+  try {
+    const redis = getRedisClient();
+    const message: QueueMessage = {
+      id: crypto.randomUUID(),
+      type: 'run-discovery',
+      payload: {},
+      timestamp: Date.now(),
+    };
+
+    const streamId = await redis.xadd(
+      SCHEDULER_STREAM,
+      '*',
+      'id',
+      message.id,
+      'type',
+      message.type,
+      'payload',
+      JSON.stringify(message.payload),
+      'timestamp',
+      String(message.timestamp),
+    );
+
+    return ok(streamId as string);
+  } catch (e) {
+    return err(e instanceof Error ? e.message : String(e));
+  }
+}
+
+/**
+ * Enqueue a trigger to run the reindex scheduler.
+ */
+export async function enqueueReindexTrigger(): Promise<Result<string, QueueError>> {
+  try {
+    const redis = getRedisClient();
+    const message: QueueMessage = {
+      id: crypto.randomUUID(),
+      type: 'run-reindex',
+      payload: {},
+      timestamp: Date.now(),
+    };
+
+    const streamId = await redis.xadd(
+      SCHEDULER_STREAM,
+      '*',
+      'id',
+      message.id,
+      'type',
+      message.type,
+      'payload',
+      JSON.stringify(message.payload),
+      'timestamp',
+      String(message.timestamp),
+    );
+
+    return ok(streamId as string);
+  } catch (e) {
+    return err(e instanceof Error ? e.message : String(e));
+  }
+}

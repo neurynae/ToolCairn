@@ -1,12 +1,31 @@
 {
-  "name": "@toolpilot/mcp-server",
-  "version": "0.0.1",
-  "private": true,
+  "name": "@toolpilot/mcp",
+  "version": "0.1.0",
+  "private": false,
   "license": "MIT",
   "type": "module",
+  "description": "ToolPilot MCP — graph-powered tool intelligence for AI agents",
+  "homepage": "https://toolpilot.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/toolpilot/toolpilot"
+  },
+  "keywords": ["mcp", "ai", "tools", "graph", "developer-tools"],
+  "bin": {
+    "toolpilot-mcp": "./bin/toolpilot-mcp.js"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "data/"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
+    "build:publish": "tsup",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
@@ -20,7 +39,9 @@
     "@toolpilot/db": "workspace:*",
     "@toolpilot/graph": "workspace:*",
     "@toolpilot/queue": "workspace:*",
+    "@toolpilot/remote": "workspace:*",
     "@toolpilot/search": "workspace:*",
+    "@toolpilot/tools": "workspace:*",
     "@toolpilot/vector": "workspace:*",
     "pino": "^9.6.0",
     "zod": "^3.24.1"
@@ -29,6 +50,7 @@
     "@toolpilot/tsconfig": "workspace:*",
     "@types/node": "^22.10.7",
     "rimraf": "^6.0.1",
+    "tsup": "^8.5.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^3.0.4"

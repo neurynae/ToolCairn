@@ -12,7 +12,7 @@ const logger = pino({ name: '@toolpilot/mcp-server:search-tools-respond' });
 const prisma = new PrismaClient();
 const sessionManager = new SearchSessionManager(prisma);
 const pipeline = new SearchPipeline(sessionManager);
-const _clarificationEngine = new ClarificationEngine();
+const clarificationEngine = new ClarificationEngine();
 
 export async function handleSearchToolsRespond(args: {
   query_id: string;
@@ -54,7 +54,48 @@ export async function handleSearchToolsRespond(args: {
     await sessionManager.updateContext(args.query_id, updatedContext);
     await sessionManager.appendClarification(args.query_id, [], args.answers);
 
-    // Run stages 2-4 with saved candidates + updated context filters
+    // Get all dimensions asked so far (including this round's answers)
+    const allAskedDimensions = await sessionManager.getAskedDimensions(args.query_id);
+
+    // Check if another clarification round is warranted (max 3 rounds)
+    if (allAskedDimensions.size < 3) {
+      // Filter corpus by the answers just given to produce an updated candidate set
+      const corpus = await pipeline.loadToolCorpus();
+      const idSet = new Set(candidateIds);
+      const candidateTools = corpus.filter((t) => idSet.has(t.id));
+      const filteredCandidates = clarificationEngine.applyAnswers(candidateTools, args.answers);
+
+      const nextQuestions = clarificationEngine.getClarification(
+        filteredCandidates,
+        allAskedDimensions,
+      );
+
+      if (nextQuestions.length > 0) {
+        // Persist the questions (no answers yet) for this upcoming round
+        await sessionManager.appendClarification(args.query_id, nextQuestions, []);
+
+        const clarificationRound = allAskedDimensions.size + 1;
+        logger.info(
+          {
+            sessionId: args.query_id,
+            clarificationRound,
+            questionCount: nextQuestions.length,
+          },
+          'search_tools_respond: next clarification round',
+        );
+
+        return okResult({
+          done: false,
+          query_id: args.query_id,
+          status: 'clarification_needed',
+          stage: 2,
+          clarification_round: clarificationRound,
+          questions: nextQuestions,
+        });
+      }
+    }
+
+    // No more clarification needed — run stages 2-4 with saved candidates + updated context filters
     const { results, is_two_option } = await pipeline.runStages2to4(
       candidateIds,
       updatedContext,

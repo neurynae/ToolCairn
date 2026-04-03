@@ -42,10 +42,15 @@ export type {
   DirectEdge,
   RepositoryError,
   ToolRepository,
+  TopicNodeType,
+  TopicNode,
+  TopicEdgeParams,
+  UseCaseRepository,
 } from './repositories/interfaces.js';
 
 // Repository implementations
 export { MemgraphToolRepository } from './repositories/tool.repository.js';
+export { MemgraphUseCaseRepository } from './repositories/usecase.repository.js';
 
 // Topology queries (for admin portal)
 export {
@@ -55,6 +60,17 @@ export {
   type TopologyParams,
   type TopologyRow,
 } from './queries/topology.queries.js';
+
+// UseCase / topic node queries
+export {
+  FIND_TOOLS_BY_USE_CASES,
+  FIND_TOOLS_BY_TOPIC_NODES,
+  GET_ALL_USE_CASES,
+  MERGE_TOPIC_NODE,
+  UPSERT_SOLVES_EDGE,
+  UPSERT_FOLLOWS_EDGE,
+  UPSERT_BELONGS_TO_EDGE,
+} from './queries/usecase.queries.js';
 
 // In-memory fakes (for unit testing)
 export { FakeToolRepository } from './test/fakes/tool.repository.fake.js';

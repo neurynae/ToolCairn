@@ -29,15 +29,23 @@ export async function handleReadProjectConfig(args: { config_content: string }) 
     const confirmedToolNames = config.tools.confirmed.map((t) => t.name);
     const pendingToolNames = config.tools.pending_evaluation.map((t) => t.name);
 
-    // Flag tools that may need re-evaluation due to age
+    // Flag tools that may need re-evaluation due to age.
+    // Use last_verified (most recent check) > chosen_at > confirmed_at (legacy alias).
     const staleTools = config.tools.confirmed
-      .filter((t) => daysSince(t.chosen_at) > STALENESS_THRESHOLD_DAYS)
-      .map((t) => ({
-        name: t.name,
-        chosen_at: t.chosen_at,
-        days_since_chosen: Math.round(daysSince(t.chosen_at)),
-        recommendation: 'Consider using check_issue to verify no new known issues',
-      }));
+      .filter((t) => {
+        const date = t.last_verified ?? t.chosen_at ?? t.confirmed_at;
+        return date ? daysSince(date) > STALENESS_THRESHOLD_DAYS : true;
+      })
+      .map((t) => {
+        const date = t.last_verified ?? t.chosen_at ?? t.confirmed_at;
+        const days = date ? Math.round(daysSince(date)) : -1;
+        return {
+          name: t.name,
+          last_verified: date ?? 'unknown',
+          days_since_verified: days,
+          recommendation: 'Consider using check_issue to verify no new known issues',
+        };
+      });
 
     // Tools from non_oss sources for special handling guidance
     const non_oss_tools = config.tools.confirmed

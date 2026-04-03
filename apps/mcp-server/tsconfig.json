@@ -11,6 +11,8 @@
     { "path": "../../packages/db" },
     { "path": "../../packages/graph" },
     { "path": "../../packages/queue" },
-    { "path": "../../packages/search" }
+    { "path": "../../packages/search" },
+    { "path": "../../packages/tools" },
+    { "path": "../../packages/remote" }
   ]
 }

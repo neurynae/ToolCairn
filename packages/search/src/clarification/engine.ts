@@ -57,8 +57,8 @@ export class ClarificationEngine {
 
 function applyAnswer(tools: ToolNode[], answer: ClarificationAnswer): ToolNode[] {
   switch (answer.dimension) {
-    case 'category':
-      return tools.filter((t) => t.category === answer.value);
+    case 'topics':
+      return tools.filter((t) => (t.topics ?? []).includes(answer.value));
     case 'deployment_model':
       return tools.filter((t) =>
         t.deployment_models.includes(answer.value as ToolNode['deployment_models'][0]),
