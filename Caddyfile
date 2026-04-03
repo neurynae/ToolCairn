@@ -1,46 +1,32 @@
-# Caddy reverse proxy config for ToolPilot production API.
-# Uses Cloudflare Origin Certificate for Full (Strict) SSL.
-#
-# Set up:
-# 1. Generate a Cloudflare Origin Certificate (Dashboard → SSL/TLS → Origin Server)
-# 2. Save as /etc/caddy/certs/origin.pem and /etc/caddy/certs/origin.key
-# 3. Set SSL mode to "Full (Strict)" in Cloudflare
-#
-# For zero-open-ports setup, replace this with Cloudflare Tunnel (cloudflared).
+# Caddy reverse proxy for ToolCairn production API
+# Let's Encrypt cert is obtained automatically via HTTP challenge on first start.
+# origin.toolcairn.neurynae.com is gray-cloud (DNS-only) so HTTP challenge works directly.
 
-api.toolpilot.dev {
-  # Use Cloudflare Origin Certificate (trusted only by Cloudflare)
-  tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
-
-  # Proxy to API container
+origin.neurynae.com {
+  # Caddy auto-issues + renews Let's Encrypt cert
   reverse_proxy api:3001 {
     header_up X-Real-IP {http.request.header.CF-Connecting-IP}
     header_up X-Forwarded-Proto {scheme}
   }
 
-  # Compress responses
   encode gzip
 
-  # Security headers
   header {
     X-Content-Type-Options nosniff
     X-Frame-Options DENY
-    Referrer-Policy strict-origin-when-cross-origin
     -Server
   }
 
-  # Access logs
   log {
-    output file /var/log/caddy/access.log {
-      roll_size 100mb
-      roll_keep 5
-    }
+    output stdout
+    format json
   }
 }
 
-# Staging API (optional — remove if staging is accessed directly)
-staging.api.toolpilot.dev {
-  tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
-  reverse_proxy api-staging:3002
-  encode gzip
-}
+# Staging API — uncomment after adding staging.api.toolcairn.neurynae.com DNS record
+# staging.api.toolcairn.neurynae.com {
+#   reverse_proxy api-staging:3002 {
+#     header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+#   }
+#   encode gzip
+# }

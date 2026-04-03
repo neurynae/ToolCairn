@@ -34,7 +34,7 @@ const configSchema = z.object({
   /** dev: direct Docker DB connections | production: HTTP client to remote API */
   TOOLPILOT_MODE: z.enum(['dev', 'staging', 'production']).default('dev'),
   /** URL of the ToolPilot HTTP API (used when TOOLPILOT_MODE=production) */
-  TOOLPILOT_API_URL: z.string().default('https://api.toolpilot.dev'),
+  TOOLPILOT_API_URL: z.string().default('https://api.neurynae.com'),
   /** Secret shared between Cloudflare Worker and the API origin server */
   ORIGIN_SECRET: z.string().optional(),
 

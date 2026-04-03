@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = false
 
 routes = [
-  { pattern = "api.toolcairn.neurynae.com/*", zone_name = "neurynae.com" }
+  { pattern = "api.neurynae.com/*", zone_name = "neurynae.com" }
 ]
 
 [[kv_namespaces]]

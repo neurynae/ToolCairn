@@ -11,7 +11,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 const DEFAULT_TIMEOUT_MS = 30_000;
 
 export interface ToolPilotClientOptions {
-  /** Base URL of the ToolPilot API, e.g. https://api.toolpilot.dev */
+  /** Base URL of the ToolCairn API, e.g. https://api.neurynae.com */
   baseUrl: string;
   /** Anonymous API key generated on first run */
   apiKey: string;
