@@ -15,8 +15,15 @@
   "dependencies": {
     "@hono/node-server": "^1.14.1",
     "@toolpilot/config": "workspace:*",
+    "@toolpilot/db": "workspace:*",
+    "@toolpilot/graph": "workspace:*",
+    "@toolpilot/queue": "workspace:*",
     "@toolpilot/tools": "workspace:*",
+    "@toolpilot/vector": "workspace:*",
     "hono": "^4.7.5",
+    "ioredis": "^5.4.2",
+    "jose": "^5.9.6",
+    "neo4j-driver": "^5.27.0",
     "pino": "^9.6.0",
     "zod": "^3.24.1"
   },

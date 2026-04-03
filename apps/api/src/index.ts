@@ -12,6 +12,7 @@ import { Hono } from 'hono';
 import { compress } from 'hono/compress';
 import pino from 'pino';
 import { originAuth } from './middleware/origin-auth.js';
+import { adminRoutes } from './routes/admin.js';
 import { feedbackRoutes } from './routes/feedback.js';
 import { graphRoutes } from './routes/graph.js';
 import { intelligenceRoutes } from './routes/intelligence.js';
@@ -41,6 +42,9 @@ app.use('*', async (c, next) => {
 
 // System endpoints (no origin-auth required — health check must be public)
 app.route('/v1', systemRoutes());
+
+// Admin endpoints — use their own JWT auth (must be before originAuth)
+app.route('/v1/admin', adminRoutes());
 
 // All other endpoints require origin secret
 app.use('/v1/*', originAuth);
