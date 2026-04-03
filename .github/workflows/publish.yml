@@ -29,8 +29,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build all packages
-        run: pnpm build
+      - name: Generate Prisma client
+        run: pnpm --filter @toolpilot/db run db:generate
+
+      - name: Build mcp package and dependencies
+        run: |
+          pnpm --filter @toolpilot/config build
+          pnpm --filter @toolpilot/core build
+          pnpm --filter @toolpilot/db build
+          pnpm --filter @toolpilot/vector build
+          pnpm --filter @toolpilot/graph build
+          pnpm --filter @toolpilot/queue build
+          pnpm --filter @toolpilot/search build
+          pnpm --filter @toolpilot/tools build
+          pnpm --filter @toolpilot/remote build
+          pnpm --filter @neurynae/toolcairn-mcp build
 
       - name: Publish @neurynae/toolcairn-mcp
         run: pnpm --filter @neurynae/toolcairn-mcp publish --access public --no-git-checks
