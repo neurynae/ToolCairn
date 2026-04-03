@@ -6,7 +6,7 @@
 
 services:
   api-staging:
-    image: ghcr.io/${GITHUB_REPO:-toolpilot/toolpilot}/toolpilot-api:${IMAGE_TAG:-staging}
+    image: ghcr.io/neurynae/toolcairn/toolcairn-api:${IMAGE_TAG:-staging}
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -24,6 +24,7 @@ services:
       - "3002"
     networks:
       - toolpilot-staging
+      - toolcairn_toolpilot   # join prod network so Caddy can proxy to api-staging
     depends_on:
       memgraph-staging:
         condition: service_healthy
@@ -83,6 +84,8 @@ services:
 networks:
   toolpilot-staging:
     driver: bridge
+  toolcairn_toolpilot:
+    external: true   # join the production network so Caddy can reach api-staging
 
 volumes:
   memgraph_staging:
