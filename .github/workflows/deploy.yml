@@ -7,6 +7,7 @@ on:
       - 'apps/api/**'
       - 'packages/**'
       - 'docker-compose.prod.yml'
+      - '.github/workflows/deploy.yml'
 
 jobs:
   deploy:
@@ -33,6 +34,7 @@ jobs:
           context: .
           file: apps/api/Dockerfile
           push: true
+          no-cache: true
           tags: |
             ghcr.io/neurynae/toolcairn/toolcairn-api:latest
             ghcr.io/neurynae/toolcairn/toolcairn-api:${{ github.sha }}
