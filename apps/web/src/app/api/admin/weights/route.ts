@@ -3,7 +3,8 @@ import {
   getMemgraphSession,
   type EdgeWeightSummaryRow,
 } from '@toolpilot/graph';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
+import { withProxyGet } from '@/lib/admin/api-proxy';
 
 export interface ToolHealthRow {
   id: string;
@@ -41,7 +42,7 @@ RETURN
 ORDER BY t.health_maintenance_score DESC
 `;
 
-export async function GET() {
+async function directGET(_request: NextRequest): Promise<NextResponse> {
   const session = getMemgraphSession();
   try {
     const toolsResult = await session.run(GET_TOOL_HEALTH);
@@ -75,3 +76,5 @@ export async function GET() {
     await session.close();
   }
 }
+
+export const GET = withProxyGet('/weights', directGET);

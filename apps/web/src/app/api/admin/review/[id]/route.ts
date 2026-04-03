@@ -1,16 +1,18 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { approveStagedNode, rejectStagedNode } from '@/lib/admin/staged-review.service';
+import { PROXY_ENABLED, proxyPatch } from '@/lib/admin/api-proxy';
 
 const BodySchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('approve') }),
   z.object({ action: z.literal('reject'), reason: z.string().min(1) }),
 ]);
 
-export async function PATCH(
+async function directPATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+  ctx: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  const { params } = ctx;
   const { id } = await params;
 
   let body: unknown;
@@ -41,4 +43,18 @@ export async function PATCH(
     const status = message.includes('not found') ? 404 : message.includes('already reviewed') ? 409 : 500;
     return NextResponse.json({ ok: false, error: message }, { status });
   }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  ctx: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  if (PROXY_ENABLED) {
+    const { id } = await ctx.params;
+    const body = await request.json().catch(() => null);
+    const res = await proxyPatch(`/review/nodes/${id}`, body);
+    const text = await res.text();
+    return new NextResponse(text, { status: res.status, headers: { 'Content-Type': 'application/json' } });
+  }
+  return directPATCH(request, ctx);
 }

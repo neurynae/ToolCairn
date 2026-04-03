@@ -1,5 +1,6 @@
 import { getMemgraphSession, GET_TOOL_NEIGHBORHOOD } from '@toolpilot/graph';
 import { NextResponse, type NextRequest } from 'next/server';
+import { PROXY_ENABLED, proxyGet } from '@/lib/admin/api-proxy';
 
 function toNum(val: unknown): number {
   if (val == null) return 0;
@@ -17,10 +18,11 @@ function nodeProps(node: unknown): Record<string, unknown> {
   return {};
 }
 
-export async function GET(
+async function directGET(
   _request: NextRequest,
-  { params }: { params: Promise<{ name: string }> },
-) {
+  ctx: { params: Promise<{ name: string }> },
+): Promise<NextResponse> {
+  const { params } = ctx;
   const { name } = await params;
   const decodedName = decodeURIComponent(name);
 
@@ -92,4 +94,17 @@ export async function GET(
   } finally {
     await session.close();
   }
+}
+
+export async function GET(
+  request: NextRequest,
+  ctx: { params: Promise<{ name: string }> },
+): Promise<NextResponse> {
+  if (PROXY_ENABLED) {
+    const { name } = await ctx.params;
+    const res = await proxyGet(`/tools/${encodeURIComponent(name)}`);
+    const text = await res.text();
+    return new NextResponse(text, { status: res.status, headers: { 'Content-Type': 'application/json' } });
+  }
+  return directGET(request, ctx);
 }
