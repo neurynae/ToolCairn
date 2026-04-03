@@ -60,7 +60,7 @@ function githubHeaders(): Record<string, string> {
     'X-GitHub-Api-Version': '2022-11-28',
   };
   if (config.GITHUB_TOKEN) {
-    headers['Authorization'] = `Bearer ${config.GITHUB_TOKEN}`;
+    headers.Authorization = `Bearer ${config.GITHUB_TOKEN}`;
   }
   return headers;
 }
@@ -125,7 +125,7 @@ function buildIssueGist(issue: GitHubIssue): string {
 function parseGitHubRepo(githubUrl: string): { owner: string; repo: string } | null {
   const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/i);
   if (!match) return null;
-  return { owner: match[1]!, repo: match[2]!.replace(/\.git$/, '') };
+  return { owner: match[1]!, repo: match[2]?.replace(/\.git$/, '') };
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
@@ -224,7 +224,7 @@ export async function handleCheckIssue(args: {
     if (!topIssue || topIssue.state === 'closed') {
       const fixInfo = mergedPrs[0]
         ? `PR #${mergedPrs[0].number} was merged: ${mergedPrs[0].html_url}`
-        : `Issue was closed: ${topIssue?.html_url ?? tool.github_url + '/issues'}`;
+        : `Issue was closed: ${topIssue?.html_url ?? `${tool.github_url}/issues`}`;
 
       return okResult({
         status: 'fixed_in_version',

@@ -14,7 +14,7 @@ async function resolveToGitHubUrl(nameOrUrl: string): Promise<string> {
   try {
     const token = config.GITHUB_TOKEN;
     const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (token) headers.Authorization = `Bearer ${token}`;
     const res = await fetch(
       `https://api.github.com/search/repositories?q=${encodeURIComponent(nameOrUrl)}+in:name&sort=stars&order=desc&per_page=1`,
       { headers },

@@ -89,10 +89,7 @@ export async function handleToolpilotInit(args: {
         action: 'create',
         file: '.toolpilot/tracker.html',
         content: generateTrackerHtml(eventsPath),
-        note:
-          'Open .toolpilot/tracker.html in your browser to monitor MCP tool calls in real time. Set TOOLPILOT_EVENTS_PATH=' +
-          eventsPath +
-          ' in your MCP server environment to enable event logging.',
+        note: `Open .toolpilot/tracker.html in your browser to monitor MCP tool calls in real time. Set TOOLPILOT_EVENTS_PATH=${eventsPath} in your MCP server environment to enable event logging.`,
       });
     }
 
@@ -129,7 +126,7 @@ export async function handleToolpilotInit(args: {
           : 'Run init_project_config next to generate .toolpilot/config.json',
         hasTrackerHtml
           ? '.toolpilot/tracker.html already exists — skipping'
-          : `Tracker dashboard: open .toolpilot/tracker.html in browser`,
+          : 'Tracker dashboard: open .toolpilot/tracker.html in browser',
       ].join('\n'),
       next_steps: hasToolpilotConfig
         ? 'Setup complete. Open .toolpilot/tracker.html to monitor tool calls.'

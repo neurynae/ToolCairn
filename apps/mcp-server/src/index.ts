@@ -2,9 +2,9 @@
 // Supports two modes:
 //   dev        → direct Docker DB connections (for contributors, default)
 //   production → thin HTTP client to api.toolpilot.dev (for published npm package)
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { config } from '@toolpilot/config';
 import pino from 'pino';
 import { buildServer } from './server.js';

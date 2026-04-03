@@ -42,7 +42,7 @@ async function resolveToGitHubUrl(nameOrUrl: string): Promise<string> {
   try {
     const token = config.GITHUB_TOKEN;
     const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (token) headers.Authorization = `Bearer ${token}`;
     const res = await fetch(
       `https://api.github.com/search/repositories?q=${encodeURIComponent(nameOrUrl)}+in:name&sort=stars&order=desc&per_page=1`,
       { headers },
@@ -261,7 +261,7 @@ export async function handleVerifySuggestion(args: {
 
     // Cross-reference: are our semantic recommendations different from agent suggestions?
     const agentSet = new Set(args.agent_suggestions.map((s) => s.toLowerCase()));
-    const ourSet = new Set(ourRecommendations.map((r) => r.name.toLowerCase()));
+    const _ourSet = new Set(ourRecommendations.map((r) => r.name.toLowerCase()));
     const agreement = ourRecommendations.filter((r) => agentSet.has(r.name.toLowerCase()));
     const disagreement = ourRecommendations.filter((r) => !agentSet.has(r.name.toLowerCase()));
 

@@ -85,7 +85,7 @@ export async function buildProdServer(): Promise<McpServer> {
   });
 
   logger.info(
-    { apiUrl: config.TOOLPILOT_API_URL, clientId: creds.client_id.slice(0, 8) + '...' },
+    { apiUrl: config.TOOLPILOT_API_URL, clientId: `${creds.client_id.slice(0, 8)}...` },
     'Production MCP mode: connecting to remote API',
   );
 

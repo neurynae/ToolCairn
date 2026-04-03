@@ -96,8 +96,8 @@ export async function handleCheckCompatibility(args: { tool_a: string; tool_b: s
         : status === 'conflicts'
           ? `${args.tool_a} and ${args.tool_b} have known conflicts. Avoid using them in the same project.`
           : status === 'requires'
-            ? `One of these tools requires the other. Check the direction of the REQUIRES edge.`
-            : `No direct compatibility data. These tools may work together but it has not been verified.`;
+            ? 'One of these tools requires the other. Check the direction of the REQUIRES edge.'
+            : 'No direct compatibility data. These tools may work together but it has not been verified.';
 
     return okResult({
       tool_a: args.tool_a,

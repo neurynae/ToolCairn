@@ -16,6 +16,7 @@ import { checkRateLimit, meterUsage, validateApiKey } from './auth.js';
 import { getCached, isCacheable, putCached } from './cache.js';
 import type { Env } from './types.js';
 
+// biome-ignore lint/style/noDefaultExport: Cloudflare Workers require default export
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);

@@ -14,11 +14,7 @@
   "bin": {
     "toolpilot-mcp": "./bin/toolpilot-mcp.js"
   },
-  "files": [
-    "dist/",
-    "bin/",
-    "data/"
-  ],
+  "files": ["dist/", "bin/", "data/"],
   "engines": {
     "node": ">=22.0.0"
   },

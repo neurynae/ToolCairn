@@ -33,7 +33,7 @@ function githubHeaders(): Record<string, string> {
     'X-GitHub-Api-Version': '2022-11-28',
   };
   if (config.GITHUB_TOKEN) {
-    headers['Authorization'] = `Bearer ${config.GITHUB_TOKEN}`;
+    headers.Authorization = `Bearer ${config.GITHUB_TOKEN}`;
   }
   return headers;
 }
@@ -91,7 +91,7 @@ function buildIssueGist(issue: GitHubIssue): string {
 function parseGitHubRepo(githubUrl: string): { owner: string; repo: string } | null {
   const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/i);
   if (!match) return null;
-  return { owner: match[1]!, repo: match[2]!.replace(/\.git$/, '') };
+  return { owner: match[1]!, repo: match[2]?.replace(/\.git$/, '') };
 }
 
 export function createCheckIssueHandler(deps: Pick<ToolDeps, 'graphRepo'>) {

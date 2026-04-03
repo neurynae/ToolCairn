@@ -77,7 +77,7 @@ function extractMetadata(toolName: string, result: CallToolResult): Record<strin
 async function writeToFile(eventsPath: string, event: McpEventRecord): Promise<void> {
   try {
     await mkdir(dirname(eventsPath), { recursive: true });
-    await appendFile(eventsPath, JSON.stringify(event) + '\n', 'utf-8');
+    await appendFile(eventsPath, `${JSON.stringify(event)}\n`, 'utf-8');
   } catch (e) {
     logger.warn({ err: e, path: eventsPath }, 'Failed to write event to JSONL file');
   }
@@ -134,7 +134,7 @@ export function withEventLogging<TArgs extends Record<string, unknown>>(
         query_id: extractQueryId(args),
         duration_ms,
         status,
-        metadata: result! ? extractMetadata(toolName, result!) : null,
+        metadata: result ? extractMetadata(toolName, result) : null,
         created_at: new Date().toISOString(),
       };
 
@@ -147,6 +147,7 @@ export function withEventLogging<TArgs extends Record<string, unknown>>(
       }
     }
 
+    // biome-ignore lint/style/noNonNullAssertion: result is always assigned before this return
     return result!;
   };
 }
