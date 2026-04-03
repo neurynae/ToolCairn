@@ -33,7 +33,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: 'lax',
-    path: '/admin',
+    path: '/',
     maxAge: COOKIE_MAX_AGE,
     secure: process.env.NODE_ENV === 'production',
   });
