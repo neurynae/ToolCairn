@@ -23,12 +23,12 @@
   "dependencies": {
     "@prisma/client": "^6.3.1",
     "@toolpilot/config": "workspace:*",
-    "pino": "^9.6.0"
+    "pino": "^9.6.0",
+    "prisma": "^6.3.1"
   },
   "devDependencies": {
     "@toolpilot/tsconfig": "workspace:*",
     "@types/node": "^22.10.7",
-    "prisma": "^6.3.1",
     "rimraf": "^6.0.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"

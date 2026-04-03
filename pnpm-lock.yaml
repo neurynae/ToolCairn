@@ -480,6 +480,9 @@ importers:
       pino:
         specifier: ^9.6.0
         version: 9.14.0
+      prisma:
+        specifier: ^6.3.1
+        version: 6.19.2(typescript@5.9.3)
     devDependencies:
       '@toolpilot/tsconfig':
         specifier: workspace:*
@@ -487,9 +490,6 @@ importers:
       '@types/node':
         specifier: ^22.10.7
         version: 22.19.15
-      prisma:
-        specifier: ^6.3.1
-        version: 6.19.2(typescript@5.9.3)
       rimraf:
         specifier: ^6.0.1
         version: 6.1.3

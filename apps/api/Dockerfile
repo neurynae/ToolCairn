@@ -6,33 +6,20 @@ WORKDIR /app
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
-# Copy workspace config
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY packages/tsconfig ./packages/tsconfig/
-
-# Copy all package.json files (needed for workspace resolution)
-COPY packages/config/package.json ./packages/config/
-COPY packages/core/package.json ./packages/core/
-COPY packages/db/package.json ./packages/db/
-COPY packages/graph/package.json ./packages/graph/
-COPY packages/queue/package.json ./packages/queue/
-COPY packages/search/package.json ./packages/search/
-COPY packages/vector/package.json ./packages/vector/
-COPY packages/tools/package.json ./packages/tools/
-COPY packages/remote/package.json ./packages/remote/
-COPY apps/api/package.json ./apps/api/
-COPY apps/worker/package.json ./apps/worker/
-COPY apps/mcp-server/package.json ./apps/mcp-server/
-
-# Install all dependencies
-RUN pnpm install --no-frozen-lockfile
-
-# Copy source
+# Copy ALL source first — must happen before pnpm install
+# so that node_modules symlinks created by pnpm are not shadowed by COPY layers
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc tsconfig.base.json ./
 COPY packages/ ./packages/
 COPY apps/api/ ./apps/api/
+COPY apps/mcp-server/package.json ./apps/mcp-server/
+COPY apps/worker/package.json ./apps/worker/
 
-# Generate Prisma client
-RUN pnpm --filter @toolpilot/db exec prisma generate
+# Install all dependencies — pnpm creates node_modules symlinks into source dirs
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --no-frozen-lockfile
+
+# Generate Prisma client (now works: packages/db/node_modules/prisma exists)
+RUN pnpm --filter @toolpilot/db run db:generate
 
 # Build all packages in dependency order
 RUN pnpm --filter @toolpilot/config build && \
@@ -52,11 +39,9 @@ WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
-# Copy workspace config
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+# Copy workspace config + package manifests (ALL packages needed for pnpm workspace resolution)
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY packages/tsconfig ./packages/tsconfig/
-
-# Copy package.json files
 COPY packages/config/package.json ./packages/config/
 COPY packages/core/package.json ./packages/core/
 COPY packages/db/package.json ./packages/db/
@@ -65,12 +50,20 @@ COPY packages/queue/package.json ./packages/queue/
 COPY packages/search/package.json ./packages/search/
 COPY packages/vector/package.json ./packages/vector/
 COPY packages/tools/package.json ./packages/tools/
+COPY packages/remote/package.json ./packages/remote/
 COPY apps/api/package.json ./apps/api/
+COPY apps/mcp-server/package.json ./apps/mcp-server/
+COPY apps/worker/package.json ./apps/worker/
 
 # Install production deps only
-RUN pnpm install --frozen-lockfile --prod
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --no-frozen-lockfile --prod
 
-# Copy built output from builder
+# Copy Prisma schema and generated client from builder
+COPY packages/db/prisma ./packages/db/prisma/
+COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
+
+# Copy compiled dist from builder
 COPY --from=builder /app/packages/config/dist ./packages/config/dist
 COPY --from=builder /app/packages/core/dist ./packages/core/dist
 COPY --from=builder /app/packages/db/dist ./packages/db/dist
@@ -80,9 +73,6 @@ COPY --from=builder /app/packages/search/dist ./packages/search/dist
 COPY --from=builder /app/packages/vector/dist ./packages/vector/dist
 COPY --from=builder /app/packages/tools/dist ./packages/tools/dist
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
-
-# Copy generated Prisma client
-COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
 
 EXPOSE 3001
 
