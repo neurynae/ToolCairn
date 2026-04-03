@@ -100,11 +100,14 @@ export async function getMetrics(days: number): Promise<MetricsData> {
   });
 
   const total = sessions.length;
-  const completed = sessions.filter((s) => s.status === 'completed').length;
-  const abandoned = sessions.filter((s) => s.status === 'abandoned').length;
+  const completed = sessions.filter((s: { status: string }) => s.status === 'completed').length;
+  const abandoned = sessions.filter((s: { status: string }) => s.status === 'abandoned').length;
 
   const clarificationHistories = sessions
-    .map((s) => s.clarification_history as Array<{ question: string; answer?: string | null }>)
+    .map(
+      (s: { clarification_history: unknown }) =>
+        s.clarification_history as Array<{ question: string; answer?: string | null }>,
+    )
     .filter((h) => h.length > 0);
 
   const outcomeDistribution: OutcomeDistribution[] = outcomes.map((o) => ({
