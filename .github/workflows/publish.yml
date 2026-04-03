@@ -48,4 +48,4 @@ jobs:
       - name: Publish @neurynae/toolcairn-mcp
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-          pnpm --filter @neurynae/toolcairn-mcp publish --access public --no-git-checks
+          pnpm --filter toolcairn-mcp publish --access public --no-git-checks

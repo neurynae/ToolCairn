@@ -1,5 +1,5 @@
 {
-  "name": "@neurynae/toolcairn-mcp",
+  "name": "toolcairn-mcp",
   "version": "0.1.0",
   "private": false,
   "license": "MIT",
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/NEURYNAE/ToolCairn"
   },
-  "keywords": ["mcp", "ai", "tools", "graph", "developer-tools", "toolcairn", "neurynae"],
+  "keywords": ["mcp", "ai", "tools", "graph", "developer-tools", "toolcairn", "neurynae", "tool-intelligence"],
   "bin": {
     "toolcairn-mcp": "./bin/toolpilot-mcp.js"
   },
