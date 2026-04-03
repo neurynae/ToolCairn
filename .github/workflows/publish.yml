@@ -33,6 +33,6 @@ jobs:
         run: pnpm build
 
       - name: Publish @neurynae/toolcairn-mcp
-        run: pnpm --filter @toolpilot/mcp publish --access public --no-git-checks
+        run: pnpm --filter @neurynae/toolcairn-mcp publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

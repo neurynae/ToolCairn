@@ -117,7 +117,7 @@ export function withEventLogging<TArgs extends Record<string, unknown>>(
     }
 
     const start = Date.now();
-    let result: CallToolResult;
+    let result: CallToolResult | undefined;
     let status: 'ok' | 'error' = 'ok';
 
     try {
@@ -147,7 +147,7 @@ export function withEventLogging<TArgs extends Record<string, unknown>>(
       }
     }
 
-    // biome-ignore lint/style/noNonNullAssertion: result is always assigned before this return
-    return result!;
+    // result is always assigned in the try block above; undefined path is unreachable
+    return result ?? { content: [], isError: true };
   };
 }

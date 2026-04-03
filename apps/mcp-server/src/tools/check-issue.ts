@@ -125,7 +125,7 @@ function buildIssueGist(issue: GitHubIssue): string {
 function parseGitHubRepo(githubUrl: string): { owner: string; repo: string } | null {
   const match = githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/i);
   if (!match) return null;
-  return { owner: match[1]!, repo: match[2]?.replace(/\.git$/, '') };
+  return { owner: match[1]!, repo: (match[2] ?? '').replace(/\.git$/, '') };
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
