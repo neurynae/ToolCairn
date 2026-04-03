@@ -30,6 +30,10 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
+    "pino": "^9.6.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
     "@toolpilot/config": "workspace:*",
     "@toolpilot/core": "workspace:*",
     "@toolpilot/db": "workspace:*",
@@ -38,12 +42,8 @@
     "@toolpilot/remote": "workspace:*",
     "@toolpilot/search": "workspace:*",
     "@toolpilot/tools": "workspace:*",
-    "@toolpilot/vector": "workspace:*",
-    "pino": "^9.6.0",
-    "zod": "^3.24.1"
-  },
-  "devDependencies": {
     "@toolpilot/tsconfig": "workspace:*",
+    "@toolpilot/vector": "workspace:*",
     "@types/node": "^22.10.7",
     "rimraf": "^6.0.1",
     "tsup": "^8.5.1",

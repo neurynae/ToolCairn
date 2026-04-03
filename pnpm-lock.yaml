@@ -126,6 +126,13 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.7.0
         version: 1.27.1(zod@3.25.76)
+      pino:
+        specifier: ^9.6.0
+        version: 9.14.0
+      zod:
+        specifier: ^3.24.1
+        version: 3.25.76
+    devDependencies:
       '@toolpilot/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -150,19 +157,12 @@ importers:
       '@toolpilot/tools':
         specifier: workspace:*
         version: link:../../packages/tools
-      '@toolpilot/vector':
-        specifier: workspace:*
-        version: link:../../packages/vector
-      pino:
-        specifier: ^9.6.0
-        version: 9.14.0
-      zod:
-        specifier: ^3.24.1
-        version: 3.25.76
-    devDependencies:
       '@toolpilot/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      '@toolpilot/vector':
+        specifier: workspace:*
+        version: link:../../packages/vector
       '@types/node':
         specifier: ^22.10.7
         version: 22.19.15
