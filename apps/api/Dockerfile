@@ -19,10 +19,13 @@ COPY packages/queue/package.json ./packages/queue/
 COPY packages/search/package.json ./packages/search/
 COPY packages/vector/package.json ./packages/vector/
 COPY packages/tools/package.json ./packages/tools/
+COPY packages/remote/package.json ./packages/remote/
 COPY apps/api/package.json ./apps/api/
+COPY apps/worker/package.json ./apps/worker/
+COPY apps/mcp-server/package.json ./apps/mcp-server/
 
 # Install all dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Copy source
 COPY packages/ ./packages/

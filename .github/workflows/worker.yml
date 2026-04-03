@@ -20,9 +20,14 @@ jobs:
         with:
           version: 9.15.0
 
-      - name: Install worker dependencies
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies from workspace root
         run: pnpm install --frozen-lockfile
-        working-directory: apps/worker
 
       - name: Deploy via Wrangler
         uses: cloudflare/wrangler-action@v3
