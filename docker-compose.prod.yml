@@ -19,6 +19,7 @@ services:
       NOMIC_API_KEY: ${NOMIC_API_KEY}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       ORIGIN_SECRET: ${ORIGIN_SECRET}
+      ADMIN_SECRET: ${ADMIN_SECRET}
       MCP_SERVER_PORT: "3001"
       LOG_LEVEL: info
     # No external port — Caddy proxies HTTPS → api:3001 internally
