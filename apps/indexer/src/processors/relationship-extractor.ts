@@ -6,6 +6,7 @@ type Relationship = ProcessedTool['relationships'][number];
  * Maps npm package names → canonical tool names as stored in Memgraph.
  * Keys should match exactly what appears in package.json dependencies.
  * Values must match `t.name` in Memgraph exactly (lowercased repo name).
+ * This serves as fallback when no existing tools are provided from the graph.
  */
 const DEP_TO_TOOL: Record<string, string> = {
   // ── Original seed tools ────────────────────────────────────────────────────
@@ -172,28 +173,71 @@ const DEP_TO_TOOL: Record<string, string> = {
 
 /**
  * Mine raw dep list and description text for tool references.
+ * Uses existingTools from graph when available, falls back to DEP_TO_TOOL mapping.
  */
-function matchDepsToTools(deps: string[], selfName: string): string[] {
+function matchDepsToTools(deps: string[], selfName: string, existingTools?: Set<string>): string[] {
   const found = new Set<string>();
-  for (const dep of deps) {
-    const toolName = DEP_TO_TOOL[dep];
-    if (toolName && toolName !== selfName) {
-      found.add(toolName);
+
+  // First, try to match against existing tools from the graph
+  if (existingTools && existingTools.size > 0) {
+    for (const dep of deps) {
+      // Direct match against existing tool names
+      const depLower = dep.toLowerCase();
+      if (existingTools.has(depLower) && depLower !== selfName.toLowerCase()) {
+        found.add(depLower);
+      }
+      // Also check the mapping
+      const toolName = DEP_TO_TOOL[dep];
+      if (
+        toolName &&
+        toolName.toLowerCase() !== selfName.toLowerCase() &&
+        existingTools.has(toolName.toLowerCase())
+      ) {
+        found.add(toolName.toLowerCase());
+      }
+    }
+  } else {
+    // Fall back to the hardcoded mapping
+    for (const dep of deps) {
+      const toolName = DEP_TO_TOOL[dep];
+      if (toolName && toolName !== selfName) {
+        found.add(toolName);
+      }
     }
   }
+
   return [...found];
 }
 
-function matchDescriptionToTools(text: string, selfName: string): string[] {
+function matchDescriptionToTools(
+  text: string,
+  selfName: string,
+  existingTools?: Set<string>,
+): string[] {
   const found = new Set<string>();
   const lower = text.toLowerCase();
-  for (const [pkgName, toolName] of Object.entries(DEP_TO_TOOL)) {
-    if (toolName === selfName) continue;
-    const escaped = pkgName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    if (new RegExp(`\\b${escaped}\\b`, 'i').test(lower)) {
-      found.add(toolName);
+
+  // First, try to match against existing tools from the graph
+  if (existingTools && existingTools.size > 0) {
+    for (const toolName of existingTools) {
+      if (toolName.toLowerCase() === selfName.toLowerCase()) continue;
+      // Match the tool name as a whole word in the text
+      const escaped = toolName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (new RegExp(`\\b${escaped}\\b`, 'i').test(lower)) {
+        found.add(toolName);
+      }
+    }
+  } else {
+    // Fall back to the hardcoded mapping
+    for (const [pkgName, toolName] of Object.entries(DEP_TO_TOOL)) {
+      if (toolName === selfName) continue;
+      const escaped = pkgName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (new RegExp(`\\b${escaped}\\b`, 'i').test(lower)) {
+        found.add(toolName);
+      }
     }
   }
+
   return [...found];
 }
 
@@ -202,8 +246,16 @@ function matchDescriptionToTools(text: string, selfName: string): string[] {
  * Priority order:
  *   1. package.json declared deps → REQUIRES (high confidence)
  *   2. Repo description text mentions → INTEGRATES_WITH (medium confidence)
+ *
+ * @param extracted - The extracted tool data
+ * @param raw - Raw crawler data containing package.json deps
+ * @param existingTools - Optional set of tool names already in the graph for dynamic matching
  */
-export function extractRelationships(extracted: ExtractedToolData, raw: unknown): Relationship[] {
+export function extractRelationships(
+  extracted: ExtractedToolData,
+  raw: unknown,
+  existingTools?: Set<string>,
+): Relationship[] {
   const relationships: Relationship[] = [];
   const seen = new Set<string>();
 
@@ -211,7 +263,7 @@ export function extractRelationships(extracted: ExtractedToolData, raw: unknown)
   const packageJsonDeps = Array.isArray(rawObj.deps) ? (rawObj.deps as string[]) : [];
 
   // 1. Declared deps from package.json — strongest signal
-  for (const toolName of matchDepsToTools(packageJsonDeps, extracted.name)) {
+  for (const toolName of matchDepsToTools(packageJsonDeps, extracted.name, existingTools)) {
     if (!seen.has(toolName)) {
       seen.add(toolName);
       relationships.push({
@@ -235,6 +287,7 @@ export function extractRelationships(extracted: ExtractedToolData, raw: unknown)
   for (const toolName of matchDescriptionToTools(
     `${descriptionText} ${repoDescription}`,
     extracted.name,
+    existingTools,
   )) {
     if (!seen.has(toolName)) {
       seen.add(toolName);

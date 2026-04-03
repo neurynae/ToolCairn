@@ -3,6 +3,8 @@
  *
  * "Stale" = last_indexed_at older than STALE_THRESHOLD_DAYS, or never indexed.
  * Rate-limited to BATCH_SIZE tools per run to avoid exhausting the GitHub API.
+ *
+ * Respects AppSettings.reindex_scheduler_enabled toggle.
  */
 
 import { PrismaClient } from '@toolpilot/db';
@@ -14,12 +16,31 @@ const logger = pino({ name: '@toolpilot/indexer:reindex-scheduler' });
 const STALE_THRESHOLD_DAYS = 7;
 const BATCH_SIZE = 50;
 
+/**
+ * Check if reindex scheduler is enabled in AppSettings.
+ */
+async function isReindexEnabled(prisma: PrismaClient): Promise<boolean> {
+  const settings = await prisma.appSettings.findUnique({
+    where: { id: 'global' },
+    select: { reindex_scheduler_enabled: true },
+  });
+  // Default to true if settings don't exist yet
+  return settings?.reindex_scheduler_enabled ?? true;
+}
+
 export async function runReindexScheduler(): Promise<{
   found: number;
   enqueued: number;
 }> {
   const prisma = new PrismaClient();
   try {
+    // Check if reindex is enabled
+    const enabled = await isReindexEnabled(prisma);
+    if (!enabled) {
+      logger.info('Reindex scheduler is disabled — skipping run');
+      return { found: 0, enqueued: 0 };
+    }
+
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - STALE_THRESHOLD_DAYS);
 
@@ -48,6 +69,13 @@ export async function runReindexScheduler(): Promise<{
 
     const result = await enqueueBatchReindex(toolIds);
     const enqueued = result.ok ? result.data : 0;
+
+    // Update last_reindex_run timestamp
+    await prisma.appSettings.upsert({
+      where: { id: 'global' },
+      create: { id: 'global', last_reindex_run: new Date() },
+      update: { last_reindex_run: new Date() },
+    });
 
     logger.info({ found: staleTools.length, enqueued }, 'Reindex scheduler complete');
     return { found: staleTools.length, enqueued };

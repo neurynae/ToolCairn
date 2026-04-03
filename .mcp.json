@@ -13,7 +13,8 @@
         "DATABASE_URL": "postgresql://toolpilot:toolpilot@localhost:5432/toolpilot",
         "REDIS_URL": "redis://localhost:6379",
         "NODE_ENV": "development",
-        "LOG_LEVEL": "warn"
+        "LOG_LEVEL": "warn",
+        "NOMIC_API_KEY": "nk-9laqiAMi4tzfzppuswfvMootrxIZJYHICGG9wXi43U4"
       }
     },
     "github": {

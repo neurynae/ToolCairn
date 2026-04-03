@@ -30,6 +30,7 @@ const tool: ToolNode = {
     maintenance_score: 0.75,
   },
   docs: { readme_url: 'https://github.com/colinhacks/zod/blob/main/README.md' },
+  topics: [],
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 };

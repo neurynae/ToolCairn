@@ -47,6 +47,14 @@ export async function crawlPyPiPackage(name: string): Promise<CrawlerResult> {
     const raw: PyPiResponse = (await response.json()) as PyPiResponse;
     const info: PyPiInfo = raw.info ?? {};
 
+    const classifiers = Array.isArray((info as Record<string, unknown>).classifiers)
+      ? ((info as Record<string, unknown>).classifiers as string[])
+      : [];
+    const topics = classifiers
+      .filter((c: string) => c.startsWith('Topic ::'))
+      .map((c: string) => c.split('::').pop()?.trim().toLowerCase().replace(/\s+/g, '-') ?? '')
+      .filter(Boolean);
+
     const pkgName = extractString(info.name) || name;
     const description = extractString(info.summary);
     const homePage = extractString(info.home_page);
@@ -69,7 +77,7 @@ export async function crawlPyPiPackage(name: string): Promise<CrawlerResult> {
     return {
       source: 'pypi',
       url,
-      raw,
+      raw: { ...raw, topics },
       extracted,
     };
   } catch (e) {

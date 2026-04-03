@@ -39,6 +39,10 @@ export async function crawlNpmPackage(name: string): Promise<CrawlerResult> {
 
     const raw: NpmPackageResponse = (await response.json()) as NpmPackageResponse;
 
+    const keywords = Array.isArray((raw as Record<string, unknown>).keywords)
+      ? ((raw as Record<string, unknown>).keywords as string[])
+      : [];
+
     const pkgName = extractString(raw.name) || name;
     const description = extractString(raw.description);
     const homepage = extractString(raw.homepage);
@@ -66,7 +70,7 @@ export async function crawlNpmPackage(name: string): Promise<CrawlerResult> {
     return {
       source: 'npm',
       url,
-      raw,
+      raw: { ...raw, topics: keywords },
       extracted,
     };
   } catch (e) {

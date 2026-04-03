@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
     "clean": "rimraf dist",
-    "index-issues": "tsx src/run-index-issues.ts"
+    "index-issues": "tsx src/run-index-issues.ts",
+    "migrate-topics": "tsx src/run-migrate-topics.ts"
   },
   "dependencies": {
     "@octokit/plugin-retry": "^8.1.0",

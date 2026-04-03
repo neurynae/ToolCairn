@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
-import type { DeploymentModel, ToolCategory, ToolNode } from '@toolpilot/core';
+import type { DeploymentModel, ToolNode } from '@toolpilot/core';
+import { MemgraphToolRepository } from '@toolpilot/graph';
 import pino from 'pino';
-import type { CrawlerResult, ProcessedTool } from '../types.js';
+import type { CrawlerResult, ProcessedTool, TopicEdge } from '../types.js';
 import { generateEmbedding } from './embedding-processor.js';
 import { calculateHealth } from './health-calculator.js';
 import { extractRelationships } from './relationship-extractor.js';
@@ -23,139 +24,174 @@ function toDeploymentModel(value: string): DeploymentModel {
 }
 
 /**
- * Generate a deterministic UUID v4-shaped ID from a GitHub URL.
- * Re-indexing the same tool always produces the same ID (prevents duplicate Qdrant points).
+ * Normalize a GitHub URL or owner/repo string to a canonical full URL.
+ * Ensures the same repo always produces the same string regardless of
+ * how the URL was passed (full URL, http vs https, trailing slash, short form).
+ *
+ * Examples:
+ *   "biomejs/biome"                  → "https://github.com/biomejs/biome"
+ *   "https://github.com/biomejs/biome/" → "https://github.com/biomejs/biome"
+ *   "http://github.com/biomejs/biome"  → "https://github.com/biomejs/biome"
  */
-function deterministicId(githubUrl: string): string {
-  const hash = createHash('sha256').update(githubUrl).digest('hex');
-  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+function normalizeGitHubUrl(url: string): string {
+  // Strip http/https prefix and trailing slashes
+  const cleaned = url
+    .replace(/^https?:\/\/github\.com\//i, '')
+    .replace(/^github\.com\//i, '')
+    .replace(/\/+$/, '')
+    .toLowerCase();
+  return `https://github.com/${cleaned}`;
 }
 
 /**
- * Exclusion signals that override generic framework/server matches.
- * If any of these appear in the combined name+description, we skip 'web-framework'.
+ * Generate a deterministic UUID v4-shaped ID from a GitHub URL.
+ * Always normalizes the URL first so different representations of the
+ * same repo always produce the same ID — preventing duplicates in Qdrant/Memgraph.
  */
-const WEB_FRAMEWORK_EXCLUSIONS = [
-  'mobile',
-  'native app',
-  'text editor',
-  'rich text',
-  'ui toolkit',
-  'component library',
-  'state management',
-  'state manager',
-  'rich-text',
-  'wysiwyg',
-  'ios',
-  'android',
-] as const;
+function deterministicId(githubUrl: string): string {
+  const canonical = normalizeGitHubUrl(githubUrl);
+  const hash = createHash('sha256').update(canonical).digest('hex');
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+}
 
-/**
- * Infer a ToolCategory from name, description and language signals.
- * Defaults to 'other'.
- */
-function inferCategory(name: string, description: string, language: string): ToolCategory {
-  const lower = `${name} ${description}`.toLowerCase();
+// Topics that are just programming language names — not meaningful as graph nodes
+export const NOISE_TOPICS = new Set([
+  'javascript',
+  'typescript',
+  'python',
+  'rust',
+  'go',
+  'golang',
+  'java',
+  'ruby',
+  'php',
+  'csharp',
+  'cpp',
+  'c',
+  'kotlin',
+  'swift',
+  'scala',
+  'elixir',
+  'haskell',
+  'nodejs',
+  'node',
+  'nodejs-library',
+  'nodejs-module',
+  'npm',
+  'npm-package',
+  'hacktoberfest',
+  'awesome',
+  'awesome-list',
+  'open-source',
+  'library',
+  'framework',
+  'tool',
+  'package',
+  'module',
+  'cli',
+  'app',
+  'application',
+  'web',
+  'api',
+]);
 
-  if (
-    lower.includes('vector') &&
-    (lower.includes('database') || lower.includes('db') || lower.includes('store'))
-  ) {
-    return 'vector-database';
-  }
-  if (lower.includes('graph') && (lower.includes('database') || lower.includes('db'))) {
-    return 'graph-database';
-  }
-  if (
-    lower.includes('sql') ||
-    lower.includes('relational') ||
-    lower.includes('postgres') ||
-    lower.includes('mysql')
-  ) {
-    return 'relational-database';
-  }
-  if (
-    lower.includes('llm') ||
-    lower.includes('language model') ||
-    lower.includes('gpt') ||
-    lower.includes('claude')
-  ) {
-    return 'llm-framework';
-  }
-  if (lower.includes('agent') && (lower.includes('framework') || lower.includes('sdk'))) {
-    return 'agent-framework';
-  }
-  if (lower.includes('mcp') || lower.includes('model context protocol')) {
-    return 'mcp-server';
-  }
-  if (lower.includes('embed') && (lower.includes('model') || lower.includes('api'))) {
-    return 'embedding';
-  }
-  if (lower.includes('search') && !lower.includes('full-text')) {
-    return 'search';
-  }
-  if (lower.includes('queue') || lower.includes('stream') || lower.includes('message broker')) {
-    return 'queue';
-  }
-  if (lower.includes('cache') || lower.includes('redis') || lower.includes('memcache')) {
-    return 'cache';
-  }
-  if (
-    lower.includes('monitor') ||
-    lower.includes('observabilit') ||
-    lower.includes('metric') ||
-    lower.includes('tracing')
-  ) {
-    return 'monitoring';
-  }
-  if (lower.includes('test') && (lower.includes('framework') || lower.includes('runner'))) {
-    return 'testing';
-  }
-  if (lower.includes('auth') || lower.includes('oauth') || lower.includes('jwt')) {
-    return 'auth';
-  }
-  if (
-    lower.includes('devops') ||
-    lower.includes('ci/cd') ||
-    lower.includes('deploy') ||
-    lower.includes('container')
-  ) {
-    return 'devops';
-  }
+// Known architectural/implementation pattern topics
+const KNOWN_PATTERNS = new Set([
+  'event-driven',
+  'microservices',
+  'serverless',
+  'monorepo',
+  'rest-api',
+  'restful',
+  'graphql',
+  'ssr',
+  'spa',
+  'pwa',
+  'jamstack',
+  'headless-cms',
+  'cqrs',
+  'event-sourcing',
+  'domain-driven-design',
+  'ddd',
+  'clean-architecture',
+  'mvc',
+  'mvvm',
+  'functional',
+  'reactive',
+  'actor-model',
+  'websocket-protocol',
+  'grpc',
+  'openapi',
+]);
 
-  // web-framework: ONLY HTTP/API server frameworks, NOT mobile/native/UI/editor/state-management
-  if (
-    lower.includes('web') &&
-    (lower.includes('framework') || lower.includes('server') || lower.includes('api'))
-  ) {
-    const hasExclusion = WEB_FRAMEWORK_EXCLUSIONS.some((term) => lower.includes(term));
-    if (!hasExclusion) {
-      return 'web-framework';
-    }
-  }
+export type TopicNodeType = 'UseCase' | 'Pattern' | 'Stack';
 
-  // Language-based fallback
-  if (language === 'Rust' || language === 'Go' || language === 'C' || language === 'C++') {
-    return 'other';
-  }
+export function inferTopicNodeType(topic: string): TopicNodeType | null {
+  if (NOISE_TOPICS.has(topic)) return null;
+  if (topic.includes('-stack') || (topic.includes('stack') && topic.length < 15)) return 'Stack';
+  if (KNOWN_PATTERNS.has(topic)) return 'Pattern';
+  return 'UseCase';
+}
 
-  return 'other';
+export function buildTopicEdges(topics: string[]): TopicEdge[] {
+  const edges: TopicEdge[] = [];
+  for (const topic of topics) {
+    const nodeType = inferTopicNodeType(topic);
+    if (!nodeType) continue;
+    edges.push({
+      nodeType,
+      nodeName: topic,
+      weight: nodeType === 'Stack' ? 0.9 : nodeType === 'UseCase' ? 0.8 : 0.75,
+      confidence: 0.9,
+      source: 'github_signal',
+      decayRate: 0.003,
+    });
+  }
+  return edges;
 }
 
 /**
  * Orchestrates: health-calculator → relationship-extractor → embedding-processor
  * Builds a full ProcessedTool from a CrawlerResult.
  */
-export async function processTool(crawlerResult: CrawlerResult): Promise<ProcessedTool> {
+export async function processTool(
+  crawlerResult: CrawlerResult,
+  toolRepository?: { getAllToolNames(): Promise<{ ok: boolean; data?: string[] }> },
+): Promise<ProcessedTool> {
   const { extracted, raw } = crawlerResult;
   const now = new Date().toISOString();
 
   logger.info({ toolName: extracted.name }, 'Processing tool');
 
   const health = calculateHealth(raw);
-  const relationships = extractRelationships(extracted, raw);
 
-  const category = inferCategory(extracted.name, extracted.description, extracted.language);
+  // Fetch existing tools from Memgraph for dynamic relationship matching
+  let existingTools: Set<string> | undefined;
+  try {
+    const repo = toolRepository ?? new MemgraphToolRepository();
+    const result = await repo.getAllToolNames();
+    if (result.ok && result.data && result.data.length > 0) {
+      existingTools = new Set(result.data.map((n: string) => n.toLowerCase()));
+      logger.info(
+        { toolName: extracted.name, count: existingTools.size },
+        'Loaded existing tools for relationship matching',
+      );
+    }
+  } catch (e) {
+    logger.warn(
+      { toolName: extracted.name, err: e },
+      'Failed to load existing tools, using fallback mapping',
+    );
+  }
+
+  const relationships = extractRelationships(extracted, raw, existingTools);
+
+  // Topic-based classification: GitHub topics → category + graph mesh edges
+  const rawData = raw as Record<string, unknown>;
+  const topics = Array.isArray(rawData.topics) ? (rawData.topics as string[]) : [];
+  const meaningfulTopics = topics.filter((t) => !NOISE_TOPICS.has(t));
+  const category = meaningfulTopics[0] ?? topics[0] ?? 'other';
+  const topicEdges = buildTopicEdges(meaningfulTopics);
 
   const deploymentModels: DeploymentModel[] = extracted.deployment_models.map(toDeploymentModel);
 
@@ -165,7 +201,7 @@ export async function processTool(crawlerResult: CrawlerResult): Promise<Process
     display_name: extracted.display_name,
     description: extracted.description,
     category,
-    github_url: extracted.github_url,
+    github_url: normalizeGitHubUrl(extracted.github_url),
     homepage_url: extracted.homepage_url,
     license: extracted.license,
     language: extracted.language,
@@ -176,6 +212,7 @@ export async function processTool(crawlerResult: CrawlerResult): Promise<Process
     docs: {
       readme_url: `${extracted.github_url}/blob/main/README.md`,
     },
+    topics: meaningfulTopics,
     created_at: now,
     updated_at: now,
   };
@@ -194,5 +231,6 @@ export async function processTool(crawlerResult: CrawlerResult): Promise<Process
     node,
     vector,
     relationships,
+    topicEdges,
   };
 }

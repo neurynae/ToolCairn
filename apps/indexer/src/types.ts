@@ -20,6 +20,15 @@ export interface CrawlerResult {
   extracted: ExtractedToolData;
 }
 
+export interface TopicEdge {
+  nodeType: 'UseCase' | 'Pattern' | 'Stack';
+  nodeName: string;
+  weight: number;
+  confidence: number;
+  source: string;
+  decayRate: number;
+}
+
 export interface ProcessedTool {
   node: ToolNode;
   vector: number[];
@@ -31,6 +40,7 @@ export interface ProcessedTool {
     source: string;
     decayRate: number;
   }>;
+  topicEdges: TopicEdge[];
 }
 
 export interface IndexJob {

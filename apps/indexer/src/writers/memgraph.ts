@@ -1,7 +1,9 @@
+import { createHash } from 'node:crypto';
 import type { EdgeSource, EdgeType, ToolNode } from '@toolpilot/core';
-import { MemgraphToolRepository } from '@toolpilot/graph';
+import { MemgraphToolRepository, MemgraphUseCaseRepository } from '@toolpilot/graph';
 import pino from 'pino';
 import { IndexerError } from '../errors.js';
+import type { TopicEdge } from '../types.js';
 
 const logger = pino({ name: '@toolpilot/indexer:memgraph-writer' });
 
@@ -132,5 +134,51 @@ export async function writeEdgeToMemgraph(
       `Unexpected error writing edge to Memgraph: ${e instanceof Error ? e.message : String(e)}`,
       e,
     );
+  }
+}
+
+function topicNodeId(nodeName: string): string {
+  const hash = createHash('sha256').update(nodeName).digest('hex');
+  return `topic-${hash.slice(0, 16)}`;
+}
+
+/**
+ * Write UseCase/Pattern/Stack concept nodes and their typed edges to Memgraph.
+ * Failures are non-fatal — logged and skipped to avoid blocking the main index pipeline.
+ */
+export async function writeTopicNodes(toolId: string, topicEdges: TopicEdge[]): Promise<void> {
+  if (topicEdges.length === 0) return;
+  const repo = new MemgraphUseCaseRepository();
+  const now = new Date().toISOString();
+
+  for (const edge of topicEdges) {
+    try {
+      // 1. Ensure the concept node exists
+      await repo.mergeTopicNode({
+        id: topicNodeId(edge.nodeName),
+        name: edge.nodeName,
+        description: `${edge.nodeType}: ${edge.nodeName.replace(/-/g, ' ')}`,
+        node_type: edge.nodeType,
+        created_at: now,
+        updated_at: now,
+      });
+
+      // 2. Create the typed edge
+      await repo.upsertTopicEdge({
+        tool_id: toolId,
+        node_name: edge.nodeName,
+        node_type: edge.nodeType,
+        weight: edge.weight,
+        confidence: edge.confidence,
+        last_verified: now,
+        source: edge.source,
+        decay_rate: edge.decayRate,
+      });
+    } catch (e) {
+      logger.warn(
+        { toolId, nodeName: edge.nodeName, err: e },
+        'Topic node write failed (non-fatal)',
+      );
+    }
   }
 }

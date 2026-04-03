@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { href: '/admin/review', label: 'Review Queue', icon: '✓' },
   { href: '/admin/metrics', label: 'Metrics', icon: '◑' },
   { href: '/admin/indexer', label: 'Indexer', icon: '⟳' },
+  { href: '/admin/settings', label: 'Settings', icon: '⚙' },
 ] as const;
 
 export function AdminNav() {

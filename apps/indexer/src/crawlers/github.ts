@@ -3,6 +3,13 @@ import { config } from '@toolpilot/config';
 import pino from 'pino';
 import { IndexerError } from '../errors.js';
 import type { CrawlerResult, ExtractedToolData } from '../types.js';
+import {
+  corePreFlight,
+  getRateLimitStatus,
+  sleep,
+  sleepUntilCoreReset,
+  updateCoreRateState,
+} from './rate-limit.js';
 
 const logger = pino({ name: '@toolpilot/indexer:github-crawler' });
 
@@ -22,39 +29,6 @@ function getOctokit(): Octokit {
 
 const etagCache = new Map<string, { etag: string; data: unknown }>();
 
-// ─── Rate-limit state ─────────────────────────────────────────────────────────
-
-interface RateState {
-  remaining: number;
-  resetAt: number; // unix epoch seconds
-}
-
-const rateState: RateState = { remaining: 60, resetAt: 0 };
-
-function updateRateState(headers: Record<string, string | undefined>): void {
-  const remaining = headers['x-ratelimit-remaining'];
-  const reset = headers['x-ratelimit-reset'];
-  if (remaining !== undefined) rateState.remaining = Number(remaining);
-  if (reset !== undefined) rateState.resetAt = Number(reset);
-}
-
-/**
- * Sleep until the rate-limit window resets, with a small safety buffer.
- */
-async function sleepUntilReset(): Promise<void> {
-  const nowSec = Date.now() / 1000;
-  const waitSec = Math.max(0, rateState.resetAt - nowSec) + 2; // +2s safety buffer
-  logger.warn(
-    { remainingRequests: rateState.remaining, waitSec: Math.round(waitSec) },
-    'Rate limit low — sleeping until reset',
-  );
-  await sleep(waitSec * 1000);
-}
-
-async function sleep(ms: number): Promise<void> {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
-}
-
 // ─── Retry wrapper ────────────────────────────────────────────────────────────
 
 const MAX_RETRIES = 4;
@@ -62,11 +36,12 @@ const SECONDARY_LIMIT_WAIT_MS = 65_000; // GitHub recommends ≥60s
 
 /**
  * Execute a GitHub API call with automatic rate-limit / secondary-limit handling.
- * - Checks remaining quota before the call; sleeps to reset if < LOW_WATER_MARK.
- * - On 429 / 403 secondary rate limit: reads `retry-after`, backs off.
- * - On other errors: exponential back-off up to MAX_RETRIES.
+ * Uses the shared coreRateState from rate-limit.ts (shared with github-discovery.ts).
+ * - Dynamic pacing via corePreFlight(): slows down as quota decreases.
+ * - On 429 / 403 primary rate limit: waits for reset window.
+ * - On 403 secondary (abuse) limit: waits 65s minimum.
+ * - On 5xx: exponential back-off up to MAX_RETRIES.
  */
-const LOW_WATER_MARK = 5;
 
 async function githubRequest<T>(
   cacheKey: string,
@@ -74,68 +49,60 @@ async function githubRequest<T>(
     headers?: Record<string, string>,
   ) => Promise<{ data: unknown; headers: Record<string, string | undefined> }>,
 ): Promise<T> {
-  // Pre-flight: if quota exhausted wait for reset
-  if (rateState.remaining < LOW_WATER_MARK && rateState.resetAt > 0) {
-    await sleepUntilReset();
-  }
+  // Pre-flight: apply dynamic pacing and wait if quota is critical.
+  // Uses shared coreRateState from rate-limit.ts (also used by github-discovery.ts).
+  await corePreFlight();
 
-  // Inject ETag for conditional GET (304 = free)
+  // Inject ETag for conditional GET (304 = free, doesn't consume quota)
   const cached = etagCache.get(cacheKey);
   const conditionalHeaders: Record<string, string> = cached ? { 'if-none-match': cached.etag } : {};
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const response = await fn(conditionalHeaders);
-      updateRateState(response.headers as Record<string, string | undefined>);
+      updateCoreRateState(response.headers as Record<string, string | undefined>);
 
-      // Store new ETag if present
       const etag = response.headers['etag'];
-      if (etag) {
-        etagCache.set(cacheKey, { etag, data: response.data });
-      }
+      if (etag) etagCache.set(cacheKey, { etag, data: response.data });
 
       return response.data as T;
     } catch (err: unknown) {
       const e = err as {
         status?: number;
         response?: { headers?: Record<string, string> };
-        message?: string;
       };
       const status = e.status ?? 0;
       const respHeaders = e.response?.headers ?? {};
 
-      updateRateState(respHeaders as Record<string, string | undefined>);
+      updateCoreRateState(respHeaders as Record<string, string | undefined>);
 
-      // 304 Not Modified — serve from ETag cache
+      // 304 Not Modified — serve from ETag cache (no quota consumed)
       if (status === 304 && cached) {
         logger.debug({ cacheKey }, 'ETag hit — serving cached response (free)');
         return cached.data as T;
       }
 
-      // Primary rate limit (403 with x-ratelimit-remaining: 0, or 429)
-      const isPrimaryLimit = (status === 403 && rateState.remaining === 0) || status === 429;
-
-      if (isPrimaryLimit) {
-        const retryAfterHeader = respHeaders['retry-after'];
-        const waitMs = retryAfterHeader ? Number(retryAfterHeader) * 1000 + 500 : undefined;
-
+      // Primary rate limit (403 quota-exhausted or 429)
+      if ((status === 403 && respHeaders['x-ratelimit-remaining'] === '0') || status === 429) {
+        const waitMs = respHeaders['retry-after']
+          ? Number(respHeaders['retry-after']) * 1000 + 500
+          : undefined;
         if (waitMs) {
           logger.warn(
             { waitSec: Math.round(waitMs / 1000), attempt },
-            'Primary rate limit — retry-after header',
+            'Primary rate limit — retry-after',
           );
           await sleep(waitMs);
         } else {
-          await sleepUntilReset();
+          await sleepUntilCoreReset();
         }
-        continue; // retry immediately after wait
+        continue;
       }
 
       // Secondary (abuse) rate limit — 403 without depleted quota
       if (status === 403) {
-        const retryAfterHeader = respHeaders['retry-after'];
-        const waitMs = retryAfterHeader
-          ? Number(retryAfterHeader) * 1000 + 500
+        const waitMs = respHeaders['retry-after']
+          ? Number(respHeaders['retry-after']) * 1000 + 500
           : SECONDARY_LIMIT_WAIT_MS;
         logger.warn(
           { waitSec: Math.round(waitMs / 1000), attempt },
@@ -157,7 +124,6 @@ async function githubRequest<T>(
         continue;
       }
 
-      // Non-retryable (404, 401, etc.)
       throw err;
     }
   }
@@ -329,7 +295,10 @@ export async function crawlGitHubRepo(owner: string, repo: string): Promise<Craw
       topics,
     };
 
-    logger.info({ repo: repoKey, remaining: rateState.remaining }, 'Crawl complete');
+    logger.info(
+      { repo: repoKey, remaining: getRateLimitStatus().core.remaining },
+      'Crawl complete',
+    );
 
     return { source: 'github', url: repoData.html_url, raw, extracted };
   } catch (e) {

@@ -1,7 +1,7 @@
 import pino from 'pino';
 import { runCrawler } from '../crawlers/index.js';
 import { processTool } from '../processors/index.js';
-import { writeEdgeToMemgraph, writeToolToMemgraph } from '../writers/memgraph.js';
+import { writeEdgeToMemgraph, writeToolToMemgraph, writeTopicNodes } from '../writers/memgraph.js';
 import { upsertIndexedTool } from '../writers/prisma.js';
 import { upsertToolVector } from '../writers/qdrant.js';
 
@@ -26,13 +26,13 @@ function parseToolId(toolId: string): {
     const colonIdx = toolId.indexOf(':');
     return { source: 'crates.io', url: toolId.slice(colonIdx + 1) };
   }
-  // Handle full GitHub URLs: https://github.com/owner/repo
-  if (toolId.startsWith('https://github.com/') || toolId.startsWith('http://github.com/')) {
-    const path = toolId.replace(/^https?:\/\/github\.com\//, '').replace(/\/$/, '');
-    return { source: 'github', url: path };
-  }
-  // Default: treat as GitHub "owner/repo"
-  return { source: 'github', url: toolId };
+  // GitHub: normalize to canonical "owner/repo" path for the crawler.
+  // Any format (full URL, http, short owner/repo, trailing slash) → owner/repo.
+  const ownerRepo = toolId
+    .replace(/^https?:\/\/github\.com\//i, '')
+    .replace(/^github\.com\//i, '')
+    .replace(/\/+$/, '');
+  return { source: 'github', url: ownerRepo };
 }
 
 /**
@@ -90,6 +90,11 @@ export async function handleIndexJob(toolId: string, priority: number): Promise<
       }
     } else {
       logger.warn({ toolId }, 'Skipping edge writes — Memgraph tool write failed');
+    }
+
+    // 5. Write topic concept nodes (UseCase/Pattern/Stack) and their edges
+    if (memgraphWriteSucceeded) {
+      await writeTopicNodes(processedTool.node.id, processedTool.topicEdges);
     }
 
     logger.info({ toolId, nodeId: processedTool.node.id }, 'Index job complete');

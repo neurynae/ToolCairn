@@ -201,12 +201,17 @@ function toGraph3DData(topo: GraphTopologyResult): {
       _vr: 0,
     };
   });
-  const links: Graph3DLink[] = topo.edges.map((e) => ({
-    source: e.source,
-    target: e.target,
-    edgeType: e.data.edgeType,
-    effectiveWeight: e.data.effectiveWeight,
-  }));
+  // Create a map of node IDs to node objects for quick lookup
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+  // Only include edges where both source and target exist in our node set
+  const links: Graph3DLink[] = topo.edges
+    .filter((e) => nodeMap.has(e.source) && nodeMap.has(e.target))
+    .map((e) => ({
+      source: nodeMap.get(e.source)!,
+      target: nodeMap.get(e.target)!,
+      edgeType: e.data.edgeType,
+      effectiveWeight: e.data.effectiveWeight,
+    }));
   return { nodes, links };
 }
 
@@ -332,11 +337,20 @@ export function GraphCanvas3D({ initialData }: GraphCanvas3DProps) {
   const wobbleTimeRef = useRef(0);
   const lastFrameTimeRef = useRef(0);
 
+  // Cursor velocity tracking for sudden movement detection
+  const cursorPosRef = useRef({ x: 0, y: 0 });
+  const lastCursorPosRef = useRef({ x: 0, y: 0 });
+  const cursorVelocityRef = useRef(0);
+  const lastCursorMoveTimeRef = useRef(0);
+
+  // Threshold for "sudden" cursor movement (pixels per ms)
+  const SUDDEN_MOVE_THRESHOLD = 2.5;
+
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [graphData, setGraphData] = useState(() => toGraph3DData(initialData));
   const [stats, setStats] = useState(initialData.stats);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [nodeLimit, setNodeLimit] = useState(200);
+  const [nodeLimit, setNodeLimit] = useState(50);
   const [loading, setLoading] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<HoveredNodeState | null>(null);
 
@@ -358,11 +372,27 @@ export function GraphCanvas3D({ initialData }: GraphCanvas3DProps) {
     const onUp = () => {
       isDraggingRef.current = false;
     };
+    // Track cursor velocity for sudden movement detection
+    const onMouseMove = (e: MouseEvent) => {
+      const now = performance.now();
+      const dt = now - lastCursorMoveTimeRef.current;
+      if (dt > 0) {
+        const dx = e.clientX - lastCursorPosRef.current.x;
+        const dy = e.clientY - lastCursorPosRef.current.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        // Calculate velocity in pixels per ms
+        cursorVelocityRef.current = dist / dt;
+      }
+      lastCursorPosRef.current = { x: e.clientX, y: e.clientY };
+      lastCursorMoveTimeRef.current = now;
+    };
     el.addEventListener('mousedown', onDown);
     el.addEventListener('mouseup', onUp);
+    el.addEventListener('mousemove', onMouseMove);
     return () => {
       el.removeEventListener('mousedown', onDown);
       el.removeEventListener('mouseup', onUp);
+      el.removeEventListener('mousemove', onMouseMove);
     };
   }, []);
 
@@ -426,15 +456,17 @@ export function GraphCanvas3D({ initialData }: GraphCanvas3DProps) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally empty
   const linkThreeObject = useCallback((linkRaw: object): THREE.Line => {
     const link = linkRaw as Graph3DLink;
-    const color = link.edgeType === 'REQUIRES' ? 0x818cf8 : 0x34d399;
+    // Brighter colors for better visibility
+    const color = link.edgeType === 'REQUIRES' ? 0xa78bfa : 0x6ee7b7;
     const geo = new THREE.BufferGeometry();
     const pos = new THREE.BufferAttribute(new Float32Array(6), 3);
     pos.setUsage(THREE.DynamicDrawUsage);
     geo.setAttribute('position', pos);
+    // Increased opacity and linewidth for visibility
     const mat = new THREE.LineBasicMaterial({
       color,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.9,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -471,26 +503,32 @@ export function GraphCanvas3D({ initialData }: GraphCanvas3DProps) {
       return;
     }
     const node = nodeRaw as Graph3DNode;
-    wobbleNodeRef.current = node;
-    wobbleTimeRef.current = 0;
 
-    // Mesh wobble: apply outward radial velocity impulse to all nodes.
-    // Magnitude decays with angular distance (Gaussian, σ = 46°).
-    const r0 = Math.sqrt(node.ox * node.ox + node.oy * node.oy + node.oz * node.oz);
-    if (r0 > 0) {
-      const hvX = node.ox / r0;
-      const hvY = node.oy / r0;
-      const hvZ = node.oz / r0;
-      const SIGMA = 0.8; // radians ~46°
-      const V0 = 180; // initial radial velocity units/sec
-      for (const n of graphDataRef.current.nodes) {
-        const nr = Math.sqrt(n.ox * n.ox + n.oy * n.oy + n.oz * n.oz);
-        if (nr === 0) continue;
-        const dot = Math.min(1, Math.max(-1, (n.ox * hvX + n.oy * hvY + n.oz * hvZ) / nr));
-        const angle = Math.acos(dot);
-        n._vr += V0 * Math.exp(-(angle * angle) / (2 * SIGMA * SIGMA));
+    // Only trigger wobble on sudden cursor movement
+    const isSuddenMove = cursorVelocityRef.current > SUDDEN_MOVE_THRESHOLD;
+
+    if (isSuddenMove) {
+      // Mesh wobble: apply outward radial velocity impulse to all nodes.
+      // Magnitude decays with angular distance (Gaussian, σ = 46°).
+      const r0 = Math.sqrt(node.ox * node.ox + node.oy * node.oy + node.oz * node.oz);
+      if (r0 > 0) {
+        const hvX = node.ox / r0;
+        const hvY = node.oy / r0;
+        const hvZ = node.oz / r0;
+        const SIGMA = 0.8; // radians ~46°
+        const V0 = 180; // initial radial velocity units/sec
+        for (const n of graphDataRef.current.nodes) {
+          const nr = Math.sqrt(n.ox * n.ox + n.oy * n.oy + n.oz * n.oz);
+          if (nr === 0) continue;
+          const dot = Math.min(1, Math.max(-1, (n.ox * hvX + n.oy * hvY + n.oz * hvZ) / nr));
+          const angle = Math.acos(dot);
+          n._vr += V0 * Math.exp(-(angle * angle) / (2 * SIGMA * SIGMA));
+        }
       }
     }
+
+    wobbleNodeRef.current = node;
+    wobbleTimeRef.current = 0;
 
     const fg = graphRef.current;
     if (!fg || node.x == null || node.y == null || node.z == null) {
@@ -728,10 +766,10 @@ export function GraphCanvas3D({ initialData }: GraphCanvas3DProps) {
           // Links — custom glowing lines (AdditiveBlending, zero-alloc per-frame update)
           linkThreeObject={linkThreeObject}
           linkPositionUpdate={linkPositionUpdate}
-          linkDirectionalParticles={1}
-          linkDirectionalParticleSpeed={0.006}
-          linkDirectionalParticleWidth={1.5}
-          linkDirectionalParticleColor={() => '#c4b5fd'}
+          linkDirectionalParticles={2}
+          linkDirectionalParticleSpeed={0.003}
+          linkDirectionalParticleWidth={3}
+          linkDirectionalParticleColor={() => '#e9d5ff'}
           // Static graph — skip sim warmup, keep render loop alive for RAF
           warmupTicks={0}
           cooldownTime={Number.POSITIVE_INFINITY}

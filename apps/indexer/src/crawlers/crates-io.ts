@@ -45,6 +45,14 @@ export async function crawlCratesIoPackage(name: string): Promise<CrawlerResult>
     const raw: CratesIoResponse = (await response.json()) as CratesIoResponse;
     const crateData: CrateData = raw.crate ?? {};
 
+    const categories = Array.isArray((crateData as Record<string, unknown>).categories)
+      ? ((crateData as Record<string, unknown>).categories as string[])
+      : [];
+    const keywords = Array.isArray((crateData as Record<string, unknown>).keywords)
+      ? ((crateData as Record<string, unknown>).keywords as string[])
+      : [];
+    const topics = [...categories, ...keywords];
+
     const pkgName = extractString(crateData.name) || name;
     const description = extractString(crateData.description);
     const homepage = extractString(crateData.homepage);
@@ -75,7 +83,7 @@ export async function crawlCratesIoPackage(name: string): Promise<CrawlerResult>
     return {
       source: 'crates.io',
       url,
-      raw,
+      raw: { ...raw, topics },
       extracted,
     };
   } catch (e) {

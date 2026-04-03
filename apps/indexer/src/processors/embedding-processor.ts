@@ -10,7 +10,7 @@ const logger = pino({ name: '@toolpilot/indexer:embedding-processor' });
  */
 export async function generateEmbedding(tool: ToolNode): Promise<number[]> {
   try {
-    const text = toolEmbedText(tool.name, tool.description, tool.category);
+    const text = toolEmbedText(tool.name, tool.description, tool.topics);
     logger.debug({ toolName: tool.name }, 'Generating embedding');
 
     const vectors = await embedBatch([text]);
