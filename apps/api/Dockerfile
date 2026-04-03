@@ -15,8 +15,9 @@ COPY apps/mcp-server/package.json ./apps/mcp-server/
 COPY apps/worker/package.json ./apps/worker/
 
 # Install all dependencies — pnpm creates node_modules symlinks into source dirs
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
-    pnpm install --no-frozen-lockfile
+# Note: no cache mount — BuildKit cache mounts can unmount between layers,
+# breaking pnpm's hardlink references from node_modules/.pnpm to the store
+RUN pnpm install --no-frozen-lockfile
 
 # Generate Prisma client (now works: packages/db/node_modules/prisma exists)
 RUN pnpm --filter @toolpilot/db run db:generate
@@ -56,8 +57,7 @@ COPY apps/mcp-server/package.json ./apps/mcp-server/
 COPY apps/worker/package.json ./apps/worker/
 
 # Install production deps only
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
-    pnpm install --no-frozen-lockfile --prod
+RUN pnpm install --no-frozen-lockfile --prod
 
 # Copy Prisma schema and generated client from builder
 COPY packages/db/prisma ./packages/db/prisma/
