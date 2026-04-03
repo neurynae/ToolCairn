@@ -8,6 +8,7 @@ import { WeightChartLoader } from '@/components/admin/weights/weight-chart-loade
 import { EmergingToolsList } from '@/components/admin/weights/emerging-tools-list';
 import { ToolHealthGrid } from '@/components/admin/weights/tool-health-grid';
 import { PageHeader } from '@/components/admin/page-header';
+import { PROXY_ENABLED, proxyGet } from '@/lib/admin/api-proxy';
 
 function toNum(val: unknown): number {
   if (val == null) return 0;
@@ -75,9 +76,18 @@ export default async function WeightsPage() {
   let edgeWeightSummary: EdgeWeightSummaryRow[] = [];
 
   try {
-    ({ tools, edgeWeightSummary } = await fetchWeightsData());
+    if (PROXY_ENABLED) {
+      const res = await proxyGet('/weights');
+      const json = (await res.json()) as {
+        ok: boolean;
+        data?: { tools: ToolHealthRow[]; edgeWeightSummary: EdgeWeightSummaryRow[] };
+      };
+      if (json.ok && json.data) ({ tools, edgeWeightSummary } = json.data);
+    } else {
+      ({ tools, edgeWeightSummary } = await fetchWeightsData());
+    }
   } catch {
-    // Memgraph unavailable — render empty state
+    // Memgraph/API unavailable — render empty state
   }
 
   return (

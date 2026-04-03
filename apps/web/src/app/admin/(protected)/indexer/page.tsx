@@ -1,6 +1,7 @@
 import { Redis } from 'ioredis';
 import { config } from '@toolpilot/config';
 import { prisma } from '@/lib/admin/prisma';
+import { PROXY_ENABLED, proxyGet } from '@/lib/admin/api-proxy';
 import { PageHeader } from '@/components/admin/page-header';
 import { IndexerActions } from '@/components/admin/indexer/indexer-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -105,7 +106,28 @@ export default async function IndexerPage() {
   let queueDepth = { index: 0, scheduler: 0 };
 
   try {
-    [stats, queueDepth] = await Promise.all([fetchIndexerStats(), fetchQueueDepth()]);
+    if (PROXY_ENABLED) {
+      // In proxy mode: get indexer status (incl. queue depth) from apps/api
+      const res = await proxyGet('/indexer/status');
+      const json = (await res.json()) as {
+        ok: boolean;
+        data?: {
+          counts: IndexerStats['counts'];
+          total: number;
+          lastIndexedAt: string | null;
+          recentlyIndexed: IndexerStats['recentlyIndexed'];
+          recentFailures: IndexerStats['recentFailures'];
+          queueDepth: { index: number; scheduler: number };
+        };
+      };
+      if (json.ok && json.data) {
+        const { queueDepth: qd, ...rest } = json.data;
+        stats = rest;
+        queueDepth = qd;
+      }
+    } else {
+      [stats, queueDepth] = await Promise.all([fetchIndexerStats(), fetchQueueDepth()]);
+    }
   } catch {
     // Postgres/Redis unavailable
     if (!stats) {

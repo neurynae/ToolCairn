@@ -36,6 +36,13 @@ export default {
       return forwardToOrigin(request, env, path);
     }
 
+    // ── Admin routes — bypass API key, use JWT auth instead ────────────────
+    // /v1/admin/* is protected by admin JWT (Authorization: Bearer <token>)
+    // not by the ToolPilot API key system.
+    if (path.startsWith('/v1/admin/') || path === '/v1/admin') {
+      return forwardToOrigin(request, env, path);
+    }
+
     // ── API Key validation ──────────────────────────────────────────────────
     const { valid, record, error } = await validateApiKey(request, env);
     if (!valid || !record) {
@@ -130,8 +137,11 @@ async function forwardToOrigin(request: Request, env: Env, path: string): Promis
     // Add CORS headers so browser-based MCP clients can call this
     const result = new Response(response.body, response);
     result.headers.set('Access-Control-Allow-Origin', '*');
-    result.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    result.headers.set('Access-Control-Allow-Headers', 'Content-Type, X-ToolPilot-Key');
+    result.headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+    result.headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, X-ToolPilot-Key, Authorization',
+    );
     return result;
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Unknown error';

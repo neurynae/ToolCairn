@@ -5,6 +5,7 @@ import type { GraphTopologyResult, TopicEdge } from '@/lib/admin/graph-topology'
 import { mapTopologyRows } from '@/lib/admin/graph-topology';
 import { PageHeader } from '@/components/admin/page-header';
 import { Button } from '@/components/ui/button';
+import { PROXY_ENABLED, proxyGet } from '@/lib/admin/api-proxy';
 
 const TOPIC_LIMIT = 40;
 
@@ -77,11 +78,18 @@ async function fetchTopology(): Promise<GraphTopologyResult> {
   }
 }
 
+async function fetchTopologyViaProxy(): Promise<GraphTopologyResult> {
+  const res = await proxyGet('/graph', new URLSearchParams({ limit: '200' }));
+  const json = (await res.json()) as { ok: boolean; data?: GraphTopologyResult; error?: string };
+  if (!json.ok || !json.data) throw new Error(json.error ?? 'Graph API error');
+  return json.data;
+}
+
 export default async function GraphPage() {
   let initialData: GraphTopologyResult;
 
   try {
-    initialData = await fetchTopology();
+    initialData = PROXY_ENABLED ? await fetchTopologyViaProxy() : await fetchTopology();
   } catch {
     initialData = { nodes: [], edges: [], stats: { totalNodes: 0, totalEdges: 0, categories: [] } };
   }
