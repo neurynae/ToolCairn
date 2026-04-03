@@ -1,11 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { memgraphHealthCheck, getMemgraphSession } from '@toolpilot/graph';
+import { withProxyGet } from '@/lib/admin/api-proxy';
 import { qdrantHealthCheck, qdrantClient } from '@toolpilot/vector';
 import { Redis } from 'ioredis';
 import { config } from '@toolpilot/config';
 import { prisma } from '@/lib/admin/prisma';
 
-export async function GET() {
+async function directGET(_request: NextRequest): Promise<NextResponse> {
   const start = Date.now();
 
   const [memgraph, qdrant, postgres, redis, stats] = await Promise.allSettled([
@@ -106,3 +107,5 @@ async function getStats() {
 
   return { toolCount, edgeCount, pendingReview, pendingIndex };
 }
+
+export const GET = withProxyGet('/health', directGET);

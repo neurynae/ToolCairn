@@ -1,14 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { Redis } from 'ioredis';
 import { enqueueDiscoveryTrigger } from '@toolpilot/queue';
 import pino from 'pino';
+import { withProxyPost } from '@/lib/admin/api-proxy';
 
 const logger = pino({ name: 'api:admin:settings:run-discovery' });
 
 const INDEX_STREAM = 'toolpilot:index';
 const SCHEDULER_STREAM = 'toolpilot:scheduler';
 
-export async function POST() {
+async function directPOST(_request: NextRequest): Promise<NextResponse> {
   try {
     const result = await enqueueDiscoveryTrigger();
 
@@ -26,6 +27,8 @@ export async function POST() {
     return NextResponse.json({ error: 'Failed to trigger discovery' }, { status: 500 });
   }
 }
+
+export const POST = withProxyPost('/indexer/discovery', directPOST);
 
 export async function GET() {
   let redis: Redis | undefined;

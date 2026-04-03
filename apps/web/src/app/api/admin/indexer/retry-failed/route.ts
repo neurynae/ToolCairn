@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { enqueueIndexJob } from '@toolpilot/queue';
 import { prisma } from '@/lib/admin/prisma';
+import { withProxyPost } from '@/lib/admin/api-proxy';
 
-export async function POST() {
+async function directPOST(_request: NextRequest): Promise<NextResponse> {
   try {
     const failedTools = await prisma.indexedTool.findMany({
       where: { index_status: 'failed' },
@@ -30,3 +31,5 @@ export async function POST() {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
+
+export const POST = withProxyPost('/indexer/retry-failed', directPOST);

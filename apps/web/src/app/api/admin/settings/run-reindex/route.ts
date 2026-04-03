@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { enqueueReindexTrigger } from '@toolpilot/queue';
 import pino from 'pino';
+import { withProxyPost } from '@/lib/admin/api-proxy';
 
 const logger = pino({ name: 'api:admin:settings:run-reindex' });
 
-export async function POST() {
+async function directPOST(_request: NextRequest): Promise<NextResponse> {
   try {
     const result = await enqueueReindexTrigger();
 
@@ -22,3 +23,5 @@ export async function POST() {
     return NextResponse.json({ error: 'Failed to trigger reindex' }, { status: 500 });
   }
 }
+
+export const POST = withProxyPost('/indexer/reindex', directPOST);

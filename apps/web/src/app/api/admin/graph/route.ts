@@ -3,6 +3,7 @@ import neo4j from 'neo4j-driver';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { mapTopologyRows } from '@/lib/admin/graph-topology';
+import { withProxyGet } from '@/lib/admin/api-proxy';
 
 const QuerySchema = z.object({
   category: z.string().default(''),
@@ -37,7 +38,7 @@ function toNum(val: unknown): number {
   return Number(val) || 0;
 }
 
-export async function GET(request: NextRequest) {
+async function directGET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = request.nextUrl;
   const parsed = QuerySchema.safeParse({
     category: searchParams.get('category') ?? '',
@@ -103,3 +104,5 @@ export async function GET(request: NextRequest) {
     await session.close();
   }
 }
+
+export const GET = withProxyGet('/graph', directGET);
