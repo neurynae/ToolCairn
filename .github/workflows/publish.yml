@@ -46,6 +46,6 @@ jobs:
           pnpm --filter @neurynae/toolcairn-mcp build
 
       - name: Publish @neurynae/toolcairn-mcp
-        run: pnpm --filter @neurynae/toolcairn-mcp publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          pnpm --filter @neurynae/toolcairn-mcp publish --access public --no-git-checks
