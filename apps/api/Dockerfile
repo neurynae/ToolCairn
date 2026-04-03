@@ -23,13 +23,14 @@ RUN pnpm install --no-frozen-lockfile
 RUN pnpm --filter @toolpilot/db run db:generate
 
 # Build all packages in dependency order
+# Build order follows dependency graph: config/core → db/vector/graph/queue → search → tools → api
 RUN pnpm --filter @toolpilot/config build && \
     pnpm --filter @toolpilot/core build && \
     pnpm --filter @toolpilot/db build && \
+    pnpm --filter @toolpilot/vector build && \
     pnpm --filter @toolpilot/graph build && \
     pnpm --filter @toolpilot/queue build && \
     pnpm --filter @toolpilot/search build && \
-    pnpm --filter @toolpilot/vector build && \
     pnpm --filter @toolpilot/tools build && \
     pnpm --filter @toolpilot/api build
 
