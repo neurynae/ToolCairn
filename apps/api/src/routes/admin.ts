@@ -588,7 +588,7 @@ RETURN edge.toolId AS toolId, topicId, topicNodeType, edge.edgeType AS edgeType
         await Promise.all([
           prisma.indexedTool.groupBy({ by: ['index_status'], _count: { index_status: true } }),
           prisma.indexedTool.findMany({
-            where: { index_status: 'indexed' },
+            where: { index_status: 'indexed', last_indexed_at: { not: null } },
             orderBy: { last_indexed_at: 'desc' },
             take: 10,
             select: { github_url: true, graph_node_id: true, last_indexed_at: true },
@@ -600,7 +600,7 @@ RETURN edge.toolId AS toolId, topicId, topicNodeType, edge.edgeType AS edgeType
             select: { github_url: true, error_message: true, retry_count: true, updated_at: true },
           }),
           prisma.indexedTool.findFirst({
-            where: { index_status: 'indexed' },
+            where: { index_status: 'indexed', last_indexed_at: { not: null } },
             orderBy: { last_indexed_at: 'desc' },
             select: { last_indexed_at: true },
           }),
@@ -820,8 +820,8 @@ async function checkRedis() {
     await redis.ping();
     const latencyMs = Date.now() - start;
     const [indexLen, schedulerLen] = await Promise.all([
-      redis.xlen('toolpilot:index').catch(() => 0),
-      redis.xlen('toolpilot:scheduler').catch(() => 0),
+      getRealQueueDepth(redis, 'toolpilot:index'),
+      getRealQueueDepth(redis, 'toolpilot:scheduler'),
     ]);
     return {
       ok: true as const,
@@ -833,13 +833,26 @@ async function checkRedis() {
   }
 }
 
+async function getRealQueueDepth(redis: Redis, stream: string): Promise<number> {
+  try {
+    const groups = (await redis.xinfo('GROUPS', stream)) as unknown[][];
+    if (!groups?.length) return 0;
+    const group = groups[0] as unknown[];
+    const obj: Record<string, number> = {};
+    for (let i = 0; i < group.length - 1; i += 2) obj[String(group[i])] = Number(group[i + 1]);
+    return (obj['lag'] ?? 0) + (obj['pending'] ?? 0);
+  } catch {
+    return redis.xlen(stream).catch(() => 0);
+  }
+}
+
 async function getQueueDepth() {
   const redis = new Redis(config.REDIS_URL, { lazyConnect: true, connectTimeout: 3000 });
   try {
     await redis.connect();
     const [indexLen, schedulerLen] = await Promise.all([
-      redis.xlen('toolpilot:index').catch(() => 0),
-      redis.xlen('toolpilot:scheduler').catch(() => 0),
+      getRealQueueDepth(redis, 'toolpilot:index'),
+      getRealQueueDepth(redis, 'toolpilot:scheduler'),
     ]);
     return { index: indexLen, scheduler: schedulerLen };
   } catch {
