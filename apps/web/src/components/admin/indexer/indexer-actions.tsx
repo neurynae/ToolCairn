@@ -3,11 +3,19 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { CircleDot, GitBranch, RefreshCw, RotateCcw, Trash2 } from 'lucide-react';
-
-type Counts = { pending: number; indexed: number; failed: number; skipped: number };
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+type Counts = { pending: number; indexed: number; failed: number; skipped: number };
 
 interface StatusSnapshot {
   counts: { pending: number; indexed: number; failed: number; skipped: number };
