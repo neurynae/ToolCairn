@@ -51,12 +51,17 @@ export default async function SettingsPage() {
     updated_at: new Date(),
   };
 
-  const data = {
-    ...(settings ?? defaults),
-    last_discovery_run: settings?.last_discovery_run?.toISOString() ?? null,
-    last_reindex_run: settings?.last_reindex_run?.toISOString() ?? null,
-    updated_at: (settings ?? defaults).updated_at.toISOString(),
-  } as AppSettingsClient;
+  const src = settings ?? defaults;
+  // updated_at / last_*_run may be a Date (Prisma) or ISO string (API proxy) at runtime
+  const toISO = (v: Date | string | null): string | null =>
+    v == null ? null : v instanceof Date ? v.toISOString() : String(v);
+
+  const data: AppSettingsClient = {
+    ...src,
+    last_discovery_run: toISO(src.last_discovery_run),
+    last_reindex_run: toISO(src.last_reindex_run),
+    updated_at: toISO(src.updated_at) ?? new Date().toISOString(),
+  };
 
   return (
     <>
