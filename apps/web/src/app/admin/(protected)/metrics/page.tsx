@@ -1,5 +1,6 @@
 import type { MetricsData } from '@/lib/admin/metrics.service';
 import { getMetrics } from '@/lib/admin/metrics.service';
+import { PROXY_ENABLED, proxyGet } from '@/lib/admin/api-proxy';
 import { QuestionEffectivenessTable } from '@/components/admin/metrics/question-effectiveness-table';
 import {
   OutcomeDistributionChartLoader as OutcomeDistributionChart,
@@ -26,7 +27,13 @@ export default async function MetricsPage() {
   let data: MetricsData | null = null;
 
   try {
-    data = await getMetrics(30);
+    if (PROXY_ENABLED) {
+      const res = await proxyGet('/metrics', new URLSearchParams({ days: '30' }));
+      const json = (await res.json()) as { ok: boolean; data?: MetricsData };
+      if (json.ok && json.data) data = json.data;
+    } else {
+      data = await getMetrics(30);
+    }
   } catch {
     // Postgres unavailable
   }

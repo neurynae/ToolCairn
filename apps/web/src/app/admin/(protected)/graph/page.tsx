@@ -80,9 +80,10 @@ async function fetchTopology(): Promise<GraphTopologyResult> {
 
 async function fetchTopologyViaProxy(): Promise<GraphTopologyResult> {
   const res = await proxyGet('/graph', new URLSearchParams({ limit: '200' }));
-  const json = (await res.json()) as { ok: boolean; data?: GraphTopologyResult; error?: string };
+  // apps/api returns raw TopologyRow[] — must map to GraphTopologyResult here
+  const json = (await res.json()) as { ok: boolean; data?: TopologyRow[]; error?: string };
   if (!json.ok || !json.data) throw new Error(json.error ?? 'Graph API error');
-  return json.data;
+  return mapTopologyRows(json.data, []);
 }
 
 export default async function GraphPage() {
