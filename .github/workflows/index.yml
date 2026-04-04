@@ -9,6 +9,9 @@ jobs:
   trigger-indexer:
     name: Trigger indexer on VPS
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read   # needed to pull from GHCR
 
     steps:
       - name: Run indexer via SSH
@@ -18,8 +21,17 @@ jobs:
           username: deploy
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 120m
+          envs: GITHUB_TOKEN,GITHUB_ACTOR
           script: |
             cd /opt/toolcairn
             echo "Starting indexer at $(date)"
+            # Authenticate with GHCR to pull the indexer image
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+            # Pull the latest indexer image
+            docker compose -f docker-compose.prod.yml --env-file .env.prod --profile indexer pull indexer
+            # Run the indexer (processes queue jobs + checks discovery schedule)
             docker compose -f docker-compose.prod.yml --env-file .env.prod --profile indexer run --rm indexer
             echo "Indexer finished at $(date)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
