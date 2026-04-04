@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const config: NextConfig = {
+
   // Skip Next.js's own type checking during build.
   // Type safety is enforced via `pnpm typecheck` (tsc with project references)
   // which properly resolves Prisma and workspace package types.

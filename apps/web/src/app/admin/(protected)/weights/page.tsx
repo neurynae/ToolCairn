@@ -1,3 +1,6 @@
+// Prevent static prerendering — requires live DB data at request time
+export const dynamic = 'force-dynamic';
+
 import {
   GET_EDGE_WEIGHT_SUMMARY,
   getMemgraphSession,

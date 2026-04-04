@@ -1,3 +1,6 @@
+// Prevent static prerendering — requires live DB data at request time
+export const dynamic = 'force-dynamic';
+
 import type { MetricsData } from '@/lib/admin/metrics.service';
 import { getMetrics } from '@/lib/admin/metrics.service';
 import { PROXY_ENABLED, proxyGet } from '@/lib/admin/api-proxy';

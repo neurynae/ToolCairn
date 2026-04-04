@@ -5,8 +5,9 @@
   "license": "MIT",
   "scripts": {
     "build": "next build",
+    "build:prod": "rimraf .next && cross-env NODE_ENV=production next build",
     "dev": "next dev --port 3001",
-    "start": "next start",
+    "start": "next start --port 3001",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",

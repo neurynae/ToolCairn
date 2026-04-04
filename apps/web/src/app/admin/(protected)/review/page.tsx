@@ -1,3 +1,6 @@
+// Prevent static prerendering — requires live DB data at request time
+export const dynamic = 'force-dynamic';
+
 import type { ReviewItem } from '@/lib/admin/staged-review.service';
 import { listPendingReview } from '@/lib/admin/staged-review.service';
 import { ReviewQueue } from '@/components/admin/review/review-queue';

@@ -1,3 +1,6 @@
+// Prevent static prerendering — requires live DB data at request time
+export const dynamic = 'force-dynamic';
+
 import neo4j from 'neo4j-driver';
 import { GET_GRAPH_TOPOLOGY, getMemgraphSession, type TopologyRow } from '@toolpilot/graph';
 import { GraphCanvasLoader } from '@/components/admin/graph/graph-canvas-loader';

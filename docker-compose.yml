@@ -41,6 +41,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
+    restart: always
     ports:
       - "5432:5432"
     environment:
@@ -69,29 +70,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Indexer (persistent — watches queue, processes jobs immediately) ──────────
-  indexer:
-    build:
-      context: .
-      dockerfile: apps/indexer/Dockerfile
-    restart: unless-stopped
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://toolpilot:toolpilot@postgres:5432/toolpilot
-      REDIS_URL: redis://redis:6379
-      MEMGRAPH_URL: bolt://memgraph:7687
-      QDRANT_URL: http://qdrant:6333
-      NOMIC_API_KEY: ${NOMIC_API_KEY:-}
-      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      memgraph:
-        condition: service_healthy
-      qdrant:
-        condition: service_healthy
 
 volumes:
   memgraph_data:

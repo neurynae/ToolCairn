@@ -1,14 +1,66 @@
+import { config } from '@toolpilot/config';
 import { ensureAllCollections } from '@toolpilot/vector';
+import { Redis } from 'ioredis';
 import pino from 'pino';
 import { startIndexWorker } from './workers/index-worker.js';
 
 const logger = pino({ name: '@toolpilot/indexer' });
 
+const LOCK_KEY = 'toolpilot:indexer:lock';
+const LOCK_TTL_SEC = 3600; // 1 hour — auto-expires if the process crashes
+
+/**
+ * Acquire a Redis-based mutex lock so only ONE indexer instance runs at a time.
+ * Returns the Redis client (to release lock on exit) or exits the process if
+ * another instance already holds the lock.
+ */
+async function acquireLock(): Promise<Redis> {
+  const redis = new Redis(config.REDIS_URL, { lazyConnect: true, connectTimeout: 5000 });
+  await redis.connect();
+
+  const lockValue = `pid:${process.pid}`;
+  const acquired = await redis.set(LOCK_KEY, lockValue, 'EX', LOCK_TTL_SEC, 'NX');
+
+  if (!acquired) {
+    const holder = await redis.get(LOCK_KEY);
+    logger.warn({ holder }, 'Another indexer instance is already running — exiting');
+    await redis.disconnect();
+    process.exit(0);
+  }
+
+  logger.info({ lockValue, ttlSec: LOCK_TTL_SEC }, 'Indexer lock acquired');
+  return redis;
+}
+
+async function releaseLock(redis: Redis): Promise<void> {
+  try {
+    await redis.del(LOCK_KEY);
+    await redis.disconnect();
+    logger.info('Indexer lock released');
+  } catch {
+    // ignore — TTL will clean it up anyway
+  }
+}
+
 async function main(): Promise<void> {
   logger.info('ToolPilot Indexer starting');
-  await ensureAllCollections();
-  logger.info('Qdrant collections ready');
-  await startIndexWorker();
+
+  const lockRedis = await acquireLock();
+
+  // Release lock on any exit signal
+  const cleanup = () => releaseLock(lockRedis);
+  process.once('SIGTERM', cleanup);
+  process.once('SIGINT', cleanup);
+
+  try {
+    await ensureAllCollections();
+    logger.info('Qdrant collections ready');
+    await startIndexWorker();
+  } finally {
+    await cleanup();
+    process.off('SIGTERM', cleanup);
+    process.off('SIGINT', cleanup);
+  }
 }
 
 main().catch((error: unknown) => {

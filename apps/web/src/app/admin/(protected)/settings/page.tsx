@@ -1,3 +1,6 @@
+// Prevent static prerendering — requires live DB data at request time
+export const dynamic = 'force-dynamic';
+
 import { prisma } from '@/lib/admin/prisma';
 import { SettingsForm, type AppSettingsClient } from './settings-form';
 import { PageHeader } from '@/components/admin/page-header';

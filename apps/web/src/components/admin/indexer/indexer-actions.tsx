@@ -3,13 +3,24 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CircleDot, GitBranch, RefreshCw, RotateCcw, Square } from 'lucide-react';
+import { CircleDot, GitBranch, RefreshCw, RotateCcw, Trash2 } from 'lucide-react';
+
+type Counts = { pending: number; indexed: number; failed: number; skipped: number };
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface StatusSnapshot {
   counts: { pending: number; indexed: number; failed: number; skipped: number };
-  recentlyIndexed: Array<{ github_url: string; last_indexed_at: string | null }>;
+  recentlyIndexed: Array<{
+    github_url: string;
+    graph_node_id?: string | null;
+    last_indexed_at: string | null;
+  }>;
+  recentFailures?: Array<{
+    github_url: string;
+    error_message?: string | null;
+    retry_count: number;
+  }>;
   queueDepth?: { index: number; scheduler: number };
 }
 
@@ -17,6 +28,25 @@ interface LogEntry {
   ts: string;
   text: string;
   type: 'info' | 'success' | 'error' | 'muted';
+}
+
+const SESSION_KEY = 'indexer_log';
+
+function loadLog(): LogEntry[] {
+  try {
+    const s = sessionStorage.getItem(SESSION_KEY);
+    return s ? (JSON.parse(s) as LogEntry[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLog(log: LogEntry[]) {
+  try {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(log.slice(-200)));
+  } catch {
+    /* ignore */
+  }
 }
 
 async function triggerAction(path: string): Promise<{ message?: string; error?: string }> {
@@ -42,51 +72,55 @@ function now() {
   });
 }
 
+const STATUS_BADGE: Record<string, string> = {
+  indexed: 'text-emerald-400 border-emerald-400/30 bg-emerald-400/10',
+  pending: 'text-amber-400 border-amber-400/30 bg-amber-400/10',
+  failed: 'text-red-400 border-red-400/30 bg-red-400/10',
+  skipped: 'text-muted-foreground border-border',
+};
+
 export function IndexerActions({
   queueDepth: initialQueueDepth,
-}: { queueDepth: { index: number; scheduler: number } }) {
+  initialCounts,
+  initialRecentlyIndexed = [],
+  initialRecentFailures = [],
+}: {
+  queueDepth: { index: number; scheduler: number };
+  initialCounts: Counts;
+  initialRecentlyIndexed?: StatusSnapshot['recentlyIndexed'];
+  initialRecentFailures?: NonNullable<StatusSnapshot['recentFailures']>;
+}) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
-  const [watching, setWatching] = useState(false);
-  const [done, setDone] = useState(false); // job finished but panel still open
-  const [log, setLog] = useState<LogEntry[]>([]);
+  const [log, setLog] = useState<LogEntry[]>(loadLog);
   const [liveQueue, setLiveQueue] = useState(initialQueueDepth);
-  const [liveCounts, setLiveCounts] = useState<StatusSnapshot['counts'] | null>(null);
+  const [liveCounts, setLiveCounts] = useState<Counts>(initialCounts);
+  const [recentlyIndexed, setRecentlyIndexed] =
+    useState<StatusSnapshot['recentlyIndexed']>(initialRecentlyIndexed);
+  const [recentFailures, setRecentFailures] =
+    useState<NonNullable<StatusSnapshot['recentFailures']>>(initialRecentFailures);
+  // active = indexer currently processing (queue > 0)
+  const [active, setActive] = useState(false);
 
-  // Track newest last_indexed_at seen — any tool with a newer timestamp is new activity
   const prevLatestAt = useRef<string | null>(null);
   const prevFailed = useRef(0);
   const prevQueueIndex = useRef<number | null>(null);
-  const zeroStreak = useRef(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const logEndRef = useRef<HTMLDivElement>(null);
-  // Use a ref for the poll fn so the interval always calls the latest version
+  const logContainerRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<() => Promise<void>>(async () => {});
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const addLog = useCallback((text: string, type: LogEntry['type'] = 'info') => {
-    setLog((prev) => [...prev, { ts: now(), text, type }]);
+    setLog((prev) => {
+      const next = [...prev, { ts: now(), text, type }];
+      saveLog(next);
+      return next;
+    });
   }, []);
 
-  // stopPolling: stops the interval but keeps panel open (shows "done" state)
-  const stopPolling = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = null;
-    setDone(true);
-  }, []);
-
-  // closePanel: user-initiated close — hides panel and refreshes server data
-  const closePanel = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = null;
-    setWatching(false);
-    setDone(false);
-    setLog([]);
-    router.refresh();
-  }, [router]);
-
-  // Auto-scroll log to bottom
+  // Scroll log container (not page) to bottom on new entries
   useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = logContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [log]);
 
   const poll = useCallback(async () => {
@@ -94,101 +128,83 @@ export function IndexerActions({
     if (!snap) return;
 
     const qd = snap.queueDepth ?? { index: 0, scheduler: 0 };
-    // Only update queue depth display when server actually returns it
     if (snap.queueDepth !== undefined) {
       setLiveQueue(qd);
-      // Log queue depth changes so the user can see the queue draining
       if (prevQueueIndex.current !== null && qd.index !== prevQueueIndex.current) {
         addLog(`Queue: ${prevQueueIndex.current} → ${qd.index} jobs`, 'muted');
       }
       prevQueueIndex.current = qd.index;
+      setActive(qd.index > 0);
     }
     setLiveCounts(snap.counts);
 
-    // Detect newly indexed / reindexed repos by comparing last_indexed_at timestamp.
-    // This catches both new tools (Discovery) and re-indexed tools (Reindex) because
-    // reindexing updates last_indexed_at even on existing tools.
+    // Detect newly indexed / reindexed tools by last_indexed_at timestamp
     const cutoff = prevLatestAt.current;
     const newlyIndexed = snap.recentlyIndexed.filter(
       (r) => r.last_indexed_at != null && (cutoff == null || r.last_indexed_at > cutoff),
     );
     for (const tool of newlyIndexed) {
-      const repo = tool.github_url.replace('https://github.com/', '');
-      addLog(`✓ Indexed: ${repo}`, 'success');
+      addLog(`✓ Indexed: ${tool.github_url.replace('https://github.com/', '')}`, 'success');
     }
     if (newlyIndexed.length > 0) {
-      // Update cutoff to the newest timestamp we've seen
       const newest = newlyIndexed.reduce((a, b) =>
         (a.last_indexed_at ?? '') > (b.last_indexed_at ?? '') ? a : b,
       );
       prevLatestAt.current = newest.last_indexed_at ?? prevLatestAt.current;
     }
 
-    // Detect new failures (use ref to avoid stale closure)
+    // Update the recently indexed and failure tables
+    setRecentlyIndexed(snap.recentlyIndexed);
+    if (snap.recentFailures) setRecentFailures(snap.recentFailures);
+
+    // Detect new failures
     if (snap.counts.failed > prevFailed.current) {
       addLog(`⚠ ${snap.counts.failed} tool(s) failed`, 'error');
     }
     prevFailed.current = snap.counts.failed;
+  }, [addLog]);
 
-    // Track queue emptying — only auto-stop when server returns queueDepth
-    // (in local dev without proxy, queueDepth is undefined so we skip auto-stop)
-    if (snap.queueDepth !== undefined) {
-      if (qd.index === 0) {
-        zeroStreak.current += 1;
-        if (zeroStreak.current === 1) {
-          addLog('Queue empty — waiting for in-flight jobs…', 'muted');
-        }
-        if (zeroStreak.current >= 3) {
-          zeroStreak.current = Number.POSITIVE_INFINITY; // prevent duplicate fire
-          addLog('✓ Job complete — click Close to refresh page data', 'success');
-          stopPolling();
-        }
-      } else {
-        zeroStreak.current = 0;
-      }
-    }
-  }, [addLog, stopPolling]);
-
-  // Keep pollRef current so the interval always calls the latest version
+  // Keep pollRef up to date
   useEffect(() => {
     pollRef.current = poll;
   }, [poll]);
 
-  const startWatching = useCallback((label: string) => {
-    // Seed prevIndexed with current state so we only log NEW ones
-    fetchStatus().then((snap) => {
-      if (snap) {
-        // Seed cutoff with the newest last_indexed_at so only future activity is logged
-        const latest = snap.recentlyIndexed.find((r) => r.last_indexed_at != null);
-        prevLatestAt.current = latest?.last_indexed_at ?? null;
-        prevFailed.current = snap.counts.failed ?? 0;
-        prevQueueIndex.current = snap.queueDepth?.index ?? null;
-      }
-      zeroStreak.current = 0;
-      setDone(false);
-      setLog([{ ts: now(), text: `▶ ${label} triggered`, type: 'info' }]);
-      setWatching(true);
-      intervalRef.current = setInterval(() => pollRef.current(), 2000);
-    });
+  // Always poll — 2s when active, 5s when idle. Starts on mount, never stops.
+  useEffect(() => {
+    const tick = () => pollRef.current();
+    tick(); // immediate first poll
+    intervalRef.current = setInterval(tick, 3000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, []);
 
-  // Clean up on unmount
-  useEffect(
-    () => () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    },
-    [],
-  );
+  const clearLog = useCallback(() => {
+    setLog([]);
+    saveLog([]);
+    router.refresh();
+  }, [router]);
 
-  async function run(apiPath: string, label: string, watchLabel: string) {
+  async function run(apiPath: string, label: string, triggerLabel: string) {
     setBusy(label);
     try {
       const result = await triggerAction(apiPath);
       if (result.error) throw new Error(result.error);
-      startWatching(watchLabel);
+      addLog(`▶ ${triggerLabel} triggered`, 'info');
+      setActive(true);
+      // Seed timestamp cutoff fresh so new activity shows immediately
+      fetchStatus().then((snap) => {
+        if (!snap) return;
+        const latest = snap.recentlyIndexed.find((r) => r.last_indexed_at != null);
+        prevLatestAt.current = latest?.last_indexed_at ?? null;
+        prevFailed.current = snap.counts.failed ?? 0;
+        prevQueueIndex.current = snap.queueDepth?.index ?? null;
+      });
     } catch (err) {
-      addLog(`✗ ${label} failed: ${err instanceof Error ? err.message : 'Unknown'}`, 'error');
-      setWatching(true); // show log even on error
+      addLog(
+        `✗ ${triggerLabel} failed: ${err instanceof Error ? err.message : 'Unknown'}`,
+        'error',
+      );
     } finally {
       setBusy(null);
     }
@@ -203,8 +219,8 @@ export function IndexerActions({
 
   return (
     <div className="space-y-4">
+      {/* Queue depth + Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Queue depth */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Queue Depth</CardTitle>
@@ -224,7 +240,6 @@ export function IndexerActions({
           </CardContent>
         </Card>
 
-        {/* Actions */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Actions</CardTitle>
@@ -265,75 +280,183 @@ export function IndexerActions({
         </Card>
       </div>
 
-      {/* Live status log — shown while watching or done */}
-      {watching && (
-        <Card
-          className={
-            done ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-sky-500/20 bg-sky-500/5'
-          }
-        >
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {done ? (
-                  <CircleDot className="h-3.5 w-3.5 text-emerald-400" />
-                ) : (
-                  <CircleDot className="h-3.5 w-3.5 text-sky-400 animate-pulse" />
-                )}
-                <CardTitle
-                  className={`text-sm font-medium ${done ? 'text-emerald-400' : 'text-sky-400'}`}
-                >
-                  {done ? 'Job Complete' : 'Live Status'}
-                </CardTitle>
-                {liveCounts && (
-                  <div className="flex gap-1.5 ml-2">
+      {/* Activity log — always visible */}
+      <Card className={active ? 'border-sky-500/20 bg-sky-500/5' : 'border-border/50'}>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CircleDot
+                className={`h-3.5 w-3.5 ${active ? 'text-sky-400 animate-pulse' : 'text-muted-foreground'}`}
+              />
+              <CardTitle
+                className={`text-sm font-medium ${active ? 'text-sky-400' : 'text-muted-foreground'}`}
+              >
+                {active ? 'Indexer Active' : 'Activity Log'}
+              </CardTitle>
+              {liveCounts && (
+                <div className="flex gap-1.5 ml-2">
+                  <Badge
+                    variant="outline"
+                    className="text-xs text-amber-400 border-amber-400/30 bg-amber-400/10"
+                  >
+                    {liveCounts.pending} pending
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className="text-xs text-emerald-400 border-emerald-400/30 bg-emerald-400/10"
+                  >
+                    {liveCounts.indexed} indexed
+                  </Badge>
+                  {liveCounts.failed > 0 && (
                     <Badge
                       variant="outline"
-                      className="text-xs text-amber-400 border-amber-400/30 bg-amber-400/10"
+                      className="text-xs text-red-400 border-red-400/30 bg-red-400/10"
                     >
-                      {liveCounts.pending} pending
+                      {liveCounts.failed} failed
                     </Badge>
-                    <Badge
-                      variant="outline"
-                      className="text-xs text-emerald-400 border-emerald-400/30 bg-emerald-400/10"
-                    >
-                      {liveCounts.indexed} indexed
-                    </Badge>
-                    {liveCounts.failed > 0 && (
-                      <Badge
-                        variant="outline"
-                        className="text-xs text-red-400 border-red-400/30 bg-red-400/10"
-                      >
-                        {liveCounts.failed} failed
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
+            </div>
+            {log.length > 0 && (
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={closePanel}
+                onClick={clearLog}
                 className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
               >
-                <Square className="h-3 w-3" />
-                {done ? 'Close & refresh' : 'Stop watching'}
+                <Trash2 className="h-3 w-3" />
+                Clear
               </Button>
-            </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div
+            ref={logContainerRef}
+            className="bg-black/40 rounded-md p-3 h-52 overflow-y-auto font-mono text-xs border border-border/40"
+          >
+            {log.length === 0 ? (
+              <p className="text-muted-foreground/50 text-center mt-16">
+                Idle — trigger an action to see live activity
+              </p>
+            ) : (
+              <div className="space-y-0.5">
+                {log.map((entry, i) => (
+                  <div key={i} className="flex gap-3 leading-relaxed">
+                    <span className="text-muted-foreground shrink-0">{entry.ts}</span>
+                    <span className={logTypeClass[entry.type]}>{entry.text}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Status counters — live via polling */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {(
+          [
+            { label: 'Indexed', key: 'indexed' },
+            { label: 'Pending', key: 'pending' },
+            { label: 'Failed', key: 'failed' },
+            { label: 'Skipped', key: 'skipped' },
+          ] as const
+        ).map(({ label, key }) => (
+          <Card key={key}>
+            <CardHeader className="pb-1">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
+                <Badge variant="outline" className={`text-xs ${STATUS_BADGE[key]}`}>
+                  {key}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold">{liveCounts[key]}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Recently Indexed — live via polling */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">Recently Indexed</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {recentlyIndexed.length === 0 ? (
+            <p className="text-sm text-muted-foreground px-6 pb-6">No tools indexed yet.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Repository</TableHead>
+                  <TableHead>Node ID</TableHead>
+                  <TableHead>Indexed At</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentlyIndexed.map((tool) => (
+                  <TableRow key={tool.github_url}>
+                    <TableCell className="font-mono text-xs">
+                      {tool.github_url.replace('https://github.com/', '')}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">
+                      {tool.graph_node_id?.slice(0, 8) ?? '—'}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {tool.last_indexed_at ? new Date(tool.last_indexed_at).toLocaleString() : '—'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Recent Failures — live via polling */}
+      {recentFailures.length > 0 ? (
+        <Card className="border-red-500/20">
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-red-400">
+              Recent Failures <span className="text-muted-foreground font-normal">(last 5)</span>
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="bg-black/40 rounded-md p-3 h-52 overflow-y-auto font-mono text-xs space-y-0.5 border border-border/40">
-              {log.map((entry, i) => (
-                <div key={i} className="flex gap-3 leading-relaxed">
-                  <span className="text-muted-foreground shrink-0">{entry.ts}</span>
-                  <span className={logTypeClass[entry.type]}>{entry.text}</span>
-                </div>
-              ))}
-              <div ref={logEndRef} />
-            </div>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Repository</TableHead>
+                  <TableHead>Error</TableHead>
+                  <TableHead>Retries</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentFailures.map((tool) => (
+                  <TableRow key={tool.github_url}>
+                    <TableCell className="font-mono text-xs">
+                      {tool.github_url.replace('https://github.com/', '')}
+                    </TableCell>
+                    <TableCell className="text-xs text-red-400 max-w-sm truncate">
+                      {tool.error_message ?? '—'}
+                    </TableCell>
+                    <TableCell className="text-xs">{tool.retry_count}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
-      )}
+      ) : liveCounts.indexed > 0 ? (
+        <Card className="border-emerald-500/20 bg-emerald-500/5">
+          <CardContent className="pt-4 pb-4 text-sm text-emerald-400">
+            No indexer failures — all systems nominal.
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
