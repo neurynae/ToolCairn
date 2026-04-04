@@ -1,6 +1,6 @@
 /**
  * Admin REST endpoints — exposed at /v1/admin/*
- * Includes: login, health, stats, tools (list + detail), edges, graph,
+ * Includes: login, health, stats, tools (list + detail), edges, graph, progress,
  * review, metrics, events, sessions, outcomes, indexer, settings, topics.
  *
  * All routes (except POST /login) require a valid admin JWT in
