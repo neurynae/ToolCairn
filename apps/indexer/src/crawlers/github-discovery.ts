@@ -15,6 +15,7 @@
 import { Octokit } from '@octokit/rest';
 import { config } from '@toolpilot/config';
 import pino from 'pino';
+import { setProgress } from '../progress.js';
 import { getRateLimitStatus, searchPreFlight, sleep, updateSearchRateState } from './rate-limit.js';
 
 export { getRateLimitStatus };
@@ -154,9 +155,16 @@ export async function discoverReposAcrossTopics(
 ): Promise<DiscoveredRepo[]> {
   const allRepos = new Map<string, DiscoveredRepo>();
 
-  for (const topic of topics) {
+  for (let i = 0; i < topics.length; i++) {
+    const topic = topics[i]!;
     // Pre-flight before each topic (Search API: 30/min limit)
     await searchPreFlight();
+
+    await setProgress(
+      `Searching GitHub: topic "${topic}" (${i + 1}/${topics.length})`,
+      `${allRepos.size} unique repos found so far`,
+      { topicIdx: i + 1, totalTopics: topics.length, reposSoFar: allRepos.size },
+    );
 
     try {
       const repos = await searchReposByTopic(topic, minStars, pushedWithinDays, maxPerTopic);
@@ -169,6 +177,7 @@ export async function discoverReposAcrossTopics(
         }
       }
 
+      logger.debug({ topic, found: repos.length, totalUnique: allRepos.size }, 'Topic search done');
       // Small delay between topics to spread load
       await sleep(500);
     } catch (err) {

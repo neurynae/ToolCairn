@@ -15,6 +15,7 @@ import { PrismaClient } from '@toolpilot/db';
 import { enqueueIndexJob } from '@toolpilot/queue';
 import pino from 'pino';
 import { discoverReposAcrossTopics } from '../crawlers/github-discovery.js';
+import { clearProgress, setProgress } from '../progress.js';
 
 const logger = pino({ name: '@toolpilot/indexer:discovery-scheduler' });
 
@@ -88,10 +89,12 @@ export async function runDiscoveryScheduler(): Promise<DiscoveryResult> {
 
   try {
     // 1. Check if discovery is enabled
+    await setProgress('Checking discovery settings…');
     const settings = await getSettings(prisma);
 
     if (!settings.enabled) {
       logger.info('Discovery scheduler is disabled — skipping run');
+      await clearProgress();
       return { found: 0, newToSystem: 0, enqueued: 0, errors: [] };
     }
 
@@ -101,10 +104,15 @@ export async function runDiscoveryScheduler(): Promise<DiscoveryResult> {
     );
 
     // 2. Get already-indexed URLs
+    await setProgress(`Loading already-indexed tools…`);
     const indexedUrls = await getIndexedUrls(prisma);
     logger.info({ indexedCount: indexedUrls.size }, 'Fetched already-indexed tools');
 
     // 3. Discover repos across topics
+    await setProgress(
+      `Searching GitHub across ${settings.topics.length} topics (min ${settings.minStars}★)…`,
+      `Topics: ${settings.topics.slice(0, 5).join(', ')}${settings.topics.length > 5 ? ` +${settings.topics.length - 5} more` : ''}`,
+    );
     const discovered = await discoverReposAcrossTopics(
       settings.topics,
       settings.minStars,
@@ -115,6 +123,7 @@ export async function runDiscoveryScheduler(): Promise<DiscoveryResult> {
     logger.info({ discovered: discovered.length }, 'GitHub discovery complete');
 
     // 4. Filter out already-indexed repos
+    await setProgress(`Found ${discovered.length} repos — filtering already-indexed…`);
     const newRepos = discovered.filter((repo) => {
       const url = `https://github.com/${repo.fullName}`;
       return !indexedUrls.has(url);
@@ -122,6 +131,12 @@ export async function runDiscoveryScheduler(): Promise<DiscoveryResult> {
 
     // 5. Enqueue new repos (limit to batch size)
     const toEnqueue = newRepos.slice(0, settings.batchSize);
+    await setProgress(
+      `Enqueuing ${toEnqueue.length} new repos for indexing…`,
+      `${newRepos.length} new found, ${discovered.length - newRepos.length} already known`,
+      { found: discovered.length, newToSystem: newRepos.length, enqueuing: toEnqueue.length },
+    );
+
     let enqueued = 0;
     const errors: string[] = [];
 
@@ -148,6 +163,12 @@ export async function runDiscoveryScheduler(): Promise<DiscoveryResult> {
       update: { last_discovery_run: new Date() },
     });
 
+    await setProgress(
+      `Discovery complete — ${enqueued} new repos queued for indexing`,
+      errors.length > 0 ? `${errors.length} enqueue errors` : undefined,
+      { found: discovered.length, newToSystem: newRepos.length, enqueued },
+    );
+
     logger.info(
       { found: discovered.length, newToSystem: newRepos.length, enqueued },
       'Discovery scheduler complete',
@@ -160,6 +181,7 @@ export async function runDiscoveryScheduler(): Promise<DiscoveryResult> {
       errors,
     };
   } catch (err) {
+    await setProgress('Discovery failed — see indexer logs');
     logger.error({ err }, 'Discovery scheduler failed');
     throw err;
   } finally {

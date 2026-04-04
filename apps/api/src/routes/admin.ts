@@ -628,6 +628,24 @@ RETURN edge.toolId AS toolId, topicId, topicNodeType, edge.edgeType AS edgeType
     }
   });
 
+  // ── GET /v1/admin/indexer/progress ────────────────────────────────────────
+  app.get('/indexer/progress', async (c) => {
+    const redis = new Redis(config.REDIS_URL, {
+      maxRetriesPerRequest: 0,
+      connectTimeout: 2000,
+      lazyConnect: true,
+    });
+    try {
+      await redis.connect();
+      const raw = await redis.get('toolpilot:indexer:progress');
+      return c.json(ok({ progress: raw ? JSON.parse(raw) : null }));
+    } catch {
+      return c.json(ok({ progress: null }));
+    } finally {
+      redis.disconnect();
+    }
+  });
+
   // ── POST /v1/admin/indexer/discovery ───────────────────────────────────────
   app.post('/indexer/discovery', async (c) => {
     try {

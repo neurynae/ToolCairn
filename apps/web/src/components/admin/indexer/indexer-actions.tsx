@@ -32,6 +32,13 @@ interface StatusSnapshot {
   queueDepth?: { index: number; scheduler: number };
 }
 
+interface ProgressState {
+  phase: string;
+  detail?: string;
+  counts?: Record<string, number>;
+  ts: string;
+}
+
 interface LogEntry {
   ts: string;
   text: string;
@@ -60,6 +67,16 @@ function saveLog(log: LogEntry[]) {
 async function triggerAction(path: string): Promise<{ message?: string; error?: string }> {
   const res = await fetch(path, { method: 'POST' });
   return res.json() as Promise<{ message?: string; error?: string }>;
+}
+
+async function fetchProgress(): Promise<ProgressState | null> {
+  try {
+    const res = await fetch('/api/admin/indexer/progress', { cache: 'no-store' });
+    const json = (await res.json()) as { ok: boolean; data?: { progress: ProgressState | null } };
+    return json.ok ? (json.data?.progress ?? null) : null;
+  } catch {
+    return null;
+  }
 }
 
 async function fetchStatus(): Promise<StatusSnapshot | null> {
@@ -113,6 +130,8 @@ export function IndexerActions({
   const prevLatestAt = useRef<string | null>(null);
   const prevFailed = useRef(0);
   const prevQueueIndex = useRef<number | null>(null);
+  const prevSchedulerIndex = useRef<number | null>(null);
+  const prevProgressTs = useRef<string | null>(null);
   const logContainerRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<() => Promise<void>>(async () => {});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -139,10 +158,17 @@ export function IndexerActions({
     if (snap.queueDepth !== undefined) {
       setLiveQueue(qd);
       if (prevQueueIndex.current !== null && qd.index !== prevQueueIndex.current) {
-        addLog(`Queue: ${prevQueueIndex.current} → ${qd.index} jobs`, 'muted');
+        addLog(`Index queue: ${prevQueueIndex.current} → ${qd.index} jobs`, 'muted');
       }
       prevQueueIndex.current = qd.index;
-      setActive(qd.index > 0);
+      if (prevSchedulerIndex.current !== null && qd.scheduler !== prevSchedulerIndex.current) {
+        addLog(
+          `Scheduler queue: ${prevSchedulerIndex.current} → ${qd.scheduler} (discovery jobs pending)`,
+          'muted',
+        );
+      }
+      prevSchedulerIndex.current = qd.scheduler;
+      setActive(qd.index > 0 || qd.scheduler > 0);
     }
     setLiveCounts(snap.counts);
 
@@ -170,6 +196,14 @@ export function IndexerActions({
       addLog(`⚠ ${snap.counts.failed} tool(s) failed`, 'error');
     }
     prevFailed.current = snap.counts.failed;
+
+    // Poll indexer progress (discovery/reindex phase messages)
+    const progress = await fetchProgress();
+    if (progress && progress.ts !== prevProgressTs.current) {
+      prevProgressTs.current = progress.ts;
+      const detail = progress.detail ? ` — ${progress.detail}` : '';
+      addLog(`⚙ ${progress.phase}${detail}`, 'muted');
+    }
   }, [addLog]);
 
   // Keep pollRef up to date
@@ -207,6 +241,7 @@ export function IndexerActions({
         prevLatestAt.current = latest?.last_indexed_at ?? null;
         prevFailed.current = snap.counts.failed ?? 0;
         prevQueueIndex.current = snap.queueDepth?.index ?? null;
+        prevSchedulerIndex.current = snap.queueDepth?.scheduler ?? null;
       });
     } catch (err) {
       addLog(
@@ -258,7 +293,13 @@ export function IndexerActions({
               size="sm"
               variant="outline"
               disabled={busy !== null}
-              onClick={() => run('/api/admin/settings/run-discovery', 'Discovery', 'Discovery')}
+              onClick={() =>
+                run(
+                  '/api/admin/settings/run-discovery',
+                  'Discovery',
+                  'Discovery — searching GitHub for new repos (may take 5–10 min)',
+                )
+              }
               className="gap-2"
             >
               <GitBranch className="h-3.5 w-3.5" />
