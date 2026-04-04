@@ -139,6 +139,7 @@ export function IndexerActions({
           addLog('Queue empty — waiting for in-flight jobs…', 'muted');
         }
         if (zeroStreak.current >= 3) {
+          zeroStreak.current = Number.POSITIVE_INFINITY; // prevent duplicate fire
           addLog('✓ Job complete — click Close to refresh page data', 'success');
           stopPolling();
         }
