@@ -119,8 +119,25 @@ export function adminRoutes() {
   app.get('/graph', async (c) => {
     const category = c.req.query('category') ?? '';
     const limit = Math.min(500, Math.max(1, Number(c.req.query('limit') ?? 200)));
+    const TOPIC_LIMIT = 40;
+    const GET_TOOL_TOPIC_EDGES = `
+UNWIND $toolIds AS toolId
+MATCH (t:Tool {id: toolId})-[e]->(topic)
+WHERE topic:UseCase OR topic:Pattern OR topic:Stack
+WITH topic.name AS topicId,
+     CASE WHEN topic:UseCase THEN 'UseCase'
+          WHEN topic:Pattern THEN 'Pattern'
+          ELSE 'Stack' END AS topicNodeType,
+     collect({toolId: t.id, edgeType: type(e)}) AS edges,
+     count(DISTINCT t.id) AS connCount
+ORDER BY connCount DESC
+LIMIT ${TOPIC_LIMIT}
+UNWIND edges AS edge
+RETURN edge.toolId AS toolId, topicId, topicNodeType, edge.edgeType AS edgeType
+`;
     const session = getMemgraphSession();
     try {
+      // Query 1: Tool topology (sequential — Memgraph doesn't support parallel sessions)
       const result = await session.run(GET_GRAPH_TOPOLOGY.text, {
         category,
         nodeLimit: neo4j.int(limit),
@@ -139,7 +156,28 @@ export function adminRoutes() {
         confidence: r.get('confidence') as number | null,
         edgeSource: r.get('edgeSource') as string | null,
       }));
-      return c.json(ok(rows));
+
+      // Query 2: Topic edges (UseCase/Pattern/Stack connected to shown tools)
+      const toolIds = [...new Set(rows.map((r) => r.sourceId))];
+      const topicEdges: Array<{
+        toolId: string;
+        topicId: string;
+        topicNodeType: string;
+        edgeType: string;
+      }> = [];
+      if (toolIds.length > 0) {
+        const topicResult = await session.run(GET_TOOL_TOPIC_EDGES, { toolIds });
+        for (const rec of topicResult.records) {
+          topicEdges.push({
+            toolId: rec.get('toolId') as string,
+            topicId: rec.get('topicId') as string,
+            topicNodeType: rec.get('topicNodeType') as string,
+            edgeType: rec.get('edgeType') as string,
+          });
+        }
+      }
+
+      return c.json(ok({ rows, topicEdges }));
     } catch (e) {
       return c.json(err(e instanceof Error ? e.message : 'Graph error'), 500);
     } finally {

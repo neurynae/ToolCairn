@@ -2,7 +2,7 @@ import { GET_GRAPH_TOPOLOGY, getMemgraphSession, type TopologyRow } from '@toolp
 import neo4j from 'neo4j-driver';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
-import { mapTopologyRows } from '@/lib/admin/graph-topology';
+import { mapTopologyRows, type TopicEdge } from '@/lib/admin/graph-topology';
 import { PROXY_ENABLED, proxyGet } from '@/lib/admin/api-proxy';
 
 const QuerySchema = z.object({
@@ -108,17 +108,20 @@ async function directGET(request: NextRequest): Promise<NextResponse> {
 export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!PROXY_ENABLED) return directGET(request);
 
-  // Proxy to apps/api → get raw TopologyRow[], then map to GraphTopologyResult here
+  // Proxy to apps/api → now returns { rows: TopologyRow[], topicEdges: TopicEdge[] }
   const res = await proxyGet('/graph', request.nextUrl.searchParams);
   if (!res.ok) {
     const text = await res.text();
     return new NextResponse(text, { status: res.status, headers: { 'Content-Type': 'application/json' } });
   }
-  const json = (await res.json()) as { ok: boolean; data?: TopologyRow[]; error?: string };
+  const json = (await res.json()) as {
+    ok: boolean;
+    data?: { rows: TopologyRow[]; topicEdges: TopicEdge[] };
+    error?: string;
+  };
   if (!json.ok || !json.data) {
     return NextResponse.json({ ok: false, error: json.error ?? 'Graph API error' }, { status: 500 });
   }
-  // Map raw rows to GraphTopologyResult (no topic edges in proxy mode)
-  const topology = mapTopologyRows(json.data, []);
+  const topology = mapTopologyRows(json.data.rows, json.data.topicEdges);
   return NextResponse.json({ ok: true, data: topology });
 }
