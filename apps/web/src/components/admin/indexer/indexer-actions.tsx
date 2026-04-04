@@ -48,11 +48,13 @@ export function IndexerActions({
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [watching, setWatching] = useState(false);
+  const [done, setDone] = useState(false); // job finished but panel still open
   const [log, setLog] = useState<LogEntry[]>([]);
   const [liveQueue, setLiveQueue] = useState(initialQueueDepth);
   const [liveCounts, setLiveCounts] = useState<StatusSnapshot['counts'] | null>(null);
 
-  const prevIndexed = useRef<Set<string>>(new Set());
+  // Track newest last_indexed_at seen — any tool with a newer timestamp is new activity
+  const prevLatestAt = useRef<string | null>(null);
   const prevFailed = useRef(0);
   const zeroStreak = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -64,11 +66,20 @@ export function IndexerActions({
     setLog((prev) => [...prev, { ts: now(), text, type }]);
   }, []);
 
-  const stopWatching = useCallback(() => {
+  // stopPolling: stops the interval but keeps panel open (shows "done" state)
+  const stopPolling = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    setDone(true);
+  }, []);
+
+  // closePanel: user-initiated close — hides panel and refreshes server data
+  const closePanel = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = null;
     setWatching(false);
-    // Refresh server-rendered data (counts, recently indexed table)
+    setDone(false);
+    setLog([]);
     router.refresh();
   }, [router]);
 
@@ -85,12 +96,23 @@ export function IndexerActions({
     setLiveQueue(qd);
     setLiveCounts(snap.counts);
 
-    // Detect newly indexed repos
-    const newlyIndexed = snap.recentlyIndexed.filter((r) => !prevIndexed.current.has(r.github_url));
+    // Detect newly indexed / reindexed repos by comparing last_indexed_at timestamp.
+    // This catches both new tools (Discovery) and re-indexed tools (Reindex) because
+    // reindexing updates last_indexed_at even on existing tools.
+    const cutoff = prevLatestAt.current;
+    const newlyIndexed = snap.recentlyIndexed.filter(
+      (r) => r.last_indexed_at != null && (cutoff == null || r.last_indexed_at > cutoff),
+    );
     for (const tool of newlyIndexed) {
       const repo = tool.github_url.replace('https://github.com/', '');
       addLog(`✓ Indexed: ${repo}`, 'success');
-      prevIndexed.current.add(tool.github_url);
+    }
+    if (newlyIndexed.length > 0) {
+      // Update cutoff to the newest timestamp we've seen
+      const newest = newlyIndexed.reduce((a, b) =>
+        (a.last_indexed_at ?? '') > (b.last_indexed_at ?? '') ? a : b,
+      );
+      prevLatestAt.current = newest.last_indexed_at ?? prevLatestAt.current;
     }
 
     // Detect new failures (use ref to avoid stale closure)
@@ -108,14 +130,14 @@ export function IndexerActions({
           addLog('Queue empty — waiting for in-flight jobs…', 'muted');
         }
         if (zeroStreak.current >= 3) {
-          addLog('✓ Job complete', 'success');
-          stopWatching();
+          addLog('✓ Job complete — click Close to refresh page data', 'success');
+          stopPolling();
         }
       } else {
         zeroStreak.current = 0;
       }
     }
-  }, [addLog, stopWatching]);
+  }, [addLog, stopPolling]);
 
   // Keep pollRef current so the interval always calls the latest version
   useEffect(() => {
@@ -126,10 +148,13 @@ export function IndexerActions({
     // Seed prevIndexed with current state so we only log NEW ones
     fetchStatus().then((snap) => {
       if (snap) {
-        prevIndexed.current = new Set(snap.recentlyIndexed.map((r) => r.github_url));
+        // Seed cutoff with the newest last_indexed_at so only future activity is logged
+        const latest = snap.recentlyIndexed.find((r) => r.last_indexed_at != null);
+        prevLatestAt.current = latest?.last_indexed_at ?? null;
         prevFailed.current = snap.counts.failed ?? 0;
       }
       zeroStreak.current = 0;
+      setDone(false);
       setLog([{ ts: now(), text: `▶ ${label} triggered`, type: 'info' }]);
       setWatching(true);
       intervalRef.current = setInterval(() => pollRef.current(), 2000);
@@ -229,14 +254,26 @@ export function IndexerActions({
         </Card>
       </div>
 
-      {/* Live status log — shown while watching */}
+      {/* Live status log — shown while watching or done */}
       {watching && (
-        <Card className="border-sky-500/20 bg-sky-500/5">
+        <Card
+          className={
+            done ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-sky-500/20 bg-sky-500/5'
+          }
+        >
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CircleDot className="h-3.5 w-3.5 text-sky-400 animate-pulse" />
-                <CardTitle className="text-sm font-medium text-sky-400">Live Status</CardTitle>
+                {done ? (
+                  <CircleDot className="h-3.5 w-3.5 text-emerald-400" />
+                ) : (
+                  <CircleDot className="h-3.5 w-3.5 text-sky-400 animate-pulse" />
+                )}
+                <CardTitle
+                  className={`text-sm font-medium ${done ? 'text-emerald-400' : 'text-sky-400'}`}
+                >
+                  {done ? 'Job Complete' : 'Live Status'}
+                </CardTitle>
                 {liveCounts && (
                   <div className="flex gap-1.5 ml-2">
                     <Badge
@@ -265,11 +302,11 @@ export function IndexerActions({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={stopWatching}
+                onClick={closePanel}
                 className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
               >
                 <Square className="h-3 w-3" />
-                Stop watching
+                {done ? 'Close & refresh' : 'Stop watching'}
               </Button>
             </div>
           </CardHeader>
