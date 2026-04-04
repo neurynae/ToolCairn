@@ -56,6 +56,7 @@ export function IndexerActions({
   // Track newest last_indexed_at seen — any tool with a newer timestamp is new activity
   const prevLatestAt = useRef<string | null>(null);
   const prevFailed = useRef(0);
+  const prevQueueIndex = useRef<number | null>(null);
   const zeroStreak = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
@@ -93,7 +94,15 @@ export function IndexerActions({
     if (!snap) return;
 
     const qd = snap.queueDepth ?? { index: 0, scheduler: 0 };
-    setLiveQueue(qd);
+    // Only update queue depth display when server actually returns it
+    if (snap.queueDepth !== undefined) {
+      setLiveQueue(qd);
+      // Log queue depth changes so the user can see the queue draining
+      if (prevQueueIndex.current !== null && qd.index !== prevQueueIndex.current) {
+        addLog(`Queue: ${prevQueueIndex.current} → ${qd.index} jobs`, 'muted');
+      }
+      prevQueueIndex.current = qd.index;
+    }
     setLiveCounts(snap.counts);
 
     // Detect newly indexed / reindexed repos by comparing last_indexed_at timestamp.
@@ -152,6 +161,7 @@ export function IndexerActions({
         const latest = snap.recentlyIndexed.find((r) => r.last_indexed_at != null);
         prevLatestAt.current = latest?.last_indexed_at ?? null;
         prevFailed.current = snap.counts.failed ?? 0;
+        prevQueueIndex.current = snap.queueDepth?.index ?? null;
       }
       zeroStreak.current = 0;
       setDone(false);

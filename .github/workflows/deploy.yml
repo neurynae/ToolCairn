@@ -61,7 +61,7 @@ jobs:
             cd /opt/toolcairn
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             curl -fsSL https://raw.githubusercontent.com/neurynae/ToolCairn/main/docker-compose.prod.yml -o docker-compose.prod.yml
-            IMAGE_TAG=${{ github.sha }} docker compose -f docker-compose.prod.yml --env-file .env.prod pull api
-            IMAGE_TAG=${{ github.sha }} docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --no-deps api
+            IMAGE_TAG=${{ github.sha }} docker compose -f docker-compose.prod.yml --env-file .env.prod pull api indexer
+            IMAGE_TAG=${{ github.sha }} docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --no-deps api indexer
             docker image prune -f
             echo "Deployed ${{ github.sha }} at $(date)"
