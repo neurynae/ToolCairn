@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { Redis } from 'ioredis';
 import { prisma } from '@/lib/admin/prisma';
 import { withProxyGet } from '@/lib/admin/api-proxy';
@@ -10,7 +12,7 @@ async function directGET(): Promise<NextResponse> {
       _count: { index_status: true },
     }),
     prisma.indexedTool.findMany({
-      where: { index_status: 'indexed' },
+      where: { index_status: 'indexed', last_indexed_at: { not: null } },
       orderBy: { last_indexed_at: 'desc' },
       take: 10,
       select: {
@@ -31,7 +33,7 @@ async function directGET(): Promise<NextResponse> {
       },
     }),
     prisma.indexedTool.findFirst({
-      where: { index_status: 'indexed' },
+      where: { index_status: 'indexed', last_indexed_at: { not: null } },
       orderBy: { last_indexed_at: 'desc' },
       select: { last_indexed_at: true },
     }),
@@ -52,9 +54,10 @@ async function directGET(): Promise<NextResponse> {
   });
   try {
     await redis.connect();
+    const { getQueueDepth } = await import('@/lib/admin/queue');
     const [indexLen, schedulerLen] = await Promise.all([
-      redis.xlen('toolpilot:index').catch(() => 0),
-      redis.xlen('toolpilot:scheduler').catch(() => 0),
+      getQueueDepth(redis, 'toolpilot:index'),
+      getQueueDepth(redis, 'toolpilot:scheduler'),
     ]);
     queueDepth = { index: indexLen, scheduler: schedulerLen };
   } catch {

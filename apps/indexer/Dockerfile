@@ -68,5 +68,4 @@ COPY --from=builder /app/apps/indexer/src/seed ./apps/indexer/src/seed
 
 ENV NODE_ENV=production
 
-# Default: run discovery. Override with: docker compose run --rm indexer node apps/indexer/dist/run-index-worker.js
-CMD ["node", "apps/indexer/dist/run-discovery.js"]
+CMD ["node", "apps/indexer/dist/index.js"]

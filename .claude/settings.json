@@ -21,15 +21,11 @@
     "deny": [
       "Bash(rm -rf:*)",
       "Bash(sudo:*)",
-      "Edit(.env.local*)",
       "Edit(.env.production*)",
-      "Write(.env.local)",
       "Write(.env.production)"
     ]
   },
-  "env": {
-    "NODE_ENV": "development"
-  },
+  "env": {},
   "hooks": {
     "SessionStart": [
       {
@@ -51,6 +47,11 @@
             "type": "command",
             "command": "bash -c 'INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r \".tool_input.file_path // .tool_input.filePath // empty\"); if [ -n \"$FILE\" ] && [[ \"$FILE\" == *.ts || \"$FILE\" == *.tsx ]]; then npx biome check --write \"$FILE\" 2>/dev/null; fi; exit 0'",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r \".tool_input.file_path // .tool_input.filePath // empty\"); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -qE \"\\.env\"; then echo \"{\\\"systemMessage\\\": \\\"WARNING: .env file modified — run git status to verify no secrets are staged for commit\\\"}\"; fi; exit 0'",
+            "timeout": 5
           }
         ]
       }
@@ -61,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r \".tool_input.command\"); if echo \"$CMD\" | grep -qE \"(rm -rf /|DROP DATABASE|DROP TABLE|git push.*--force.*main|cat .env)\"; then echo \"BLOCKED: Destructive or sensitive command detected\" >&2; exit 2; fi; if echo \"$CMD\" | grep -qE \"git clone\" && echo \"$CMD\" | grep -qE \"(/tmp|/var/tmp|AppData/Local/Temp)\"; then echo \"BLOCKED: Clone destination must be inside workspace, not temp directories\" >&2; exit 2; fi; exit 0'"
+            "command": "bash -c 'INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r \".tool_input.command\"); if echo \"$CMD\" | grep -qE \"(rm -rf /|DROP DATABASE|DROP TABLE|git push.*--force.*main|cat .env)\"; then echo \"BLOCKED: Destructive or sensitive command detected\" >&2; exit 2; fi; if echo \"$CMD\" | grep -qE \"git clone\" && echo \"$CMD\" | grep -qE \"(/tmp|/var/tmp|AppData/Local/Temp)\"; then echo \"BLOCKED: Clone destination must be inside workspace, not temp directories\" >&2; exit 2; fi; if echo \"$CMD\" | grep -qE \"docker compose.*down\" && ! echo \"$CMD\" | grep -q \"\\-\\-no-deps\"; then echo \"WARNING: docker compose down stops ALL services and may cause data loss. Add confirmation or use restart instead.\" >&2; exit 1; fi; if echo \"$CMD\" | grep -qE \"docker volume rm\"; then echo \"BLOCKED: docker volume rm permanently destroys persistent data (Memgraph, Postgres, Qdrant, Redis). Explicit user confirmation required.\" >&2; exit 2; fi; if echo \"$CMD\" | grep -qE \"docker system prune\"; then echo \"WARNING: docker system prune removes all unused images/containers/volumes. Confirm this is intentional.\" >&2; exit 1; fi; if echo \"$CMD\" | grep -qE \"wrangler secret delete\"; then echo \"WARNING: wrangler secret delete will break CF Worker routing for all clients. Confirm this is intentional.\" >&2; exit 1; fi; if echo \"$CMD\" | grep -qE \"npm unpublish\"; then echo \"BLOCKED: npm unpublish cannot be undone after 72 hours and breaks existing installs.\" >&2; exit 2; fi; exit 0'"
           }
         ]
       }
@@ -86,6 +87,8 @@
     "context7",
     "memgraph",
     "qdrant",
-    "postgres"
+    "postgres",
+    "redis",
+    "prisma"
   ]
 }

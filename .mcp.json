@@ -39,7 +39,8 @@
         "-y",
         "@playwright/mcp@latest",
         "--browser",
-        "chromium"
+        "chromium",
+        "--isolated"
       ]
     },
     "context7": {
@@ -79,14 +80,34 @@
       }
     },
     "postgres": {
+      "command": "mcp-server-postgres",
+      "args": [
+        "postgresql://toolpilot:toolpilot@localhost:5432/toolpilot"
+      ]
+    },
+    "redis": {
       "command": "cmd",
       "args": [
         "/c",
         "npx",
         "-y",
-        "@modelcontextprotocol/server-postgres",
-        "postgresql://toolpilot:toolpilot@localhost:5432/toolpilot"
+        "@modelcontextprotocol/server-redis",
+        "redis://localhost:6379"
       ]
+    },
+    "prisma": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "mcp-remote",
+        "https://mcp.prisma.io/mcp"
+      ]
+    },
+    "vercel": {
+      "type": "http",
+      "url": "https://mcp.vercel.com"
     }
   }
 }

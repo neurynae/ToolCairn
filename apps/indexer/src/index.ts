@@ -23,9 +23,17 @@ async function acquireLock(): Promise<Redis> {
 
   if (!acquired) {
     const holder = await redis.get(LOCK_KEY);
-    logger.warn({ holder }, 'Another indexer instance is already running — exiting');
-    await redis.disconnect();
-    process.exit(0);
+    // In Docker, the previous container's PID is gone — steal the lock if it's stale
+    const holderPid = holder?.replace('pid:', '');
+    const isDockerRestart = !holderPid || holderPid === '1';
+    if (isDockerRestart) {
+      await redis.set(LOCK_KEY, lockValue, 'EX', LOCK_TTL_SEC);
+      logger.info({ lockValue, previousHolder: holder }, 'Stale lock detected — took over');
+    } else {
+      logger.warn({ holder }, 'Another indexer instance is already running — exiting');
+      await redis.disconnect();
+      process.exit(0);
+    }
   }
 
   logger.info({ lockValue, ttlSec: LOCK_TTL_SEC }, 'Indexer lock acquired');

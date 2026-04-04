@@ -147,15 +147,19 @@ export function HealthCards() {
         </ServiceCard>
 
         <ServiceCard title="Qdrant" icon={Zap} health={data.qdrant}>
-          {data.qdrant.ok && data.qdrant.collections ? (
-            <div className="space-y-1">
-              {Object.entries(data.qdrant.collections).map(([name, count]) => (
-                <div key={name} className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">{name}</span>
-                  <span className="text-sm font-medium">{count.toLocaleString()}</span>
-                </div>
-              ))}
-            </div>
+          {data.qdrant.ok ? (
+            data.qdrant.collections && Object.keys(data.qdrant.collections).length > 0 ? (
+              <div className="space-y-1">
+                {Object.entries(data.qdrant.collections).map(([name, count]) => (
+                  <div key={name} className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">{name}</span>
+                    <span className="text-sm font-medium">{count.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">No collections yet</p>
+            )
           ) : (
             <p className="text-xs text-red-400">{data.qdrant.error}</p>
           )}

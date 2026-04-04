@@ -37,9 +37,9 @@ async function checkMemgraph() {
 async function checkQdrant() {
   const result = await qdrantHealthCheck();
   if (!result.ok) return result;
+  const collectionStats: Record<string, number> = {};
   try {
     const { collections } = await qdrantClient().getCollections();
-    const collectionStats: Record<string, number> = {};
     for (const col of collections) {
       try {
         const info = await qdrantClient().getCollection(col.name);
@@ -48,10 +48,10 @@ async function checkQdrant() {
         collectionStats[col.name] = -1;
       }
     }
-    return { ok: true, collections: collectionStats };
   } catch {
-    return result;
+    // Could not list collections — still healthy, just no stats
   }
+  return { ok: true, collections: collectionStats };
 }
 
 async function checkPostgres() {
@@ -67,9 +67,10 @@ async function checkRedis() {
     const start = Date.now();
     await redis.ping();
     const latencyMs = Date.now() - start;
+    const { getQueueDepth } = await import('@/lib/admin/queue');
     const [indexQueueLen, schedulerQueueLen] = await Promise.all([
-      redis.xlen('toolpilot:index').catch(() => 0),
-      redis.xlen('toolpilot:scheduler').catch(() => 0),
+      getQueueDepth(redis, 'toolpilot:index'),
+      getQueueDepth(redis, 'toolpilot:scheduler'),
     ]);
     return { ok: true, latencyMs, queueDepth: { index: indexQueueLen, scheduler: schedulerQueueLen } };
   } finally {

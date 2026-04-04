@@ -142,7 +142,7 @@ export async function runDiscoveryScheduler(): Promise<DiscoveryResult> {
 
     for (const repo of toEnqueue) {
       try {
-        const result = await enqueueIndexJob(repo.fullName, 0); // priority 0 = background
+        const result = await enqueueIndexJob(`https://github.com/${repo.fullName}`, 0); // priority 0 = background
         if (result.ok) {
           enqueued++;
           logger.debug({ repo: repo.fullName, streamId: result.data }, 'Enqueued discovery job');

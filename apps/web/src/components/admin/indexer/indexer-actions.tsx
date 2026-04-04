@@ -127,10 +127,20 @@ export function IndexerActions({
   // active = indexer currently processing (queue > 0)
   const [active, setActive] = useState(false);
 
-  const prevLatestAt = useRef<string | null>(null);
-  const prevFailed = useRef(0);
-  const prevQueueIndex = useRef<number | null>(null);
-  const prevSchedulerIndex = useRef<number | null>(null);
+  // Seed refs from server-rendered initial data so the first poll doesn't
+  // treat already-seen tools as new (prevents log duplication on refresh).
+  const prevLatestAt = useRef<string | null>(
+    initialRecentlyIndexed.reduce<string | null>(
+      (max, r) =>
+        r.last_indexed_at != null && (max == null || r.last_indexed_at > max)
+          ? r.last_indexed_at
+          : max,
+      null,
+    ),
+  );
+  const prevFailed = useRef(initialCounts.failed);
+  const prevQueueIndex = useRef<number | null>(initialQueueDepth.index);
+  const prevSchedulerIndex = useRef<number | null>(initialQueueDepth.scheduler);
   const prevProgressTs = useRef<string | null>(null);
   const logContainerRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<() => Promise<void>>(async () => {});

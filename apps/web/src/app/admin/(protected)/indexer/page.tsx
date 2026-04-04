@@ -31,9 +31,10 @@ async function fetchInitialData(): Promise<InitialData> {
   const redis = new Redis(config.REDIS_URL, { lazyConnect: true, connectTimeout: 3000 });
   try {
     await redis.connect();
+    const { getQueueDepth } = await import('@/lib/admin/queue');
     [indexLen, schedulerLen] = await Promise.all([
-      redis.xlen('toolpilot:index').catch(() => 0),
-      redis.xlen('toolpilot:scheduler').catch(() => 0),
+      getQueueDepth(redis, 'toolpilot:index'),
+      getQueueDepth(redis, 'toolpilot:scheduler'),
     ]);
   } catch { /* Redis unavailable */ } finally {
     redis.disconnect();
@@ -42,7 +43,7 @@ async function fetchInitialData(): Promise<InitialData> {
   const [statusCounts, lastIndexed] = await Promise.all([
     prisma.indexedTool.groupBy({ by: ['index_status'], _count: { index_status: true } }),
     prisma.indexedTool.findFirst({
-      where: { index_status: 'indexed' },
+      where: { index_status: 'indexed', last_indexed_at: { not: null } },
       orderBy: { last_indexed_at: 'desc' },
       select: { last_indexed_at: true },
     }),
@@ -56,7 +57,7 @@ async function fetchInitialData(): Promise<InitialData> {
 
   const [recentlyIndexed, recentFailures] = await Promise.all([
     prisma.indexedTool.findMany({
-      where: { index_status: 'indexed' },
+      where: { index_status: 'indexed', last_indexed_at: { not: null } },
       orderBy: { last_indexed_at: 'desc' },
       take: 10,
       select: { github_url: true, graph_node_id: true, last_indexed_at: true },

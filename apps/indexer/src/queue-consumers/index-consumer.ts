@@ -43,9 +43,11 @@ function parseToolId(toolId: string): {
 export async function handleIndexJob(toolId: string, priority: number): Promise<void> {
   logger.info({ toolId, priority }, 'Handling index job');
 
-  try {
-    const { source, url } = parseToolId(toolId);
+  // Compute canonical URL once so the failure path can use it too
+  const { source, url } = parseToolId(toolId);
+  const canonicalUrl = source === 'github' ? `https://github.com/${url}` : toolId;
 
+  try {
     // 1. Crawl the source
     const crawlerResult = await runCrawler(source, url);
     logger.info({ toolId, source, extractedName: crawlerResult.extracted.name }, 'Crawl complete');
@@ -102,7 +104,7 @@ export async function handleIndexJob(toolId: string, priority: number): Promise<
     logger.error({ toolId, err: e }, 'Index job failed');
     // Attempt to record the failure in the staging DB
     try {
-      await upsertIndexedTool(toolId, '', 'failed');
+      await upsertIndexedTool(canonicalUrl, '', 'failed');
     } catch (prismaErr) {
       logger.error({ toolId, err: prismaErr }, 'Failed to record index failure in staging DB');
     }

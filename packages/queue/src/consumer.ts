@@ -121,6 +121,37 @@ export async function readFromStream(
 }
 
 /**
+ * Claim and re-queue messages stuck in the PEL (delivered to dead consumers,
+ * never acknowledged). Runs once at startup using XAUTOCLAIM (Redis 7+).
+ */
+async function reclaimStalePending(group: string, consumer: string): Promise<void> {
+  const redis = getRedisClient();
+  const IDLE_MS = 60_000; // reclaim messages idle > 1 minute
+
+  for (const stream of [INDEX_STREAM, SCHEDULER_STREAM]) {
+    try {
+      // XAUTOCLAIM: atomically transfers idle PEL entries to this consumer
+      const result = await redis.xautoclaim(
+        stream,
+        group,
+        consumer,
+        IDLE_MS,
+        '0-0',
+        'COUNT',
+        '100',
+      );
+      // ioredis returns [nextId, [[entryId, fields], ...], deletedIds]
+      const entries: [string, string[]][] = Array.isArray(result[1]) ? result[1] : [];
+      if (entries.length > 0) {
+        logger.info({ stream, count: entries.length }, 'Reclaimed stale pending messages');
+      }
+    } catch (e) {
+      logger.warn({ err: e, stream }, 'XAUTOCLAIM failed — skipping PEL recovery');
+    }
+  }
+}
+
+/**
  * Start the consumer loop — reads messages and dispatches to handlers.
  * Backs off on empty polls (100ms → 1s). Exits cleanly on SIGTERM/SIGINT.
  */
@@ -137,6 +168,9 @@ export async function startConsumer(handlers: QueueHandlers): Promise<void> {
   process.once('SIGINT', shutdown);
 
   try {
+    // On startup, reclaim any messages stuck in PEL from dead consumer instances
+    await reclaimStalePending(group, consumer);
+
     while (running) {
       const messages = await readFromStream(group, consumer, 10);
 

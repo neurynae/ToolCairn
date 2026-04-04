@@ -34,8 +34,9 @@ export async function GET() {
   let redis: Redis | undefined;
   try {
     redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-    const pendingJobs = await redis.xlen(INDEX_STREAM);
-    const pendingScheduler = await redis.xlen(SCHEDULER_STREAM);
+    const { getQueueDepth } = await import('@/lib/admin/queue');
+    const pendingJobs = await getQueueDepth(redis, INDEX_STREAM);
+    const pendingScheduler = await getQueueDepth(redis, SCHEDULER_STREAM);
 
     return NextResponse.json({
       pendingIndexJobs: pendingJobs,
