@@ -290,6 +290,89 @@ RETURN edge.toolId AS toolId, topicId, topicNodeType, edge.edgeType AS edgeType
     }
   });
 
+  // ── GET /v1/admin/tools/:name ─────────────────────────────────────────────
+  app.get('/tools/:name', async (c) => {
+    const name = decodeURIComponent(c.req.param('name'));
+    const session = getMemgraphSession();
+    try {
+      const result = await session.run(
+        `MATCH (t:Tool { name: $name })
+         OPTIONAL MATCH (t)-[e]-(related:Tool)
+         WITH t, related, e, type(e) AS edgeType,
+              CASE WHEN e.last_verified IS NULL THEN e.weight
+                   ELSE e.weight * exp(-e.decay_rate * CASE WHEN e.last_verified IS NULL THEN 0 ELSE (datetime() - datetime(e.last_verified)).day END)
+              END AS effectiveWeight
+         RETURN t, related, edgeType, effectiveWeight, e.confidence AS confidence
+         ORDER BY effectiveWeight DESC LIMIT 20`,
+        { name },
+      );
+
+      if (result.records.length === 0) {
+        return c.json({ ok: false, error: 'not_found' }, 404);
+      }
+
+      function nodeProps(node: unknown): Record<string, unknown> {
+        if (node && typeof node === 'object' && 'properties' in node) {
+          return (node as { properties: Record<string, unknown> }).properties;
+        }
+        return {};
+      }
+
+      const p = nodeProps(result.records[0]?.get('t'));
+      const tool = {
+        id: p.id as string,
+        name: p.name as string,
+        displayName: (p.display_name as string | null) ?? (p.name as string),
+        description: (p.description as string | null) ?? '',
+        category: (p.category as string | null) ?? '',
+        language: (p.language as string | null) ?? '',
+        languages: (p.languages as string[] | null) ?? [],
+        githubUrl: (p.github_url as string | null) ?? '',
+        homepageUrl: (p.homepage_url as string | null) ?? null,
+        license: (p.license as string | null) ?? '',
+        deploymentModels: (p.deployment_models as string[] | null) ?? [],
+        topics: (p.topics as string[] | null) ?? [],
+        health: {
+          stars: toNum(p.health_stars),
+          starsVelocity90d: toNum(p.health_stars_velocity_90d),
+          maintenanceScore: toNum(p.health_maintenance_score),
+          lastCommitDate: (p.health_last_commit_date as string | null) ?? '',
+          commitVelocity30d: toNum(p.health_commit_velocity_30d),
+          openIssues: toNum(p.health_open_issues),
+          closedIssues30d: toNum(p.health_closed_issues_30d),
+          contributorCount: toNum(p.health_contributor_count),
+          prResponseTimeHours: toNum(p.health_pr_response_time_hours),
+          lastReleaseDate: (p.health_last_release_date as string | null) ?? '',
+        },
+        docs: {
+          readmeUrl: (p.docs_readme_url as string | null) ?? null,
+          docsUrl: (p.docs_docs_url as string | null) ?? null,
+          apiUrl: (p.docs_api_url as string | null) ?? null,
+          changelogUrl: (p.docs_changelog_url as string | null) ?? null,
+        },
+      };
+
+      const neighbors = result.records
+        .filter((r) => r.get('related') !== null)
+        .map((r) => {
+          const rp = nodeProps(r.get('related') as unknown);
+          return {
+            toolName: rp.name as string,
+            toolDisplayName: (rp.display_name as string | null) ?? (rp.name as string),
+            edgeType: r.get('edgeType') as string,
+            effectiveWeight: toNum(r.get('effectiveWeight')),
+            confidence: toNum(r.get('confidence')),
+          };
+        });
+
+      return c.json(ok({ tool, neighbors }));
+    } catch (e) {
+      return c.json(err(e instanceof Error ? e.message : 'Tool error'), 500);
+    } finally {
+      await session.close();
+    }
+  });
+
   // ── GET /v1/admin/edges ────────────────────────────────────────────────────
   app.get('/edges', async (c) => {
     const edgeType = c.req.query('edgeType') ?? '';

@@ -3,6 +3,7 @@ import { listPendingReview } from '@/lib/admin/staged-review.service';
 import { ReviewQueue } from '@/components/admin/review/review-queue';
 import { PageHeader } from '@/components/admin/page-header';
 import { Badge } from '@/components/ui/badge';
+import { PROXY_ENABLED, proxyGet } from '@/lib/admin/api-proxy';
 
 export default async function ReviewPage() {
   let items: ReviewItem[] = [];
@@ -10,12 +11,25 @@ export default async function ReviewPage() {
   let pendingCount = 0;
 
   try {
-    const result = await listPendingReview(1, 20);
-    items = result.items;
-    total = result.total;
-    pendingCount = result.pendingCount;
+    if (PROXY_ENABLED) {
+      const res = await proxyGet('/review/nodes', new URLSearchParams({ page: '1', pageSize: '20' }));
+      const json = (await res.json()) as {
+        ok: boolean;
+        data?: { items: ReviewItem[]; total: number; pendingCount: number };
+      };
+      if (json.ok && json.data) {
+        items = json.data.items;
+        total = json.data.total;
+        pendingCount = json.data.pendingCount;
+      }
+    } else {
+      const result = await listPendingReview(1, 20);
+      items = result.items;
+      total = result.total;
+      pendingCount = result.pendingCount;
+    }
   } catch {
-    // Postgres unavailable — render empty state
+    // API unavailable — render empty state
   }
 
   return (

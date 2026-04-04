@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/admin/prisma';
 import { SettingsForm, type AppSettingsClient } from './settings-form';
 import { PageHeader } from '@/components/admin/page-header';
+import { PROXY_ENABLED, proxyGet } from '@/lib/admin/api-proxy';
 
 interface AppSettingsServer {
   id: string;
@@ -18,6 +19,11 @@ interface AppSettingsServer {
 
 async function fetchSettings(): Promise<AppSettingsServer | null> {
   try {
+    if (PROXY_ENABLED) {
+      const res = await proxyGet('/settings');
+      const json = (await res.json()) as { ok: boolean; data?: AppSettingsServer };
+      return json.ok && json.data ? json.data : null;
+    }
     const settings = await prisma.appSettings.findUnique({ where: { id: 'global' } });
     return settings as AppSettingsServer | null;
   } catch {
