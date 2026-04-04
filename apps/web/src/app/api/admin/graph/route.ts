@@ -116,12 +116,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
   const json = (await res.json()) as {
     ok: boolean;
-    data?: { rows: TopologyRow[]; topicEdges: TopicEdge[] };
+    data?: { rows: TopologyRow[]; topicEdges: TopicEdge[] } | TopologyRow[];
     error?: string;
   };
   if (!json.ok || !json.data) {
     return NextResponse.json({ ok: false, error: json.error ?? 'Graph API error' }, { status: 500 });
   }
-  const topology = mapTopologyRows(json.data.rows, json.data.topicEdges);
+  // Handle both old (TopologyRow[]) and new ({ rows, topicEdges }) API formats
+  const topology = Array.isArray(json.data)
+    ? mapTopologyRows(json.data, [])
+    : mapTopologyRows(json.data.rows, json.data.topicEdges);
   return NextResponse.json({ ok: true, data: topology });
 }
