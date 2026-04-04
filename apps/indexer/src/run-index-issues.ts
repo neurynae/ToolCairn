@@ -45,8 +45,8 @@ function parseGitHubUrl(url: string): { owner: string; repo: string } | null {
 }
 
 async function main(): Promise<void> {
-  const dryRun = process.env['DRY_RUN'] === '1';
-  const singleTool = process.env['TOOL_NAME'];
+  const dryRun = process.env.DRY_RUN === '1';
+  const singleTool = process.env.TOOL_NAME;
 
   logger.info('Loading tools from Memgraph…');
   let tools = await loadToolsFromMemgraph();

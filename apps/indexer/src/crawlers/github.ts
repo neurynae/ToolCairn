@@ -62,7 +62,7 @@ async function githubRequest<T>(
       const response = await fn(conditionalHeaders);
       updateCoreRateState(response.headers as Record<string, string | undefined>);
 
-      const etag = response.headers['etag'];
+      const etag = response.headers.etag;
       if (etag) etagCache.set(cacheKey, { etag, data: response.data });
 
       return response.data as T;

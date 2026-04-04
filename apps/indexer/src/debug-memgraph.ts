@@ -37,7 +37,6 @@ const tool: ToolNode = {
 
 const result = await repo.createTool(tool);
 if (result.ok) {
-  console.log('SUCCESS:', result.data.name);
 } else {
   console.error('FAILED:', JSON.stringify(result.error, null, 2));
 }
