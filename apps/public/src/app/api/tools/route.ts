@@ -1,5 +1,5 @@
 import { MemgraphToolRepository } from '@toolpilot/graph';
-import type { ToolCategory } from '@toolpilot/core';
+import type { ToolCategory, ToolNode } from '@toolpilot/core';
 import { type NextRequest, NextResponse } from 'next/server';
 import pino from 'pino';
 import { z } from 'zod';
@@ -85,7 +85,7 @@ async function directHandler(req: NextRequest): Promise<NextResponse> {
 
     const repo = getRepo();
     const { category, limit, offset } = parsed.data;
-    let allTools: Awaited<ReturnType<typeof repo.findByCategory>>['data'] & object[] = [];
+    let allTools: ToolNode[] = [];
 
     if (category) {
       const slug = category as CategorySlug;

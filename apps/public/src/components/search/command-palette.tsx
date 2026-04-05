@@ -137,12 +137,12 @@ export function CommandPalette({ open, onOpenChange, onSearch }: CommandPaletteP
             <CommandItem
               onSelect={() =>
                 handleNavigate(
-                  `/compare?a=${encodeURIComponent(compareMatch[1].trim())}&b=${encodeURIComponent(compareMatch[2].trim())}`,
+                  `/compare?a=${encodeURIComponent((compareMatch[1] ?? '').trim())}&b=${encodeURIComponent((compareMatch[2] ?? '').trim())}`,
                 )
               }
             >
               <GitCompareArrowsIcon className="size-4 text-[var(--tp-accent)]" />
-              Compare &ldquo;{compareMatch[1].trim()}&rdquo; vs &ldquo;{compareMatch[2].trim()}&rdquo;
+              Compare &ldquo;{(compareMatch[1] ?? '').trim()}&rdquo; vs &ldquo;{(compareMatch[2] ?? '').trim()}&rdquo;
               <ArrowRightIcon className="ml-auto size-3 text-muted-foreground" />
             </CommandItem>
           </CommandGroup>

@@ -19,8 +19,11 @@ export const PROXY_ENABLED = !!process.env.TOOLPILOT_API_URL;
 const BASE = `${process.env.TOOLPILOT_API_URL ?? ''}/v1`;
 
 interface McpCallToolResult {
-  content: Array<{ type: string; text: string }>;
+  // MCP SDK v1.27+ content items are a union (text | image | audio | resource).
+  // Only text items have `text`; others (image, audio) do not. We only parse text[0].
+  content: Array<{ type: string; text?: string }>;
   isError?: boolean;
+  [key: string]: unknown;
 }
 
 /** Parse MCP CallToolResult into a plain { ok, data } response */
