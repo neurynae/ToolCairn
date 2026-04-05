@@ -12,12 +12,26 @@
 import { appendFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { PrismaClient } from '@toolpilot/db';
 import pino from 'pino';
 
 const logger = pino({ name: '@toolpilot/mcp-server:event-logger' });
 
-const prisma = new PrismaClient();
+// Lazy Prisma — only initialised on first event write.
+// Dynamic import keeps @toolpilot/db (and @prisma/client) out of the tsup
+// bundle so the npm package works without a database connection.
+// biome-ignore lint/suspicious/noExplicitAny: Prisma client type not available at bundle time
+let _prisma: any = null;
+async function getPrisma(): Promise<any> {
+  if (!_prisma) {
+    try {
+      const mod = await import('@toolpilot/db');
+      _prisma = new mod.PrismaClient();
+    } catch {
+      // DB not available (e.g. npm install without @toolpilot/db) — skip DB logging
+    }
+  }
+  return _prisma;
+}
 
 function isTrackingEnabled(): boolean {
   return process.env.TOOLPILOT_TRACKING_ENABLED !== 'false';
@@ -85,6 +99,8 @@ async function writeToFile(eventsPath: string, event: McpEventRecord): Promise<v
 
 async function writeToPrisma(event: McpEventRecord): Promise<void> {
   try {
+    const prisma = await getPrisma();
+    if (!prisma) return;
     await prisma.mcpEvent.create({
       data: {
         id: event.id,

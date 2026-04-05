@@ -11,16 +11,29 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  // Use the production-only entry — excludes dev-mode DB packages from the bundle
+  entry: { index: 'src/index.prod.ts' },
   format: ['esm'],
   target: 'node22',
-  outDir: 'dist-publish',
+  outDir: 'dist',
   bundle: true,
   sourcemap: true,
   clean: true,
-  // Keep MCP SDK external — it needs its own resolution
-  external: ['@modelcontextprotocol/sdk'],
-  // Bundle all internal workspace packages
+  // tsup's built-in shims for __dirname/__filename (ESM doesn't have them).
+  shims: true,
+  // Inject createRequire so bundled CJS workspace packages (e.g. @toolpilot/config
+  // which compiles to CJS with require('zod')) work in this ESM bundle.
+  // tsup's built-in __require shim checks `typeof require !== 'undefined'`;
+  // this banner creates that require function at module scope.
+  banner: {
+    js: "import { createRequire as __nodeCreateRequire } from 'module'; const require = __nodeCreateRequire(import.meta.url);",
+  },
+  // External = installed by npm at runtime (listed in package.json dependencies).
+  // Do NOT bundle these — let Node.js resolve them normally.
+  // @toolpilot/db is lazy-imported in event-logger.ts (optional DB tracking).
+  // Marking external prevents @prisma/client from being bundled at all.
+  external: ['@modelcontextprotocol/sdk', 'pino', 'zod', '@toolpilot/db'],
+  // Bundle all internal workspace packages (not on npm)
   noExternal: [/@toolpilot\/.*/],
   // Ensure node: imports work
   platform: 'node',

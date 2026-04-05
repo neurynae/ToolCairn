@@ -12,19 +12,20 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { config } from '@toolpilot/config';
 import { ToolPilotClient, loadOrCreateCredentials } from '@toolpilot/remote';
-import {
-  handleClassifyPrompt,
-  handleInitProjectConfig,
-  handleReadProjectConfig,
-  handleToolpilotInit,
-  handleUpdateProjectConfig,
-} from '@toolpilot/tools';
+// Use the /local subpath — excludes heavy DB/search/graph deps from the npm bundle.
+// The full '@toolpilot/tools' CJS dist requires Prisma/neo4j/ioredis at load time
+// even though prod mode never calls those code paths.
 import {
   checkCompatibilitySchema,
   checkIssueSchema,
   classifyPromptSchema,
   compareToolsSchema,
   getStackSchema,
+  handleClassifyPrompt,
+  handleInitProjectConfig,
+  handleReadProjectConfig,
+  handleToolpilotInit,
+  handleUpdateProjectConfig,
   initProjectConfigSchema,
   readProjectConfigSchema,
   refineRequirementSchema,
@@ -35,7 +36,7 @@ import {
   toolpilotInitSchema,
   updateProjectConfigSchema,
   verifySuggestionSchema,
-} from '@toolpilot/tools';
+} from '@toolpilot/tools/local';
 import pino from 'pino';
 import { withEventLogging } from './middleware/event-logger.js';
 

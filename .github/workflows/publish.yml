@@ -43,7 +43,7 @@ jobs:
           pnpm --filter @toolpilot/search build
           pnpm --filter @toolpilot/tools build
           pnpm --filter @toolpilot/remote build
-          pnpm --filter @neurynae/toolcairn-mcp build
+          pnpm --filter @neurynae/toolcairn-mcp build:publish
 
       - name: Publish @neurynae/toolcairn-mcp
         run: cd apps/mcp-server && npm publish --access public
