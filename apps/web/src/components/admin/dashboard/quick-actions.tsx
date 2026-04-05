@@ -59,6 +59,7 @@ export function QuickActions() {
           <RefreshCw className="h-3.5 w-3.5" />
           {busy === 'Reindex' ? 'Running…' : 'Run Reindex'}
         </Button>
+        {/* biome-ignore lint/a11y/useAnchorContent: content provided as children via render prop */}
         <Button size="sm" variant="outline" render={<a href="/admin/review" />} className="gap-2">
           <CheckSquare className="h-3.5 w-3.5" />
           Review Queue

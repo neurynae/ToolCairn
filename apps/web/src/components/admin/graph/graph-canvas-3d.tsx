@@ -233,7 +233,9 @@ function toGraph3DData(topo: GraphTopologyResult): {
   const links: Graph3DLink[] = topo.edges
     .filter((e) => nodeMap.has(e.source) && nodeMap.has(e.target))
     .map((e) => ({
+      // biome-ignore lint/style/noNonNullAssertion: filter above guarantees both keys exist
       source: nodeMap.get(e.source)!,
+      // biome-ignore lint/style/noNonNullAssertion: filter above guarantees both keys exist
       target: nodeMap.get(e.target)!,
       edgeType: e.data.edgeType,
       effectiveWeight: e.data.effectiveWeight,
@@ -482,7 +484,6 @@ export function GraphCanvas3D({ initialData }: GraphCanvas3DProps) {
   // linkThreeObject creates a pre-allocated 2-point Line with AdditiveBlending.
   // linkPositionUpdate fills it in-place every frame (zero allocations).
   // AdditiveBlending makes lines glow where they overlap — no post-processing needed.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally empty
   const linkThreeObject = useCallback((linkRaw: object): THREE.Line => {
     const link = linkRaw as Graph3DLink;
     const EDGE_HEX: Record<string, number> = {

@@ -402,7 +402,7 @@ RETURN edge.toolId AS toolId, topicId, topicNodeType, edge.edgeType AS edgeType
       WHERE $edgeType = '' OR type(e) = $edgeType
       RETURN count(e) AS total
     `;
-    const TYPES = `MATCH ()-[e]->() RETURN DISTINCT type(e) AS edgeType ORDER BY edgeType`;
+    const TYPES = 'MATCH ()-[e]->() RETURN DISTINCT type(e) AS edgeType ORDER BY edgeType';
     const session = getMemgraphSession();
     try {
       const countResult = await session.run(COUNT, { edgeType });
@@ -483,18 +483,17 @@ RETURN edge.toolId AS toolId, topicId, topicNodeType, edge.edgeType AS edgeType
           data: { graduated: true, graduated_at: new Date(), reviewed_by: 'admin' },
         });
         return c.json(ok({ id, action: 'approved' }));
-      } else {
-        await prisma.stagedNode.update({
-          where: { id },
-          data: {
-            graduated: true,
-            graduated_at: new Date(),
-            reviewed_by: 'admin',
-            rejection_reason: parsed.data.reason,
-          },
-        });
-        return c.json(ok({ id, action: 'rejected' }));
       }
+      await prisma.stagedNode.update({
+        where: { id },
+        data: {
+          graduated: true,
+          graduated_at: new Date(),
+          reviewed_by: 'admin',
+          rejection_reason: parsed.data.reason,
+        },
+      });
+      return c.json(ok({ id, action: 'rejected' }));
     } catch (e) {
       return c.json(err(e instanceof Error ? e.message : 'Review action error'), 500);
     }
@@ -840,7 +839,7 @@ async function getRealQueueDepth(redis: Redis, stream: string): Promise<number> 
     const group = groups[0] as unknown[];
     const obj: Record<string, number> = {};
     for (let i = 0; i < group.length - 1; i += 2) obj[String(group[i])] = Number(group[i + 1]);
-    return (obj['lag'] ?? 0) + (obj['pending'] ?? 0);
+    return (obj.lag ?? 0) + (obj.pending ?? 0);
   } catch {
     return redis.xlen(stream).catch(() => 0);
   }

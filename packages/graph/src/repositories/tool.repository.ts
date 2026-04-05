@@ -131,7 +131,8 @@ export class MemgraphToolRepository implements ToolRepository {
     if (topics.length === 0) return { ok: true, data: [] };
     const session = this.session();
     try {
-      const QUERY = `MATCH (t:Tool) WHERE ANY(topic IN t.topics WHERE topic IN $topics) RETURN t ORDER BY t.health_maintenance_score DESC`;
+      const QUERY =
+        'MATCH (t:Tool) WHERE ANY(topic IN t.topics WHERE topic IN $topics) RETURN t ORDER BY t.health_maintenance_score DESC';
       const result = await session.run(QUERY, { topics });
       const tools = result.records.map((r) => mapRecordToToolNode(r.toObject()));
       return { ok: true, data: tools };

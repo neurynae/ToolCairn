@@ -87,7 +87,7 @@ function computePositions(nodes: FlowNode[]): void {
     const angle = (2 * Math.PI * idx) / clusterKeys.length - Math.PI / 2;
     const cx = Math.cos(angle) * CLUSTER_RADIUS;
     const cy = Math.sin(angle) * CLUSTER_RADIUS;
-    const clusterNodes = clusters.get(key)!;
+    const clusterNodes = clusters.get(key) ?? [];
     clusterNodes.forEach((node, i) => {
       const col = i % NODES_PER_ROW;
       const row = Math.floor(i / NODES_PER_ROW);

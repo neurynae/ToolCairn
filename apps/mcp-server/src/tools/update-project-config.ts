@@ -136,7 +136,7 @@ export async function handleUpdateProjectConfig(args: {
       tool_name: args.tool_name,
       confirmed_count: config.tools.confirmed.length,
       pending_count: config.tools.pending_evaluation.length,
-      instructions: `Write updated_config_json to .toolpilot/config.json to persist this change.`,
+      instructions: 'Write updated_config_json to .toolpilot/config.json to persist this change.',
     });
   } catch (e) {
     logger.error({ err: e }, 'update_project_config failed');

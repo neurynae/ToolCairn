@@ -156,7 +156,10 @@ export function IndexerActions({
     });
   }, []);
 
-  // Scroll log container (not page) to bottom on new entries
+  // Scroll log container (not page) to bottom on new entries.
+  // `log` is a trigger dependency — effect must re-run on every new entry even
+  // though the body only reads the ref (Biome can't distinguish trigger vs value deps).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: log is a trigger dep, not consumed
   useEffect(() => {
     const el = logContainerRef.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -404,6 +407,7 @@ export function IndexerActions({
             ) : (
               <div className="space-y-0.5">
                 {log.map((entry, i) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: log entries have no stable id
                   <div key={i} className="flex gap-3 leading-relaxed">
                     <span className="text-muted-foreground shrink-0">{entry.ts}</span>
                     <span className={logTypeClass[entry.type]}>{entry.text}</span>

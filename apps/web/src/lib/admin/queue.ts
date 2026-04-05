@@ -1,7 +1,5 @@
 import type { Redis } from 'ioredis';
 
-const GROUP = 'toolpilot-consumers';
-
 /**
  * Returns the true number of unprocessed jobs in a Redis stream.
  * Uses XINFO GROUPS lag + pending instead of XLEN, which counts all messages
@@ -21,9 +19,7 @@ export async function getQueueDepth(redis: Redis, stream: string): Promise<numbe
       for (let i = 0; i < group.length - 1; i += 2) {
         obj[String(group[i])] = Number(group[i + 1]);
       }
-      if ((obj['name'] as unknown as string) === GROUP || true) {
-        return (obj['lag'] ?? 0) + (obj['pending'] ?? 0);
-      }
+      return (obj.lag ?? 0) + (obj.pending ?? 0);
     }
     return 0;
   } catch {

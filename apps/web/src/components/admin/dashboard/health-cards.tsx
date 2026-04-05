@@ -103,6 +103,7 @@ export function HealthCards() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: skeleton placeholder has no stable id
           <Card key={i}>
             <CardHeader className="pb-2">
               <Skeleton className="h-5 w-32" />

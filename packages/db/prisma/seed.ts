@@ -792,14 +792,13 @@ const UNIQUE_SEED_TOOLS = [
 ];
 
 async function main() {
-  console.log(`Seeding ${UNIQUE_SEED_TOOLS.length} canonical tools...`);
-  let created = 0;
-  let skipped = 0;
+  let _created = 0;
+  let _skipped = 0;
 
   for (const url of UNIQUE_SEED_TOOLS) {
     const existing = await prisma.indexedTool.findUnique({ where: { github_url: url } });
     if (existing) {
-      skipped++;
+      _skipped++;
       continue;
     }
     await prisma.indexedTool.create({
@@ -808,12 +807,8 @@ async function main() {
         index_status: 'pending',
       },
     });
-    created++;
+    _created++;
   }
-
-  console.log(
-    `Seed complete: ${created} created, ${skipped} already existed (${UNIQUE_SEED_TOOLS.length} total)`,
-  );
 }
 
 main()

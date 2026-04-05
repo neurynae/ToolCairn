@@ -161,8 +161,7 @@ export async function discoverReposAcrossTopics(
 ): Promise<DiscoveredRepo[]> {
   const allRepos = new Map<string, DiscoveredRepo>();
 
-  for (let i = 0; i < topics.length; i++) {
-    const topic = topics[i]!;
+  for (const [i, topic] of topics.entries()) {
     // Pre-flight before each topic (Search API: 30/min limit)
     await searchPreFlight();
 

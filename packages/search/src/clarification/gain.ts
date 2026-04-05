@@ -27,7 +27,9 @@ function getDimensionValue(tool: ToolNode, dim: Dimension): string {
     case 'topics': {
       const topics = tool.topics ?? [];
       // Fall back to category when topics not yet populated in Qdrant payload (transition state)
-      return topics.length > 0 ? topics[0]! : (tool.category ?? 'other');
+      return topics.length > 0
+        ? (topics[0] ?? tool.category ?? 'other')
+        : (tool.category ?? 'other');
     }
     case 'deployment_model':
       return tool.deployment_models[0] ?? 'unknown';

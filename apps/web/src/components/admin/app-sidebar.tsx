@@ -97,6 +97,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         {NAV_GROUPS.map((group, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: NAV_GROUPS is a static constant with no stable id
           <SidebarGroup key={i}>
             {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
             <SidebarGroupContent>
@@ -109,6 +110,7 @@ export function AppSidebar() {
                   return (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
+                        // biome-ignore lint/a11y/useAnchorContent: content is provided as children via the render prop pattern
                         render={<a href={item.href} />}
                         isActive={isActive}
                         tooltip={item.label}

@@ -96,10 +96,7 @@ export async function handleToolpilotInit(args: {
         action: 'create',
         file: '.toolpilot/tracker.html',
         content: generateTrackerHtml(eventsPath),
-        note:
-          'Open .toolpilot/tracker.html in your browser to monitor MCP tool calls in real time. Set TOOLPILOT_EVENTS_PATH=' +
-          eventsPath +
-          ' in your MCP server environment to enable event logging.',
+        note: `Open .toolpilot/tracker.html in your browser to monitor MCP tool calls in real time. Set TOOLPILOT_EVENTS_PATH=${eventsPath} in your MCP server environment to enable event logging.`,
       });
     }
 
@@ -131,7 +128,7 @@ export async function handleToolpilotInit(args: {
       summary: [
         `ToolPilot setup for ${args.agent} agent in ${args.project_root}`,
         `Instructions will be added to: ${instructions.file_path}`,
-        `MCP server entry: toolpilot → .mcp.json`,
+        'MCP server entry: toolpilot → .mcp.json',
         hasToolpilotConfig
           ? '.toolpilot/config.json already exists — skipping init'
           : 'Run init_project_config next to generate .toolpilot/config.json',

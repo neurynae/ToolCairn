@@ -315,6 +315,7 @@ export function mapNeighborhoodRecords(
   if (records.length === 0) return null;
 
   // Safe: we checked records.length > 0 above
+  // biome-ignore lint/style/noNonNullAssertion: length checked above
   const first = records[0]!;
   const center = mapRecordToToolNode({ t: first.t });
   const neighbors: ToolNeighborEdge[] = [];

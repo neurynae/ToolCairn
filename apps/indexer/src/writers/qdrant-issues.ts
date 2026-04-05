@@ -61,7 +61,7 @@ export async function upsertIssueVectors(issues: GitHubIssue[]): Promise<void> {
       await client.upsert(ISSUES_COLLECTION_NAME, {
         points: batch.map((issue, idx) => ({
           id: issue.id,
-          vector: vectors[idx]!,
+          vector: vectors[idx] ?? [],
           payload: issue as unknown as Record<string, unknown>,
         })),
       });

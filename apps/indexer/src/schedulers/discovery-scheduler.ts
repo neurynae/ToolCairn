@@ -573,7 +573,7 @@ export async function runDiscoveryScheduler(): Promise<DiscoveryResult> {
       'Starting discovery scheduler',
     );
 
-    await setProgress(`Loading already-indexed tools…`);
+    await setProgress('Loading already-indexed tools…');
     const indexedUrls = await getIndexedUrls(prisma);
     logger.info({ indexedCount: indexedUrls.size }, 'Fetched already-indexed tools');
 

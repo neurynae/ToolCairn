@@ -63,7 +63,7 @@ export function updateSearchRateState(headers: Record<string, string | undefined
 export async function refreshRateLimitsFromGitHub(): Promise<void> {
   const token = process.env.GITHUB_TOKEN;
   const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
 
   try {
     const res = await fetch('https://api.github.com/rate_limit', { headers });

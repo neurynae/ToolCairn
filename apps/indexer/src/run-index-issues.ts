@@ -41,7 +41,7 @@ async function loadToolsFromMemgraph(): Promise<ToolRow[]> {
 
 function parseGitHubUrl(url: string): { owner: string; repo: string } | null {
   const m = url.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+?)(?:\/|$)/);
-  return m ? { owner: m[1]!, repo: m[2]! } : null;
+  return m ? { owner: m[1] ?? '', repo: m[2] ?? '' } : null;
 }
 
 async function main(): Promise<void> {

@@ -37,6 +37,7 @@ export function ActivityFeed() {
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: skeleton placeholder has no stable id
               <div key={i} className="flex items-center gap-3">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-4 w-16" />
