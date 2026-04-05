@@ -7,6 +7,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from '@toolpilot/config';
 import pino from 'pino';
+import { ensureProjectSetup } from './project-setup.js';
 import { buildServer } from './server.js';
 import { buildProdServer } from './server.prod.js';
 import { createTransport } from './transport.js';
@@ -35,6 +36,9 @@ const logger = pino({ name: '@toolpilot/mcp-server' });
 async function main(): Promise<void> {
   const mode = config.TOOLPILOT_MODE;
   logger.info({ mode }, 'Starting ToolPilot MCP Server');
+
+  // Auto-create .toolpilot/ in the project root before the agent starts any chat
+  await ensureProjectSetup();
 
   const server = mode === 'production' ? await buildProdServer() : buildServer();
   const transport = createTransport();

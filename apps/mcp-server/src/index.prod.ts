@@ -10,6 +10,7 @@
  * entry for local dev (tsc build) where both modes are needed.
  */
 import pino from 'pino';
+import { ensureProjectSetup } from './project-setup.js';
 import { buildProdServer } from './server.prod.js';
 import { createTransport } from './transport.js';
 
@@ -20,6 +21,10 @@ const logger = pino({ name: '@toolpilot/mcp-server' });
 
 async function main(): Promise<void> {
   logger.info('Starting ToolPilot MCP Server (production mode)');
+
+  // Auto-create .toolpilot/ in the project root before the agent starts any chat
+  await ensureProjectSetup();
+
   const server = await buildProdServer();
   const transport = createTransport();
   await server.connect(transport);

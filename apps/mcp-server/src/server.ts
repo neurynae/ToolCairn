@@ -26,17 +26,27 @@ You are connected to the ToolPilot MCP server. ToolPilot is your active tool int
 
 ## On Every Session Start — Do This First
 
-Check whether \`.toolpilot/config.json\` exists in the project root.
+Read \`.toolpilot/config.json\` in the project root. The server auto-creates this file on startup,
+so it will almost always exist — but it may be an empty scaffold that still needs configuration.
 
-### If it does NOT exist (new project or first-time setup):
+### Case 1 — File does NOT exist (rare: read-only filesystem or manual deletion):
 1. List the project root files (package.json, requirements.txt, CLAUDE.md, .cursorrules, .mcp.json, etc.)
 2. Call \`toolpilot_init\` with your agent type, project root path, and the list of detected files.
-   This writes your agent instruction file (CLAUDE.md section / .cursorrules / etc.), MCP config, and the live tracker dashboard.
-3. Call \`init_project_config\` — pass your project name, language, framework, and any tools you can detect from package.json or requirements.txt (both OSS and non-OSS/proprietary tools).
+   This writes your agent instruction file (CLAUDE.md section / .cursorrules / etc.) and the tracker dashboard.
+3. Call \`init_project_config\` — pass your project name, language, framework, and any tools you can detect
+   from package.json or requirements.txt (both OSS and non-OSS/proprietary tools).
 4. Write the returned \`config_json\` to \`.toolpilot/config.json\`.
 
-### If it DOES exist (returning to an existing project):
-1. Read \`.toolpilot/config.json\` and call \`read_project_config\` with its content.
+### Case 2 — File EXISTS but \`project.name\` is empty (auto-created scaffold — not yet configured):
+The server wrote the file at startup. You still need to fill in the project details:
+1. List the project root files to detect the tech stack.
+2. Call \`toolpilot_init\` with your agent type, project root, and detected files.
+   This appends ToolPilot rules to CLAUDE.md (or equivalent) and sets up the tracker.
+3. Call \`init_project_config\` with the project name, language, framework, and detected tools.
+4. Write the returned \`config_json\` to \`.toolpilot/config.json\` (overwrites the empty scaffold).
+
+### Case 3 — File EXISTS and \`project.name\` is set (returning to a configured project):
+1. Call \`read_project_config\` with the file content.
 2. If \`stale_tools\` is non-empty, inform the user and offer to re-verify those tools.
 3. If \`pending_evaluation\` is non-empty, offer to run \`search_tools\` or \`compare_tools\` to resolve them.
 
