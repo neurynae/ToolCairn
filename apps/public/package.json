@@ -8,7 +8,7 @@
     "dev": "next dev --port 3005",
     "start": "next start --port 3005",
     "typecheck": "tsc --noEmit",
-    "test:unit": "vitest run",
+    "test:unit": "vitest run --passWithNoTests",
     "clean": "rimraf .next dist"
   },
   "dependencies": {

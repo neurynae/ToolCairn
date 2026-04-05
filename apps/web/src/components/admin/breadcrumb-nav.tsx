@@ -34,7 +34,7 @@ export function BreadcrumbNav() {
   const crumbs = segments
     .map((seg, i) => ({
       label: SEGMENT_LABELS[seg] ?? seg,
-      href: '/' + segments.slice(0, i + 1).join('/'),
+      href: `/${segments.slice(0, i + 1).join('/')}`,
       isLast: i === segments.length - 1,
     }))
     .filter((c) => c.label !== 'Admin'); // hide the 'admin' root segment
