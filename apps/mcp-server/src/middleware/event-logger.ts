@@ -21,6 +21,7 @@ const logger = pino({ name: '@toolpilot/mcp-server:event-logger' });
 // bundle so the npm package works without a database connection.
 // biome-ignore lint/suspicious/noExplicitAny: Prisma client type not available at bundle time
 let _prisma: any = null;
+// biome-ignore lint/suspicious/noExplicitAny: Prisma client type not available at bundle time
 async function getPrisma(): Promise<any> {
   if (!_prisma) {
     try {
