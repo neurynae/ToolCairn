@@ -64,14 +64,16 @@ function saveLog(log: LogEntry[]) {
   }
 }
 
+import { adminFetch } from '@/lib/admin/fetch';
+
 async function triggerAction(path: string): Promise<{ message?: string; error?: string }> {
-  const res = await fetch(path, { method: 'POST' });
+  const res = await adminFetch(path, { method: 'POST' });
   return res.json() as Promise<{ message?: string; error?: string }>;
 }
 
 async function fetchProgress(): Promise<ProgressState | null> {
   try {
-    const res = await fetch('/api/admin/indexer/progress', { cache: 'no-store' });
+    const res = await adminFetch('/api/admin/indexer/progress', { cache: 'no-store' });
     const json = (await res.json()) as { ok: boolean; data?: { progress: ProgressState | null } };
     return json.ok ? (json.data?.progress ?? null) : null;
   } catch {
@@ -81,7 +83,7 @@ async function fetchProgress(): Promise<ProgressState | null> {
 
 async function fetchStatus(): Promise<StatusSnapshot | null> {
   try {
-    const res = await fetch('/api/admin/indexer', { cache: 'no-store' });
+    const res = await adminFetch('/api/admin/indexer', { cache: 'no-store' });
     const json = (await res.json()) as { ok: boolean; data?: StatusSnapshot };
     return json.ok && json.data ? json.data : null;
   } catch {

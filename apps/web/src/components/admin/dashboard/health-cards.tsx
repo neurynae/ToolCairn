@@ -88,13 +88,15 @@ export function HealthCards() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/health')
-      .then((r) => r.json())
-      .then((j: { ok: boolean; data: HealthData }) => {
-        if (j.ok) setData(j.data);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    import('@/lib/admin/fetch').then(({ adminFetch }) =>
+      adminFetch('/api/admin/health')
+        .then((r) => r.json())
+        .then((j: { ok: boolean; data: HealthData }) => {
+          if (j.ok) setData(j.data);
+        })
+        .catch(() => {})
+        .finally(() => setLoading(false)),
+    );
   }, []);
 
   if (loading) {
