@@ -16,9 +16,15 @@ import { Octokit } from '@octokit/rest';
 import { config } from '@toolpilot/config';
 import pino from 'pino';
 import { setProgress } from '../progress.js';
-import { getRateLimitStatus, searchPreFlight, sleep, updateSearchRateState } from './rate-limit.js';
+import {
+  getRateLimitStatus,
+  refreshRateLimitsFromGitHub,
+  searchPreFlight,
+  sleep,
+  updateSearchRateState,
+} from './rate-limit.js';
 
-export { getRateLimitStatus };
+export { getRateLimitStatus, refreshRateLimitsFromGitHub };
 
 const logger = pino({ name: '@toolpilot/indexer:github-discovery' });
 

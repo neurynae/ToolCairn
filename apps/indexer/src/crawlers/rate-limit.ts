@@ -1,21 +1,3 @@
-/**
- * Shared GitHub API rate limit tracker.
- *
- * GitHub has two separate pools:
- * - Core API (repos, languages, topics, contents): 5,000 req/hr authenticated
- * - Search API (search/repos):                     30 req/min authenticated
- *
- * Both crawlers (github.ts and github-discovery.ts) import from this module
- * so their usage is tracked against a single shared state. This prevents
- * them from independently burning through the same quota.
- *
- * Dynamic pacing strategy:
- *   remaining > 1000 → no artificial delay     (plenty of budget)
- *   remaining 500-1000 → +1s between crawls    (mid-range caution)
- *   remaining 100-500  → +3s between crawls    (conserve budget)
- *   remaining < 100    → wait for reset        (critical — stop crawling)
- */
-
 import pino from 'pino';
 
 const logger = pino({ name: '@toolpilot/indexer:rate-limit' });
@@ -58,6 +40,66 @@ export function updateSearchRateState(headers: Record<string, string | undefined
   if (remaining !== undefined) searchRateState.remaining = Number(remaining);
   if (reset !== undefined) searchRateState.resetAt = Number(reset);
   if (limit !== undefined) searchRateState.limit = Number(limit);
+}
+
+// ─── Startup refresh ─────────────────────────────────────────────────────────
+
+/**
+ * Fetch the ACTUAL remaining quota from GitHub on indexer startup.
+ *
+ * Without this, coreRateState / searchRateState start at their theoretical
+ * maximums (5000 / 30) even if the previous indexer run had already consumed
+ * significant quota. The first 403/429 would eventually correct the state, but
+ * by then we may have over-paced or made unnecessary requests.
+ *
+ * Calls GET /rate_limit (which does NOT consume Core quota) and writes the real
+ * remaining + resetAt into coreRateState and searchRateState before any crawl
+ * work begins.
+ *
+ * Non-fatal: if the request fails (no token, network issue) we log a warning
+ * and continue with the defaults — the existing self-correction via response
+ * headers still applies.
+ */
+export async function refreshRateLimitsFromGitHub(): Promise<void> {
+  const token = process.env.GITHUB_TOKEN;
+  const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  try {
+    const res = await fetch('https://api.github.com/rate_limit', { headers });
+    if (!res.ok) {
+      logger.warn({ status: res.status }, 'rate_limit fetch failed — using default state');
+      return;
+    }
+
+    const body = (await res.json()) as {
+      resources: {
+        core: { remaining: number; limit: number; reset: number };
+        search: { remaining: number; limit: number; reset: number };
+      };
+    };
+
+    const core = body.resources.core;
+    const search = body.resources.search;
+
+    coreRateState.remaining = core.remaining;
+    coreRateState.resetAt = core.reset;
+    coreRateState.limit = core.limit;
+
+    searchRateState.remaining = search.remaining;
+    searchRateState.resetAt = search.reset;
+    searchRateState.limit = search.limit;
+
+    logger.info(
+      {
+        core: `${core.remaining}/${core.limit}`,
+        search: `${search.remaining}/${search.limit}`,
+      },
+      'GitHub rate limits refreshed from API',
+    );
+  } catch (e) {
+    logger.warn({ err: e }, 'Failed to refresh rate limits from GitHub — using defaults');
+  }
 }
 
 // ─── Sleep helpers ────────────────────────────────────────────────────────────

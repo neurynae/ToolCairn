@@ -7,7 +7,7 @@ import {
 } from '@toolpilot/queue';
 import type { QueueHandlers } from '@toolpilot/queue';
 import pino from 'pino';
-import { getRateLimitStatus } from '../crawlers/github-discovery.js';
+import { getRateLimitStatus, refreshRateLimitsFromGitHub } from '../crawlers/github-discovery.js';
 import { handleIndexJob } from '../queue-consumers/index-consumer.js';
 import { runDiscoveryScheduler } from '../schedulers/discovery-scheduler.js';
 import { runReindexScheduler } from '../schedulers/reindex-scheduler.js';
@@ -142,6 +142,11 @@ async function runReindex(): Promise<void> {
  */
 export async function startIndexWorker(): Promise<void> {
   logger.info('Starting index worker');
+
+  // Prime rate limit state from GitHub before any crawl work begins.
+  // Prevents the indexer from over-assuming quota on restart (in-memory state
+  // resets to defaults; this call fetches the actual remaining from the API).
+  await refreshRateLimitsFromGitHub();
 
   // Start the scheduler cron in the background (non-blocking)
   startSchedulerCron().catch((err) => {
