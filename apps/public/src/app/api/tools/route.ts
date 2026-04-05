@@ -1,10 +1,11 @@
 import { MemgraphToolRepository } from '@toolpilot/graph';
-import { NextResponse } from 'next/server';
+import type { ToolCategory } from '@toolpilot/core';
+import { type NextRequest, NextResponse } from 'next/server';
 import pino from 'pino';
 import { z } from 'zod';
+import { withProxyGet } from '@/lib/api/proxy';
 
 const logger = pino({ name: '@toolpilot/public:api-tools' });
-const repo = new MemgraphToolRepository();
 
 // Our UI category slugs — the graph stores raw GitHub topics in t.category,
 // so these may not match directly. We search both t.category AND t.topics.
@@ -58,9 +59,17 @@ const ListToolsSchema = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 
-export async function GET(request: Request) {
+// Lazy-init repo — only used in directHandler (local dev, no TOOLPILOT_API_URL).
+// In production, withProxyGet short-circuits before this is ever called.
+let _repo: MemgraphToolRepository | null = null;
+function getRepo() {
+  if (!_repo) _repo = new MemgraphToolRepository();
+  return _repo;
+}
+
+async function directHandler(req: NextRequest): Promise<NextResponse> {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(req.url);
     const parsed = ListToolsSchema.safeParse({
       category: searchParams.get('category') ?? undefined,
       limit: searchParams.get('limit') ?? undefined,
@@ -74,38 +83,27 @@ export async function GET(request: Request) {
       );
     }
 
+    const repo = getRepo();
     const { category, limit, offset } = parsed.data;
-
     let allTools: Awaited<ReturnType<typeof repo.findByCategory>>['data'] & object[] = [];
 
     if (category) {
       const slug = category as CategorySlug;
-
-      // 1. Try exact category match first
-      const exactResult = await repo.findByCategory(slug);
+      const exactResult = await repo.findByCategory(slug as ToolCategory);
       if (exactResult.ok && exactResult.data.length > 0) {
         allTools = exactResult.data;
       } else {
-        // 2. Fall back to topics-based Cypher search
         const topics = CATEGORY_TOPIC_MAP[slug] ?? [slug];
         const topicsResult = await repo.findByTopics(topics);
-        if (topicsResult.ok) {
-          allTools = topicsResult.data;
-        } else {
-          logger.warn({ category, err: topicsResult.error }, 'topics fallback failed');
-        }
+        if (topicsResult.ok) allTools = topicsResult.data;
+        else logger.warn({ category, err: topicsResult.error }, 'topics fallback failed');
       }
     } else {
-      // No category — return all tools across all our categories
-      const allResult = await repo.findByCategories(Array.from(ALL_CATEGORIES));
+      const allResult = await repo.findByCategories(Array.from(ALL_CATEGORIES) as ToolCategory[]);
       if (allResult.ok) allTools = allResult.data;
     }
 
-    if (!allTools) {
-      return NextResponse.json({ ok: true, data: { tools: [], total: 0 } });
-    }
-
-    const sorted = allTools.sort((a, b) => b.health.maintenance_score - a.health.maintenance_score);
+    const sorted = (allTools ?? []).sort((a, b) => b.health.maintenance_score - a.health.maintenance_score);
     const total = sorted.length;
     const paged = sorted.slice(offset, offset + limit);
 
@@ -131,3 +129,5 @@ export async function GET(request: Request) {
     );
   }
 }
+
+export const GET = withProxyGet('/data/tools', directHandler);

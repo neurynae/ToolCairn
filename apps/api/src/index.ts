@@ -13,6 +13,7 @@ import { compress } from 'hono/compress';
 import pino from 'pino';
 import { originAuth } from './middleware/origin-auth.js';
 import { adminRoutes } from './routes/admin.js';
+import { dataRoutes } from './routes/data.js';
 import { feedbackRoutes } from './routes/feedback.js';
 import { graphRoutes } from './routes/graph.js';
 import { intelligenceRoutes } from './routes/intelligence.js';
@@ -48,6 +49,7 @@ app.route('/v1/admin', adminRoutes());
 
 // All other endpoints require origin secret
 app.use('/v1/*', originAuth);
+app.route('/v1/data', dataRoutes());
 app.route('/v1/search', searchRoutes(handlers));
 app.route('/v1/graph', graphRoutes(handlers));
 app.route('/v1/intelligence', intelligenceRoutes(handlers));

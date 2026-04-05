@@ -15,6 +15,7 @@
   "dependencies": {
     "@hono/node-server": "^1.14.1",
     "@toolpilot/config": "workspace:*",
+    "@toolpilot/core": "workspace:*",
     "@toolpilot/db": "workspace:*",
     "@toolpilot/graph": "workspace:*",
     "@toolpilot/queue": "workspace:*",

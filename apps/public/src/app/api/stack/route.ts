@@ -1,5 +1,6 @@
-import { MemgraphToolRepository } from '@toolpilot/graph';
+import { PrismaClient } from '@toolpilot/db';
 import { createGetStackHandler } from '@toolpilot/tools';
+import { SearchPipeline, SearchSessionManager } from '@toolpilot/search';
 import { type NextRequest, NextResponse } from 'next/server';
 import pino from 'pino';
 import { z } from 'zod';
@@ -7,8 +8,18 @@ import { mcpToNextResponse, withProxyPost } from '@/lib/api/proxy';
 
 const logger = pino({ name: '@toolpilot/public:api-stack' });
 
-const graphRepo = new MemgraphToolRepository();
-const handleGetStack = createGetStackHandler({ graphRepo });
+// Lazy-init pipeline — only created in directHandler (local dev, no TOOLPILOT_API_URL).
+// In production, withProxyPost short-circuits to the VPS before this is ever called.
+let _handleGetStack: ReturnType<typeof createGetStackHandler> | null = null;
+function getHandler() {
+  if (!_handleGetStack) {
+    const prisma = new PrismaClient();
+    const sessionManager = new SearchSessionManager(prisma);
+    const pipeline = new SearchPipeline(sessionManager);
+    _handleGetStack = createGetStackHandler({ pipeline });
+  }
+  return _handleGetStack;
+}
 
 const GetStackSchema = z.object({
   use_case: z.string().min(1),
@@ -33,7 +44,7 @@ async function directHandler(req: NextRequest): Promise<NextResponse> {
       );
     }
     logger.info({ use_case: parsed.data.use_case }, 'get_stack direct');
-    const mcpResult = await handleGetStack({
+    const mcpResult = await getHandler()({
       use_case: parsed.data.use_case,
       constraints: parsed.data.constraints,
       limit: parsed.data.limit,

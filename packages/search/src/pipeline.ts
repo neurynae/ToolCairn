@@ -104,6 +104,25 @@ export class SearchPipeline {
   }
 
   /**
+   * Run stages 1–3 for stack recommendations.
+   * Differs from the standard pipeline: skips clarification, skips stage 4 (precision
+   * selection returns only 1-2 winners), and returns the top `limit` ranked tools
+   * from stage 3 so the caller can present a multi-tool stack.
+   * No DB session persistence — fire-and-forget.
+   */
+  async runStages1to3ForStack(
+    query: string,
+    context: SearchContext | undefined,
+    limit: number,
+  ): Promise<ToolScoredResult[]> {
+    const allTools = await this.loadToolCorpus();
+    const stage1 = await stage1HybridSearch(query, allTools);
+    const stage2 = await stage2ApplyFilters(stage1.ids, context);
+    const stage3 = await stage3GraphRerank(stage2);
+    return stage3.results.slice(0, limit);
+  }
+
+  /**
    * Determine which clarification round we're on based on previously asked dimensions.
    * Round 1: topic/usecase clarification
    * Round 2: constraint clarification (deployment, language)
