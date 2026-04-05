@@ -29,8 +29,14 @@ async function ensureConsumerGroup(stream: string, group: string): Promise<void>
   const redis = getRedisClient();
   try {
     await redis.xgroup('CREATE', stream, group, '0', 'MKSTREAM');
-  } catch {
-    // Group already exists — ignore
+  } catch (e) {
+    // BUSYGROUP = group already exists — expected on warm restart, ignore
+    const msg = e instanceof Error ? e.message : String(e);
+    if (!msg.includes('BUSYGROUP')) {
+      // Any other error (connection failure, etc.) — re-throw so the caller fails
+      // clearly instead of silently leaving the group uncreated and crashing on XREADGROUP
+      throw e;
+    }
   }
 }
 
