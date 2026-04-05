@@ -1,5 +1,5 @@
 /**
- * verify_suggestion — Validates agent-suggested tools against the ToolPilot graph.
+ * verify_suggestion — Validates agent-suggested tools against the ToolCairn graph.
  *
  * Called when search_tools returns no results or low-confidence results and the
  * calling agent (Claude, Cursor, etc.) has suggestions from its training data.
@@ -21,7 +21,7 @@ import { errResult, okResult } from '../utils.js';
 
 import { config } from '@toolpilot/config';
 
-const logger = pino({ name: '@toolpilot/mcp-server:verify-suggestion' });
+const logger = pino({ name: '@toolcairn/mcp-server:verify-suggestion' });
 const toolRepo = new MemgraphToolRepository();
 const usecaseRepo = new MemgraphUseCaseRepository();
 
@@ -154,7 +154,7 @@ async function diagnoseSearchMiss(tool: ToolNode): Promise<string> {
 
 /**
  * Use semantic search to find the closest tools to the query in the current index.
- * Returns top matches as "what ToolPilot would recommend" for comparison.
+ * Returns top matches as "what ToolCairn would recommend" for comparison.
  */
 async function semanticSearch(
   query: string,
@@ -225,7 +225,7 @@ export async function handleVerifySuggestion(args: {
           qdrant_present: qdrantStatus.present,
           search_miss_reason: isCorrectlyIndexed ? undefined : missReason,
           verdict: isCorrectlyIndexed
-            ? `"${toolName}" is correctly indexed. Agent suggestion matches ToolPilot data. Use this tool.`
+            ? `"${toolName}" is correctly indexed. Agent suggestion matches ToolCairn data. Use this tool.`
             : `"${toolName}" is in the graph but search missed it: ${missReason}. Agent suggestion is valid — triggering re-embed.`,
         });
 
@@ -242,7 +242,7 @@ export async function handleVerifySuggestion(args: {
           status: 'not_indexed_queued',
           in_graph: false,
           indexing_eta_seconds: 120,
-          verdict: `"${toolName}" is not in the ToolPilot index. Resolved to ${githubUrl !== toolName ? githubUrl : 'GitHub'} and indexing triggered at P0 priority (~2 min). Call verify_suggestion again after indexing completes.`,
+          verdict: `"${toolName}" is not in the ToolCairn index. Resolved to ${githubUrl !== toolName ? githubUrl : 'GitHub'} and indexing triggered at P0 priority (~2 min). Call verify_suggestion again after indexing completes.`,
         });
       }
     }
@@ -253,7 +253,7 @@ export async function handleVerifySuggestion(args: {
     );
     const enqueued = enqueueResults.filter((r) => r.status === 'fulfilled').length;
 
-    // ── Phase 3: semantic comparison — what ToolPilot would recommend ─────────
+    // ── Phase 3: semantic comparison — what ToolCairn would recommend ─────────
     const ourRecommendations = await semanticSearch(args.query, 3);
 
     const foundInGraph = results.filter((r) => r.in_graph).map((r) => r.tool_name);
@@ -280,9 +280,9 @@ export async function handleVerifySuggestion(args: {
         our_alternatives: disagreement.map((r) => r.name),
         verdict:
           agreement.length > 0
-            ? `ToolPilot agrees with agent on: ${agreement.map((r) => r.name).join(', ')}. Both signal high confidence.`
+            ? `ToolCairn agrees with agent on: ${agreement.map((r) => r.name).join(', ')}. Both signal high confidence.`
             : disagreement.length > 0
-              ? `ToolPilot recommends different tools: ${disagreement.map((r) => r.name).join(', ')}. Agent suggestions may be from older training data or niche tools not yet indexed.`
+              ? `ToolCairn recommends different tools: ${disagreement.map((r) => r.name).join(', ')}. Agent suggestions may be from older training data or niche tools not yet indexed.`
               : 'Unable to compare — index query returned no results. Agent suggestions are the best available signal.',
       },
       next_steps:

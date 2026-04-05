@@ -1,4 +1,4 @@
-// ToolPilot MCP Server — Primary Product
+// ToolCairn MCP Server — Primary Product
 // Supports two modes:
 //   dev        → direct Docker DB connections (for contributors, default)
 //   production → thin HTTP client to api.toolpilot.dev (for published npm package)
@@ -31,22 +31,22 @@ if (!process.env.NOMIC_API_KEY) {
   }
 }
 
-const logger = pino({ name: '@toolpilot/mcp-server' });
+const logger = pino({ name: '@toolcairn/mcp-server' });
 
 async function main(): Promise<void> {
   const mode = config.TOOLPILOT_MODE;
-  logger.info({ mode }, 'Starting ToolPilot MCP Server');
+  logger.info({ mode }, 'Starting ToolCairn MCP Server');
 
-  // Auto-create .toolpilot/ in the project root before the agent starts any chat
+  // Auto-create .toolcairn/ in the project root before the agent starts any chat
   await ensureProjectSetup();
 
   const server = mode === 'production' ? await buildProdServer() : buildServer();
   const transport = createTransport();
   await server.connect(transport);
-  logger.info('ToolPilot MCP Server started');
+  logger.info('ToolCairn MCP Server started');
 }
 
 main().catch((error: unknown) => {
-  pino({ name: '@toolpilot/mcp-server' }).error({ err: error }, 'Failed to start MCP server');
+  pino({ name: '@toolcairn/mcp-server' }).error({ err: error }, 'Failed to start MCP server');
   process.exit(1);
 });

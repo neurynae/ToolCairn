@@ -8,7 +8,7 @@ import {
   formatResults,
 } from './format-results.js';
 
-const logger = pino({ name: '@toolpilot/mcp-server:search-tools-respond' });
+const logger = pino({ name: '@toolcairn/mcp-server:search-tools-respond' });
 const prisma = new PrismaClient();
 const sessionManager = new SearchSessionManager(prisma);
 const pipeline = new SearchPipeline(sessionManager);

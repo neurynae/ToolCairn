@@ -1,8 +1,9 @@
-// ToolPilot Project Config — persisted as .toolpilot/config.json in the user's project root.
+// ToolCairn Project Config — persisted as .toolcairn/config.json in the user's project root.
 // The MCP server (stdio) cannot read/write files directly.
 // The agent reads/writes the file; MCP tools process the content.
 
-export type ToolSource = 'toolpilot' | 'manual' | 'non_oss';
+// 'toolpilot' kept for backward compat with configs created before the ToolCairn rename
+export type ToolSource = 'toolcairn' | 'toolpilot' | 'manual' | 'non_oss';
 
 export interface ConfirmedTool {
   /** Tool name as indexed in ToolPilot (or user-provided name for non_oss/manual) */

@@ -10,7 +10,7 @@ import { enqueueIndexJob } from '@toolpilot/queue';
 import pino from 'pino';
 import { errResult, okResult } from '../utils.js';
 
-const logger = pino({ name: '@toolpilot/mcp-server:report-outcome' });
+const logger = pino({ name: '@toolcairn/mcp-server:report-outcome' });
 const prisma = new PrismaClient();
 const repo = new MemgraphToolRepository();
 

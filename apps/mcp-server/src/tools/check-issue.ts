@@ -27,7 +27,7 @@ import { MemgraphToolRepository } from '@toolpilot/graph';
 import pino from 'pino';
 import { errResult, okResult } from '../utils.js';
 
-const logger = pino({ name: '@toolpilot/mcp-server:check-issue' });
+const logger = pino({ name: '@toolcairn/mcp-server:check-issue' });
 const repo = new MemgraphToolRepository();
 
 const DOCS_RETRY_THRESHOLD = 4; // total retries before check_issue is appropriate
@@ -175,7 +175,7 @@ export async function handleCheckIssue(args: {
     if (!toolResult.data) {
       return errResult(
         'tool_not_found',
-        `Tool '${args.tool_name}' is not in the ToolPilot index. Try search_tools to find the correct tool name.`,
+        `Tool '${args.tool_name}' is not in the ToolCairn index. Try search_tools to find the correct tool name.`,
       );
     }
     const tool = toolResult.data;

@@ -2,7 +2,7 @@ import type { ToolPilotProjectConfig } from '@toolpilot/core';
 import pino from 'pino';
 import { errResult, okResult } from '../utils.js';
 
-const logger = pino({ name: '@toolpilot/mcp-server:read-project-config' });
+const logger = pino({ name: '@toolcairn/mcp-server:read-project-config' });
 
 // Tools older than this many days will be flagged for re-evaluation
 const STALENESS_THRESHOLD_DAYS = 90;
@@ -52,8 +52,9 @@ export async function handleReadProjectConfig(args: { config_content: string }) 
       .filter((t) => t.source === 'non_oss')
       .map((t) => t.name);
 
-    const toolpilot_indexed_tools = config.tools.confirmed
-      .filter((t) => t.source === 'toolpilot')
+    // Accept both 'toolcairn' (new) and 'toolpilot' (pre-rename configs) for backward compat
+    const toolcairn_indexed_tools = config.tools.confirmed
+      .filter((t) => t.source === 'toolcairn' || t.source === 'toolpilot')
       .map((t) => t.name);
 
     return okResult({
@@ -61,7 +62,7 @@ export async function handleReadProjectConfig(args: { config_content: string }) 
       confirmed_tools: confirmedToolNames,
       pending_tools: pendingToolNames,
       non_oss_tools,
-      toolpilot_indexed_tools,
+      toolcairn_indexed_tools,
       stale_tools: staleTools,
       total_confirmed: confirmedToolNames.length,
       total_pending: pendingToolNames.length,

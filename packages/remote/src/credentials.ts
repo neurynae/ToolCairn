@@ -1,5 +1,5 @@
 /**
- * Manages anonymous API key stored in ~/.toolpilot/credentials.json.
+ * Manages anonymous API key stored in ~/.toolcairn/credentials.json.
  * Generated on first run — no login required.
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';

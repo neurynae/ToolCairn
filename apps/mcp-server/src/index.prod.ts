@@ -17,21 +17,21 @@ import { createTransport } from './transport.js';
 // Force production mode regardless of environment variable
 process.env.TOOLPILOT_MODE = 'production';
 
-const logger = pino({ name: '@toolpilot/mcp-server' });
+const logger = pino({ name: '@toolcairn/mcp-server' });
 
 async function main(): Promise<void> {
-  logger.info('Starting ToolPilot MCP Server (production mode)');
+  logger.info('Starting ToolCairn MCP Server (production mode)');
 
-  // Auto-create .toolpilot/ in the project root before the agent starts any chat
+  // Auto-create .toolcairn/ in the project root before the agent starts any chat
   await ensureProjectSetup();
 
   const server = await buildProdServer();
   const transport = createTransport();
   await server.connect(transport);
-  logger.info('ToolPilot MCP Server started');
+  logger.info('ToolCairn MCP Server started');
 }
 
 main().catch((error: unknown) => {
-  pino({ name: '@toolpilot/mcp-server' }).error({ err: error }, 'Failed to start MCP server');
+  pino({ name: '@toolcairn/mcp-server' }).error({ err: error }, 'Failed to start MCP server');
   process.exit(1);
 });

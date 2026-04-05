@@ -4,7 +4,7 @@ import { enqueueIndexJob } from '@toolpilot/queue';
 import pino from 'pino';
 import { errResult, okResult } from '../utils.js';
 
-const logger = pino({ name: '@toolpilot/mcp-server:compare-tools' });
+const logger = pino({ name: '@toolcairn/mcp-server:compare-tools' });
 const repo = new MemgraphToolRepository();
 
 // Relationship types that indicate good/bad compatibility
@@ -88,7 +88,7 @@ export async function handleCompareTools(args: {
         tool_b: args.tool_b,
         async_index_triggered: true,
         agent_instructions: [
-          `Neither "${args.tool_a}" nor "${args.tool_b}" is in the ToolPilot index.`,
+          `Neither "${args.tool_a}" nor "${args.tool_b}" is in the ToolCairn index.`,
           'Indexing has been triggered for both — results will be available in ~2 minutes.',
           'In the meantime, search GitHub for both tools to gather basic information for comparison.',
           'Use search_tools to find alternatives if these tools are not found.',
@@ -116,7 +116,7 @@ export async function handleCompareTools(args: {
         unindexed_tool: {
           name: missingName,
           status: 'not_in_index',
-          message: `"${missingName}" is not in the ToolPilot index yet.`,
+          message: `"${missingName}" is not in the ToolCairn index yet.`,
         },
         async_index_triggered: true,
         agent_instructions: [

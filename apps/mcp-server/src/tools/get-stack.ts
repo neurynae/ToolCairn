@@ -3,7 +3,7 @@ import { MemgraphToolRepository } from '@toolpilot/graph';
 import pino from 'pino';
 import { errResult, okResult } from '../utils.js';
 
-const logger = pino({ name: '@toolpilot/mcp-server:get-stack' });
+const logger = pino({ name: '@toolcairn/mcp-server:get-stack' });
 const toolRepo = new MemgraphToolRepository();
 
 /**

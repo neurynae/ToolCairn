@@ -3,10 +3,10 @@
  *
  * Wraps tool handlers to record timing, status, and metadata to:
  *   1. Prisma McpEvent table (queryable via DB)
- *   2. TOOLPILOT_EVENTS_PATH JSONL file (for standalone tracker.html)
+ *   2. TOOLCAIRN_EVENTS_PATH JSONL file (for standalone tracker.html)
  *
  * All writes are fire-and-forget — NEVER block a tool response.
- * If TOOLPILOT_TRACKING_ENABLED=false (or unset), all logging is skipped.
+ * If TOOLCAIRN_TRACKING_ENABLED=false (or unset), all logging is skipped.
  */
 
 import { appendFile, mkdir } from 'node:fs/promises';
@@ -14,7 +14,7 @@ import { dirname } from 'node:path';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import pino from 'pino';
 
-const logger = pino({ name: '@toolpilot/mcp-server:event-logger' });
+const logger = pino({ name: '@toolcairn/mcp-server:event-logger' });
 
 // Lazy Prisma — only initialised on first event write.
 // Dynamic import keeps @toolpilot/db (and @prisma/client) out of the tsup
@@ -35,11 +35,11 @@ async function getPrisma(): Promise<any> {
 }
 
 function isTrackingEnabled(): boolean {
-  return process.env.TOOLPILOT_TRACKING_ENABLED !== 'false';
+  return process.env.TOOLCAIRN_TRACKING_ENABLED !== 'false';
 }
 
 function getEventsPath(): string | null {
-  return process.env.TOOLPILOT_EVENTS_PATH ?? null;
+  return process.env.TOOLCAIRN_EVENTS_PATH ?? null;
 }
 
 interface McpEventRecord {

@@ -1,18 +1,18 @@
 /**
  * Automatic project-level setup — runs at MCP server startup.
  *
- * Detects the host OS, then creates the .toolpilot/ directory and base files
+ * Detects the host OS, then creates the .toolcairn/ directory and base files
  * in process.cwd() (the project root where the user ran `npx @neurynae/toolcairn-mcp`).
  *
- * This mirrors how credentials.json is auto-created in ~/.toolpilot at
+ * This mirrors how credentials.json is auto-created in ~/.toolcairn at
  * startup, but for project-scoped files.
  *
  * Files created (only if absent — never overwrites existing):
- *   .toolpilot/config.json    — empty scaffold; agent fills project details
- *   .toolpilot/tracker.html   — full dashboard HTML (from generateTrackerHtml)
- *   .toolpilot/events.jsonl   — empty JSONL log; written to at runtime
+ *   .toolcairn/config.json    — empty scaffold; agent fills project details
+ *   .toolcairn/tracker.html   — full dashboard HTML (from generateTrackerHtml)
+ *   .toolcairn/events.jsonl   — empty JSONL log; written to at runtime
  *
- * The agent still needs to run toolpilot_init + init_project_config to fill
+ * The agent still needs to run toolcairn_init + init_project_config to fill
  * in project.name, language, framework, and confirmed tools.
  */
 
@@ -22,7 +22,7 @@ import { join } from 'node:path';
 import pino from 'pino';
 import { generateTrackerHtml } from './tools/generate-tracker.js';
 
-const logger = pino({ name: '@toolpilot/mcp-server:project-setup' });
+const logger = pino({ name: '@toolcairn/mcp-server:project-setup' });
 
 /** Minimal config.json scaffold written on first run. */
 const INITIAL_CONFIG = {
@@ -67,7 +67,7 @@ function toFileUrl(absPath: string): string {
 }
 
 /**
- * Ensure .toolpilot/ and its base files exist in projectRoot.
+ * Ensure .toolcairn/ and its base files exist in projectRoot.
  * Safe to call on every startup — skips files that already exist.
  */
 export async function ensureProjectSetup(projectRoot = process.cwd()): Promise<void> {
@@ -91,7 +91,7 @@ export async function ensureProjectSetup(projectRoot = process.cwd()): Promise<v
     await createIfAbsent(configPath, JSON.stringify(INITIAL_CONFIG, null, 2), 'config.json');
     await createIfAbsent(trackerPath, generateTrackerHtml(eventsPathForUrl), 'tracker.html');
 
-    // events.jsonl starts empty — populated at runtime when TOOLPILOT_EVENTS_PATH is set
+    // events.jsonl starts empty — populated at runtime when TOOLCAIRN_EVENTS_PATH is set
     await createIfAbsent(eventsPath, '', 'events.jsonl');
 
     logger.info({ dir, os: os.label }, '.toolpilot setup ready');

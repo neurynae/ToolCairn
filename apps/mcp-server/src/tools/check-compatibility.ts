@@ -2,7 +2,7 @@ import { MemgraphToolRepository } from '@toolpilot/graph';
 import pino from 'pino';
 import { errResult, okResult } from '../utils.js';
 
-const logger = pino({ name: '@toolpilot/mcp-server:check-compatibility' });
+const logger = pino({ name: '@toolcairn/mcp-server:check-compatibility' });
 const repo = new MemgraphToolRepository();
 
 const COMPATIBLE_TYPES = new Set(['COMPATIBLE_WITH', 'INTEGRATES_WITH', 'POPULAR_WITH']);
@@ -22,10 +22,10 @@ export async function handleCheckCompatibility(args: { tool_a: string; tool_b: s
     ]);
 
     if (!existsA.ok || !existsA.data) {
-      return errResult('tool_not_found', `Tool "${args.tool_a}" not found in the ToolPilot index`);
+      return errResult('tool_not_found', `Tool "${args.tool_a}" not found in the ToolCairn index`);
     }
     if (!existsB.ok || !existsB.data) {
-      return errResult('tool_not_found', `Tool "${args.tool_b}" not found in the ToolPilot index`);
+      return errResult('tool_not_found', `Tool "${args.tool_b}" not found in the ToolCairn index`);
     }
 
     // Check direct edges between the two tools

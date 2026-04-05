@@ -1,7 +1,7 @@
 /**
- * ToolPilotClient — HTTP client used by the thin npm MCP package.
+ * ToolCairnClient — HTTP client used by the thin npm MCP package.
  *
- * Makes one POST request per remote tool call to the ToolPilot API
+ * Makes one POST request per remote tool call to the ToolCairn API
  * (sitting behind a Cloudflare Worker in production, or directly in dev).
  *
  * Returns CallToolResult so the MCP server can pass responses through unchanged.
@@ -10,7 +10,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 
-export interface ToolPilotClientOptions {
+export interface ToolCairnClientOptions {
   /** Base URL of the ToolCairn API, e.g. https://api.neurynae.com */
   baseUrl: string;
   /** Anonymous API key generated on first run */
@@ -19,12 +19,12 @@ export interface ToolPilotClientOptions {
   timeoutMs?: number;
 }
 
-export class ToolPilotClient {
+export class ToolCairnClient {
   private readonly baseUrl: string;
   private readonly apiKey: string;
   private readonly timeoutMs: number;
 
-  constructor(opts: ToolPilotClientOptions) {
+  constructor(opts: ToolCairnClientOptions) {
     this.baseUrl = opts.baseUrl.replace(/\/$/, '');
     this.apiKey = opts.apiKey;
     this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
@@ -121,7 +121,7 @@ export class ToolPilotClient {
             text: JSON.stringify({
               ok: false,
               error: 'network_error',
-              message: `ToolPilot API unreachable: ${msg}. Check your internet connection or try again later.`,
+              message: `ToolCairn API unreachable: ${msg}. Check your internet connection or try again later.`,
             }),
           },
         ],
@@ -135,7 +135,7 @@ export class ToolPilotClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-ToolPilot-Key': this.apiKey,
+        'X-ToolCairn-Key': this.apiKey,
         'Accept-Encoding': 'gzip',
       },
       body: JSON.stringify(body),

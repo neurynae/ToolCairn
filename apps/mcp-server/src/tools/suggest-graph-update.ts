@@ -5,7 +5,7 @@ import { enqueueIndexJob } from '@toolpilot/queue';
 import pino from 'pino';
 import { errResult, okResult } from '../utils.js';
 
-const logger = pino({ name: '@toolpilot/mcp-server:suggest-graph-update' });
+const logger = pino({ name: '@toolcairn/mcp-server:suggest-graph-update' });
 const prisma = new PrismaClient();
 const repo = new MemgraphToolRepository();
 

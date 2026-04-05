@@ -3,7 +3,7 @@ import { MemgraphUseCaseRepository } from '@toolpilot/graph';
 import pino from 'pino';
 import { errResult, okResult } from '../utils.js';
 
-const logger = pino({ name: '@toolpilot/mcp-server:refine-requirement' });
+const logger = pino({ name: '@toolcairn/mcp-server:refine-requirement' });
 
 // Categories likely to include proprietary/non-OSS tools
 const PROPRIETARY_PRONE_CATEGORIES: ToolCategory[] = [
@@ -82,9 +82,9 @@ Output a valid JSON array of these objects. Output ONLY the JSON array, no expla
     const agent_instructions = [
       '1. Send decomposition_prompt to the LLM and parse the JSON array response.',
       '2. For each requirement where is_likely_proprietary is false, call search_tools with the search_query.',
-      '3. For each requirement where is_likely_proprietary is true, note that these may not be in the ToolPilot index.',
+      '3. For each requirement where is_likely_proprietary is true, note that these may not be in the ToolCairn index.',
       '4. After all searches complete, call get_stack if classification is "stack_building" for a bundled recommendation.',
-      '5. Update .toolpilot/config.json with confirmed tools using update_project_config.',
+      '5. Update .toolcairn/config.json with confirmed tools using update_project_config.',
     ].join('\n');
 
     return okResult({
