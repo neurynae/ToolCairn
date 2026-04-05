@@ -172,13 +172,13 @@ export default function SearchToolsPage() {
       {/* ─── Header ─── */}
       <h1
         className="text-3xl font-bold tracking-tight sm:text-4xl"
-        style={{ color: 'var(--color-text-primary)', marginTop: 24 }}
+        style={{ color: 'var(--tp-text-primary)', marginTop: 24 }}
       >
         <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>search_tools</code>
       </h1>
       <p
         className="mt-3 text-base leading-relaxed sm:text-lg"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         The primary discovery tool. Accepts a natural-language query and returns tool
         recommendations through ToolPilot&rsquo;s multi-stage pipeline: BM25 + vector search →
@@ -190,13 +190,13 @@ export default function SearchToolsPage() {
         <h2
           id="when-to-use"
           className="mb-3 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           When to use
         </h2>
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
           Call{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             search_tools
           </code>{' '}
           whenever an agent needs to find the right developer tool for a task. The pipeline may
@@ -210,7 +210,7 @@ export default function SearchToolsPage() {
         <h2
           id="input-schema"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Input schema
         </h2>
@@ -222,7 +222,7 @@ export default function SearchToolsPage() {
         <h2
           id="examples"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Examples
         </h2>
@@ -230,7 +230,7 @@ export default function SearchToolsPage() {
         <h3
           id="basic-search"
           className="mb-3 text-base font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Basic search
         </h3>
@@ -246,7 +246,7 @@ export default function SearchToolsPage() {
           <h3
             id="search-with-context"
             className="mb-3 text-base font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Search with context
           </h3>
@@ -263,7 +263,7 @@ export default function SearchToolsPage() {
           <h3
             id="full-context-filters"
             className="mb-3 text-base font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Full context filters
           </h3>
@@ -285,14 +285,14 @@ export default function SearchToolsPage() {
         <h2
           id="response-format"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Response format
         </h2>
 
-        <p className="mb-4 text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="mb-4 text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
           The response{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             type
           </code>{' '}
           field determines the shape of the payload. There are two possible response types:
@@ -301,17 +301,17 @@ export default function SearchToolsPage() {
         <h3
           id="clarification-response"
           className="mb-3 text-base font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Clarification needed
         </h3>
-        <p className="mb-3 text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="mb-3 text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
           Returned when the query is ambiguous and the pipeline needs more information. Pass the{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             query_id
           </code>{' '}
           and your answers to{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             search_tools_respond
           </code>{' '}
           to complete the search.
@@ -322,13 +322,13 @@ export default function SearchToolsPage() {
           <h3
             id="result-response"
             className="mb-3 text-base font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Results ready
           </h3>
           <p
             className="mb-3 text-sm leading-relaxed"
-            style={{ color: 'var(--color-text-secondary)' }}
+            style={{ color: 'var(--tp-text-secondary)' }}
           >
             Returned when the pipeline has enough information to produce results. Includes a primary
             recommendation and ranked alternatives.
@@ -342,7 +342,7 @@ export default function SearchToolsPage() {
         <h2
           id="error-codes"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Error codes
         </h2>
@@ -354,25 +354,25 @@ export default function SearchToolsPage() {
         <h2
           id="related-tools"
           className="mb-3 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Related tools
         </h2>
         <ul className="flex flex-col gap-2 text-sm" style={{ margin: 0, paddingLeft: 20 }}>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/mcp-tools/search-tools-respond" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/mcp-tools/search-tools-respond" style={{ color: 'var(--tp-accent)' }}>
               <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>search_tools_respond</code>
             </a>{' '}
             — Answer clarification questions to complete a search
           </li>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/mcp-tools/get-stack" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/mcp-tools/get-stack" style={{ color: 'var(--tp-accent)' }}>
               <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>get_stack</code>
             </a>{' '}
             — Build a compatible tool stack for a use case
           </li>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/mcp-tools/report-outcome" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/mcp-tools/report-outcome" style={{ color: 'var(--tp-accent)' }}>
               <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>report_outcome</code>
             </a>{' '}
             — Report usage feedback to improve future results

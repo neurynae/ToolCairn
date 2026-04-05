@@ -132,6 +132,10 @@ export class FakeToolRepository implements ToolRepository {
     return { ok: true, data: [] };
   }
 
+  async findByTopics(_topics: string[]): Promise<ToolResult<ToolNode[]>> {
+    return { ok: true, data: [] };
+  }
+
   async getAllToolNames(): Promise<ToolResult<string[]>> {
     try {
       const names = Array.from(this.tools.keys());

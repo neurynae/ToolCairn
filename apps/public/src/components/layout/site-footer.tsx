@@ -1,56 +1,111 @@
-'use client';
-
 import Link from 'next/link';
+import { GithubIcon } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
-const FOOTER_LINKS = [
-  { href: '/docs', label: 'Documentation' },
-  { href: '/explore', label: 'Explore Tools' },
-  { href: '/stack', label: 'Stack Builder' },
-  { href: '/about', label: 'How it Works' },
+const FOOTER_SECTIONS = [
+  {
+    label: 'Product',
+    links: [
+      { href: '/explore', label: 'Explore Tools' },
+      { href: '/compare', label: 'Compare' },
+      { href: '/stack', label: 'Stack Builder' },
+      { href: '/compatibility', label: 'Compatibility' },
+    ],
+  },
+  {
+    label: 'Resources',
+    links: [
+      { href: '/docs', label: 'Documentation' },
+      { href: '/docs/getting-started', label: 'Getting Started' },
+      { href: '/about', label: 'How it Works' },
+    ],
+  },
+  {
+    label: 'Community',
+    links: [
+      {
+        href: 'https://github.com/NEURYNAE/ToolCairn',
+        label: 'GitHub',
+        external: true,
+      },
+      { href: '/suggest', label: 'Suggest a Tool' },
+    ],
+  },
 ] as const;
 
 export function SiteFooter() {
   return (
-    <footer className="w-full py-10" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6">
-        {/* Brand */}
-        <div className="flex flex-col items-center gap-1 sm:items-start">
-          <Link
-            href="/"
-            className="text-sm font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            ToolPilot
-          </Link>
-          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            Graph-powered tool intelligence
-          </p>
+    <footer className="w-full border-t border-border bg-background">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+          {/* Brand */}
+          <div className="col-span-2 sm:col-span-1">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-sm font-semibold text-foreground"
+            >
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded bg-gradient-to-br from-[var(--tp-accent)] to-[var(--tp-accent-secondary)] text-[10px] font-extrabold text-white">
+                T
+              </span>
+              ToolCairn
+            </Link>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Graph-powered tool intelligence for AI agents and developers.
+            </p>
+            <a
+              href="https://github.com/NEURYNAE/ToolCairn"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <GithubIcon className="size-3.5" />
+              NEURYNAE/ToolCairn
+            </a>
+          </div>
+
+          {/* Link sections */}
+          {FOOTER_SECTIONS.map((section) => (
+            <div key={section.label}>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-foreground">
+                {section.label}
+              </p>
+              <ul className="flex flex-col gap-2">
+                {section.links.map((link) => (
+                  <li key={link.href}>
+                    {'external' in link && link.external ? (
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        {/* Nav links */}
-        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          {FOOTER_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-xs transition-colors duration-150"
-              style={{ color: 'var(--color-text-muted)' }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = 'var(--color-text-secondary)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = 'var(--color-text-muted)';
-              }}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <Separator className="my-8" />
 
-        {/* Copy */}
-        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          © {new Date().getFullYear()} ToolPilot
-        </p>
+        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} NEURYNAE. All rights reserved.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Built with a graph mind for developers.
+          </p>
+        </div>
       </div>
     </footer>
   );

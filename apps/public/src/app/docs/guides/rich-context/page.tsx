@@ -38,19 +38,19 @@ export default function RichContextPage() {
           >
             Advanced
           </span>
-          <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+          <span className="text-xs" style={{ color: 'var(--tp-text-muted)' }}>
             ~5 min read
           </span>
         </div>
         <h1
           className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.2 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.2 }}
         >
           Rich Context Guide
         </h1>
         <p
           className="mt-3 text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}
         >
           Clarification rounds add latency. If your agent already knows the
           project&rsquo;s language, framework, and constraints, skip them entirely by
@@ -71,13 +71,13 @@ export default function RichContextPage() {
           <h2
             id="what-youll-learn"
             className="mb-3 text-sm font-bold uppercase tracking-wider"
-            style={{ color: 'var(--color-accent)' }}
+            style={{ color: 'var(--tp-accent)' }}
           >
             What you&rsquo;ll learn
           </h2>
           <ul
             className="space-y-1.5 text-sm"
-            style={{ color: 'var(--color-text-secondary)', margin: 0, paddingLeft: 20 }}
+            style={{ color: 'var(--tp-text-secondary)', margin: 0, paddingLeft: 20 }}
           >
             <li>Why clarification happens and when to skip it</li>
             <li>All available context filters and what they do</li>
@@ -92,13 +92,13 @@ export default function RichContextPage() {
         <h2
           id="the-problem"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           The problem: unnecessary round-trips
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           ToolPilot&rsquo;s Guided Discovery system asks follow-up questions when a query
           is ambiguous. That&rsquo;s great for interactive use — but in automated
@@ -107,7 +107,7 @@ export default function RichContextPage() {
         </p>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           A bare query like this will almost always trigger clarification:
         </p>
@@ -119,7 +119,7 @@ export default function RichContextPage() {
         />
         <p
           className="mt-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           ToolPilot needs to know: SQL or NoSQL? What language? Self-hosted or cloud?
           What&rsquo;s the scale? Without answers, it can&rsquo;t rank meaningfully. The
@@ -132,13 +132,13 @@ export default function RichContextPage() {
         <h2
           id="the-solution"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           The solution: context filters
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Add a <code>context</code> object to your <code>search_tools</code> call. This
           gives ToolPilot the signal it needs to skip clarification and go straight to
@@ -157,7 +157,7 @@ export default function RichContextPage() {
         />
         <p
           className="mt-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           With those three filters, ToolPilot knows exactly what you mean: a self-hosted
           ORM for Python. No follow-up needed — you get results on the first call.
@@ -169,7 +169,7 @@ export default function RichContextPage() {
         <h2
           id="comparison"
           className="mb-4 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Side by side: without vs. with context
         </h2>
@@ -231,42 +231,42 @@ export default function RichContextPage() {
         <h2
           id="available-context-filters"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Available context filters
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           You can provide any combination of these filters. Each one narrows the search
           and reduces the likelihood of clarification.
         </p>
         <div
           style={{
-            border: '1px solid var(--color-border-subtle)',
+            border: '1px solid var(--tp-border-subtle)',
             borderRadius: 'var(--radius-md)',
             overflow: 'hidden',
           }}
         >
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ background: 'var(--color-surface-2)' }}>
+              <tr style={{ background: 'var(--tp-surface-2)' }}>
                 <th
                   className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-subtle)' }}
+                  style={{ color: 'var(--tp-text-muted)', borderBottom: '1px solid var(--tp-border-subtle)' }}
                 >
                   Filter
                 </th>
                 <th
                   className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-subtle)' }}
+                  style={{ color: 'var(--tp-text-muted)', borderBottom: '1px solid var(--tp-border-subtle)' }}
                 >
                   Description
                 </th>
                 <th
                   className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-subtle)' }}
+                  style={{ color: 'var(--tp-text-muted)', borderBottom: '1px solid var(--tp-border-subtle)' }}
                 >
                   Examples
                 </th>
@@ -299,8 +299,8 @@ export default function RichContextPage() {
                   <td
                     className="px-4 py-3 text-sm font-mono font-medium"
                     style={{
-                      color: 'var(--color-accent)',
-                      borderBottom: '1px solid var(--color-border-subtle)',
+                      color: 'var(--tp-accent)',
+                      borderBottom: '1px solid var(--tp-border-subtle)',
                     }}
                   >
                     {row.filter}
@@ -308,8 +308,8 @@ export default function RichContextPage() {
                   <td
                     className="px-4 py-3 text-sm"
                     style={{
-                      color: 'var(--color-text-secondary)',
-                      borderBottom: '1px solid var(--color-border-subtle)',
+                      color: 'var(--tp-text-secondary)',
+                      borderBottom: '1px solid var(--tp-border-subtle)',
                     }}
                   >
                     {row.description}
@@ -317,8 +317,8 @@ export default function RichContextPage() {
                   <td
                     className="px-4 py-3 text-sm font-mono"
                     style={{
-                      color: 'var(--color-text-muted)',
-                      borderBottom: '1px solid var(--color-border-subtle)',
+                      color: 'var(--tp-text-muted)',
+                      borderBottom: '1px solid var(--tp-border-subtle)',
                     }}
                   >
                     {row.examples}
@@ -330,7 +330,7 @@ export default function RichContextPage() {
         </div>
         <p
           className="mt-3 text-sm"
-          style={{ color: 'var(--color-text-muted)' }}
+          style={{ color: 'var(--tp-text-muted)' }}
         >
           All filters are optional. Providing even one significantly reduces clarification
           frequency.
@@ -342,7 +342,7 @@ export default function RichContextPage() {
         <h2
           id="when-to-use-which-approach"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           When to use which approach
         </h2>
@@ -354,8 +354,8 @@ export default function RichContextPage() {
           <div
             className="rounded-xl p-5"
             style={{
-              background: 'var(--color-surface-1)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-1)',
+              border: '1px solid var(--tp-border-subtle)',
               borderRadius: 'var(--radius-lg)',
             }}
           >
@@ -368,7 +368,7 @@ export default function RichContextPage() {
             </h3>
             <ul
               className="space-y-1.5 text-sm"
-              style={{ color: 'var(--color-text-secondary)', margin: 0, paddingLeft: 18 }}
+              style={{ color: 'var(--tp-text-secondary)', margin: 0, paddingLeft: 18 }}
             >
               <li>Your agent already analyzed the codebase</li>
               <li>You know the language, framework, and deployment target</li>
@@ -381,8 +381,8 @@ export default function RichContextPage() {
           <div
             className="rounded-xl p-5"
             style={{
-              background: 'var(--color-surface-1)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-1)',
+              border: '1px solid var(--tp-border-subtle)',
               borderRadius: 'var(--radius-lg)',
             }}
           >
@@ -395,7 +395,7 @@ export default function RichContextPage() {
             </h3>
             <ul
               className="space-y-1.5 text-sm"
-              style={{ color: 'var(--color-text-secondary)', margin: 0, paddingLeft: 18 }}
+              style={{ color: 'var(--tp-text-secondary)', margin: 0, paddingLeft: 18 }}
             >
               <li>The user is exploring — they&rsquo;re not sure what they need</li>
               <li>The query is intentionally broad (&ldquo;what testing tools exist?&rdquo;)</li>
@@ -411,13 +411,13 @@ export default function RichContextPage() {
         <h2
           id="smart-agent-pattern"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Smart agent pattern: auto-detect context
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           The most effective agents don&rsquo;t wait for the user to provide context —
           they extract it from the codebase automatically. Here&rsquo;s the pattern:
@@ -470,13 +470,13 @@ async function buildSearchContext(projectRoot: string) {
         <h2
           id="recap"
           className="mb-3 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Recap
         </h2>
         <p
           className="text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Rich context is a power-user feature. By adding a <code>context</code> object
           with <code>language</code>, <code>category</code>, <code>license</code>, or{' '}

@@ -1,50 +1,33 @@
-interface SkeletonProps {
-  className?: string;
-  width?: string | number;
-  height?: string | number;
-  rounded?: 'sm' | 'md' | 'lg' | 'full';
-}
+import { cn } from "@/lib/utils"
 
-const roundedMap = {
-  sm: '4px',
-  md: '8px',
-  lg: '12px',
-  full: '9999px',
-} as const;
-
-export function Skeleton({ className = '', width, height, rounded = 'md' }: SkeletonProps) {
+function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={`skeleton ${className}`}
-      style={{
-        width: width ?? '100%',
-        height: height ?? '16px',
-        borderRadius: roundedMap[rounded],
-      }}
+      data-slot="skeleton"
+      className={cn("animate-pulse rounded-md bg-muted", className)}
+      {...props}
     />
-  );
+  )
 }
 
-export function SkeletonCard() {
+function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div
-      className="flex flex-col gap-4 rounded-2xl p-6"
-      style={{ background: 'var(--color-surface-1)', border: '1px solid rgba(255,255,255,0.06)' }}
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex flex-col gap-2">
-          <Skeleton width="160px" height="20px" />
-          <Skeleton width="80px" height="16px" rounded="full" />
+    <div className={cn('glass-card p-6', className)}>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-4">
+          <Skeleton className="h-5 w-2/3" />
+          <Skeleton className="h-5 w-16" />
         </div>
-        <Skeleton width="70px" height="24px" rounded="full" />
-      </div>
-      <Skeleton height="14px" />
-      <Skeleton height="14px" width="80%" />
-      <div className="mt-2 flex items-center gap-4">
-        <Skeleton width="60px" height="12px" />
-        <Skeleton width="80px" height="12px" />
-        <Skeleton width="70px" height="12px" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-4/5" />
+        <div className="mt-2 flex gap-2">
+          <Skeleton className="h-5 w-16" />
+          <Skeleton className="h-5 w-20" />
+          <Skeleton className="h-5 w-14" />
+        </div>
       </div>
     </div>
   );
 }
+
+export { Skeleton, SkeletonCard }

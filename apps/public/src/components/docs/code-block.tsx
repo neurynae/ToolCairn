@@ -23,8 +23,8 @@ export function CodeBlock({ code, language, filename, showLineNumbers = false }:
   return (
     <div
       style={{
-        background: 'var(--color-surface-2)',
-        border: '1px solid var(--color-border-subtle)',
+        background: 'var(--tp-surface-2)',
+        border: '1px solid var(--tp-border-subtle)',
         borderRadius: 'var(--radius-md)',
       }}
       className="relative overflow-hidden"
@@ -33,9 +33,9 @@ export function CodeBlock({ code, language, filename, showLineNumbers = false }:
         <div
           className="flex items-center justify-between px-4 py-2 text-xs font-medium"
           style={{
-            background: 'var(--color-surface-2)',
-            borderBottom: '1px solid var(--color-border-subtle)',
-            color: 'var(--color-text-secondary)',
+            background: 'var(--tp-surface-2)',
+            borderBottom: '1px solid var(--tp-border-subtle)',
+            color: 'var(--tp-text-secondary)',
           }}
         >
           <span className="font-mono">{filename}</span>
@@ -49,8 +49,8 @@ export function CodeBlock({ code, language, filename, showLineNumbers = false }:
             <span
               className="rounded px-2 py-0.5 text-xs font-medium"
               style={{
-                background: 'var(--color-accent-subtle)',
-                color: 'var(--color-accent-hover)',
+                background: 'var(--tp-accent-subtle)',
+                color: 'var(--tp-accent-hover)',
               }}
             >
               {language}
@@ -62,7 +62,7 @@ export function CodeBlock({ code, language, filename, showLineNumbers = false }:
 
       <div className="overflow-x-auto">
         <pre className="p-4 text-sm leading-relaxed" style={{ margin: 0 }}>
-          <code className="font-mono" style={{ color: 'var(--color-text-primary)' }}>
+          <code className="font-mono" style={{ color: 'var(--tp-text-primary)' }}>
             {showLineNumbers
               ? lines.map((line, i) => {
                   const lineNum = i + 1;
@@ -96,9 +96,9 @@ function CopyButton({ copied, onClick }: CopyButtonProps) {
       onClick={onClick}
       className="flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors"
       style={{
-        background: copied ? 'rgba(34,197,94,0.15)' : 'var(--color-surface-3)',
-        color: copied ? '#22c55e' : 'var(--color-text-muted)',
-        border: '1px solid var(--color-border-subtle)',
+        background: copied ? 'rgba(34,197,94,0.15)' : 'var(--tp-surface-3)',
+        color: copied ? '#22c55e' : 'var(--tp-text-muted)',
+        border: '1px solid var(--tp-border-subtle)',
         cursor: 'pointer',
       }}
       aria-label={copied ? 'Copied' : 'Copy code'}
@@ -131,7 +131,7 @@ function LineWithNumber({ lineNumber, totalLines, children }: LineWithNumberProp
       <span
         className="mr-4 inline-block select-none text-right"
         style={{
-          color: 'var(--color-text-muted)',
+          color: 'var(--tp-text-muted)',
           width: `${gutterWidth}ch`,
           opacity: 0.5,
         }}

@@ -1,4 +1,6 @@
-import { GlassCard } from '@/components/ui/glass-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface ToolMetadataProps {
   language: string;
@@ -25,82 +27,60 @@ export function ToolMetadata({
   const secondaryLanguages = languages.filter((l) => l !== language);
 
   return (
-    <GlassCard padding="lg" hover={false} as="section" className="flex flex-col gap-4">
-      <h2
-        className="text-sm font-semibold uppercase tracking-wider"
-        style={{ color: 'var(--color-text-muted)' }}
-      >
-        Metadata
-      </h2>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Metadata
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div className="flex flex-wrap gap-2">
+          {/* Primary Language */}
+          {language && (
+            <Badge className="bg-[var(--tp-accent-subtle)] text-[var(--tp-accent)] border-[var(--tp-accent)]/20">
+              {language}
+            </Badge>
+          )}
 
-      <div className="flex flex-wrap gap-2">
-        {/* Primary Language */}
-        <Chip icon="🔤" label={language} accent />
+          {/* Secondary Languages */}
+          {secondaryLanguages.map((lang) => (
+            <Badge key={lang} variant="secondary">
+              {lang}
+            </Badge>
+          ))}
 
-        {/* Secondary Languages */}
-        {secondaryLanguages.map((lang) => (
-          <Chip key={lang} label={lang} />
-        ))}
+          {/* License */}
+          {license && <Badge variant="outline">{license}</Badge>}
 
-        {/* License */}
-        {license && <Chip icon="📄" label={license} />}
-
-        {/* Deployment Models */}
-        {deploymentModels.map((model) => (
-          <Chip key={model} icon="🚀" label={deploymentLabels[model] ?? model} />
-        ))}
-      </div>
-
-      {/* Package Install Commands */}
-      {Object.keys(packageManagers).length > 0 && (
-        <div className="flex flex-col gap-2">
-          <span
-            className="text-[11px] font-medium uppercase tracking-wider"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
-            Install
-          </span>
-          <div className="flex flex-col gap-1.5">
-            {Object.entries(packageManagers).map(([manager, command]) => (
-              <code
-                key={manager}
-                className="rounded-md px-3 py-1.5 font-mono text-xs"
-                style={{
-                  background: 'var(--color-surface-0)',
-                  color: 'var(--color-text-secondary)',
-                  border: '1px solid var(--color-border-subtle)',
-                }}
-              >
-                {command}
-              </code>
-            ))}
-          </div>
+          {/* Deployment Models */}
+          {deploymentModels.map((model) => (
+            <Badge key={model} variant="secondary">
+              {deploymentLabels[model] ?? model}
+            </Badge>
+          ))}
         </div>
-      )}
-    </GlassCard>
-  );
-}
 
-function Chip({
-  label,
-  icon,
-  accent,
-}: {
-  label: string;
-  icon?: string;
-  accent?: boolean;
-}) {
-  return (
-    <span
-      className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
-      style={{
-        background: accent ? 'rgba(99, 102, 241, 0.12)' : 'var(--color-surface-2)',
-        color: accent ? 'var(--color-accent)' : 'var(--color-text-secondary)',
-        border: `1px solid ${accent ? 'rgba(99, 102, 241, 0.2)' : 'var(--color-border-subtle)'}`,
-      }}
-    >
-      {icon && <span aria-hidden="true">{icon}</span>}
-      {label}
-    </span>
+        {/* Package Install Commands */}
+        {Object.keys(packageManagers).length > 0 && (
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Install
+            </span>
+            <div className="flex flex-col gap-1.5">
+              {Object.entries(packageManagers).map(([manager, command]) => (
+                <code
+                  key={manager}
+                  className={cn(
+                    'rounded-md border border-border bg-muted px-3 py-1.5 font-mono text-xs text-foreground',
+                  )}
+                >
+                  {command}
+                </code>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

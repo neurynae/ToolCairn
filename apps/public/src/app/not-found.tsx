@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div
       className="flex min-h-dvh flex-col items-center justify-center gap-6 text-center"
-      style={{ color: 'var(--color-text-primary)' }}
+      style={{ color: 'var(--tp-text-primary)' }}
     >
       <div className="flex flex-col items-center gap-2">
         <span
@@ -18,7 +18,7 @@ export default function NotFound() {
           404
         </span>
         <p className="text-lg font-medium">Page not found</p>
-        <p className="max-w-xs text-sm" style={{ color: 'var(--color-text-muted)' }}>
+        <p className="max-w-xs text-sm" style={{ color: 'var(--tp-text-muted)' }}>
           The page you're looking for doesn't exist or has been moved.
         </p>
       </div>
@@ -26,7 +26,7 @@ export default function NotFound() {
         href="/"
         className="rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-150"
         style={{
-          background: 'var(--color-accent)',
+          background: 'var(--tp-accent)',
           color: '#fff',
         }}
       >

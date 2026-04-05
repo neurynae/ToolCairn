@@ -53,7 +53,7 @@ export function IssueChecker({ toolName: initialToolName }: IssueCheckerProps) {
             <label
               htmlFor="issue-tool-name"
               className="text-xs font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-text-muted)' }}
+              style={{ color: 'var(--tp-text-muted)' }}
             >
               Tool Name
             </label>
@@ -65,9 +65,9 @@ export function IssueChecker({ toolName: initialToolName }: IssueCheckerProps) {
               onChange={(e) => setToolName(e.target.value)}
               className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors"
               style={{
-                background: 'var(--color-surface-1)',
-                color: 'var(--color-text-primary)',
-                border: '1px solid var(--color-border-subtle)',
+                background: 'var(--tp-surface-1)',
+                color: 'var(--tp-text-primary)',
+                border: '1px solid var(--tp-border-subtle)',
               }}
             />
           </div>
@@ -78,7 +78,7 @@ export function IssueChecker({ toolName: initialToolName }: IssueCheckerProps) {
           <label
             htmlFor="issue-description"
             className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-muted)' }}
+            style={{ color: 'var(--tp-text-muted)' }}
           >
             Describe the Issue
           </label>
@@ -90,9 +90,9 @@ export function IssueChecker({ toolName: initialToolName }: IssueCheckerProps) {
             rows={3}
             className="w-full resize-y rounded-xl px-4 py-3 text-sm outline-none transition-colors"
             style={{
-              background: 'var(--color-surface-1)',
-              color: 'var(--color-text-primary)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-1)',
+              color: 'var(--tp-text-primary)',
+              border: '1px solid var(--tp-border-subtle)',
             }}
           />
         </div>
@@ -102,7 +102,7 @@ export function IssueChecker({ toolName: initialToolName }: IssueCheckerProps) {
           type="submit"
           disabled={!toolName.trim() || !issueDescription.trim() || loading}
           className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
-          style={{ background: 'var(--color-accent)' }}
+          style={{ background: 'var(--tp-accent)' }}
         >
           {loading ? (
             <>

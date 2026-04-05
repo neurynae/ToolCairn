@@ -126,6 +126,23 @@ export class MemgraphToolRepository implements ToolRepository {
     }
   }
 
+  /** Find tools that have any of the given topics in their topics array */
+  async findByTopics(topics: string[]): Promise<ToolResult<ToolNode[]>> {
+    if (topics.length === 0) return { ok: true, data: [] };
+    const session = this.session();
+    try {
+      const QUERY = `MATCH (t:Tool) WHERE ANY(topic IN t.topics WHERE topic IN $topics) RETURN t ORDER BY t.health_maintenance_score DESC`;
+      const result = await session.run(QUERY, { topics });
+      const tools = result.records.map((r) => mapRecordToToolNode(r.toObject()));
+      return { ok: true, data: tools };
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return { ok: false, error: { code: 'DB_ERROR', message } };
+    } finally {
+      await session.close();
+    }
+  }
+
   async upsertEdge(edge: GraphEdge): Promise<ToolResult<void>> {
     const params: UpsertEdgeParams = {
       type: edge.type,

@@ -69,13 +69,13 @@ export default function EdgeDecayPage() {
         <section className="mt-4">
           <h1
             className="text-3xl font-bold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Temporal Edge Decay
           </h1>
           <p
             className="mt-3 max-w-2xl text-base"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The tool ecosystem changes constantly. Edge decay ensures that ToolPilot&rsquo;s graph
             relationships stay current by gradually reducing the weight of edges that haven&rsquo;t
@@ -88,13 +88,13 @@ export default function EdgeDecayPage() {
           <h2
             id="the-problem"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             The Problem
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Tool relationships change over time. A library that was the go-to choice three years ago
             may now be abandoned, superseded, or incompatible with modern ecosystems. Static edge
@@ -109,13 +109,13 @@ export default function EdgeDecayPage() {
           <h2
             id="the-formula"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             The Formula
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Edge weights decay exponentially over time using a standard radioactive-decay-style
             formula:
@@ -124,21 +124,21 @@ export default function EdgeDecayPage() {
           <div
             className="mt-4 rounded-lg p-5"
             style={{
-              background: 'var(--color-surface-2)',
-              border: '1px solid var(--color-border-default)',
+              background: 'var(--tp-surface-2)',
+              border: '1px solid var(--tp-border-default)',
               borderRadius: 'var(--radius-lg)',
               textAlign: 'center',
             }}
           >
             <p
               className="font-mono text-lg font-semibold"
-              style={{ color: 'var(--color-text-primary)' }}
+              style={{ color: 'var(--tp-text-primary)' }}
             >
               effective_weight = base_weight × e<sup>−λ × Δt</sup>
             </p>
             <div
               className="mt-3 inline-block text-left text-sm"
-              style={{ color: 'var(--color-text-secondary)' }}
+              style={{ color: 'var(--tp-text-secondary)' }}
             >
               <p>
                 <strong>λ</strong> (lambda) = 0.001 — the decay constant
@@ -167,13 +167,13 @@ export default function EdgeDecayPage() {
           <h2
             id="decay-curve"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Decay Curve
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The following visualization shows how an edge with base weight 1.0 decays over time
             without any reinforcement events:
@@ -183,7 +183,7 @@ export default function EdgeDecayPage() {
           </div>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The curve is intentionally gentle. A ~2.7-year half-life means relationships don&rsquo;t
             vanish overnight — they slowly lose influence unless reinforced. This balances freshness
@@ -196,27 +196,27 @@ export default function EdgeDecayPage() {
           <h2
             id="reinforcement-triggers"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             What Triggers Reinforcement
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             An edge&rsquo;s decay timer resets (and its weight receives a small boost) when new
             evidence confirms the relationship is still valid:
           </p>
           <ul
             className="mt-3 list-inside list-disc space-y-2 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             <li>
               <strong>
-                <code style={{ color: 'var(--color-accent)' }}>report_outcome</code> with success
+                <code style={{ color: 'var(--tp-accent)' }}>report_outcome</code> with success
               </strong>{' '}
               — An agent confirms a tool worked well in a given context. This resets{' '}
-              <code style={{ color: 'var(--color-accent)' }}>last_reinforced</code> and adds a +0.05
+              <code style={{ color: 'var(--tp-accent)' }}>last_reinforced</code> and adds a +0.05
               weight boost (capped at 1.0).
             </li>
             <li>
@@ -244,19 +244,19 @@ export default function EdgeDecayPage() {
           <h2
             id="why-this-matters"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Why This Matters
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Temporal decay creates a self-correcting system:
           </p>
           <ul
             className="mt-3 list-inside list-disc space-y-2 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             <li>
               <strong>Abandoned tools fade naturally</strong> — No one needs to manually flag them.

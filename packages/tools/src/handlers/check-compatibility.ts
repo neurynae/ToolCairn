@@ -1,6 +1,6 @@
 import pino from 'pino';
 import type { ToolDeps } from '../types.js';
-import { errResult, okResult } from '../utils.js';
+import { errResult, okResult, resolveToolName } from '../utils.js';
 
 const logger = pino({ name: '@toolpilot/tools:check-compatibility' });
 
@@ -15,25 +15,38 @@ export function createCheckCompatibilityHandler(deps: Pick<ToolDeps, 'graphRepo'
     try {
       logger.info({ tool_a: args.tool_a, tool_b: args.tool_b }, 'check_compatibility called');
 
+      // Fuzzy-resolve names so "nextjs" → "next.js", "mcpserver" → "mcp-server", etc.
+      const [resolvedA, resolvedB] = await Promise.all([
+        resolveToolName(args.tool_a, deps.graphRepo),
+        resolveToolName(args.tool_b, deps.graphRepo),
+      ]);
+
+      if (resolvedA !== args.tool_a) {
+        logger.info({ original: args.tool_a, resolved: resolvedA }, 'tool_a name resolved');
+      }
+      if (resolvedB !== args.tool_b) {
+        logger.info({ original: args.tool_b, resolved: resolvedB }, 'tool_b name resolved');
+      }
+
       const [existsA, existsB] = await Promise.all([
-        deps.graphRepo.toolExists(args.tool_a),
-        deps.graphRepo.toolExists(args.tool_b),
+        deps.graphRepo.toolExists(resolvedA),
+        deps.graphRepo.toolExists(resolvedB),
       ]);
 
       if (!existsA.ok || !existsA.data) {
         return errResult(
           'tool_not_found',
-          `Tool "${args.tool_a}" not found in the ToolPilot index`,
+          `Tool "${args.tool_a}" not found in the ToolCairn index`,
         );
       }
       if (!existsB.ok || !existsB.data) {
         return errResult(
           'tool_not_found',
-          `Tool "${args.tool_b}" not found in the ToolPilot index`,
+          `Tool "${args.tool_b}" not found in the ToolCairn index`,
         );
       }
 
-      const edgesResult = await deps.graphRepo.getDirectEdges(args.tool_a, args.tool_b);
+      const edgesResult = await deps.graphRepo.getDirectEdges(resolvedA, resolvedB);
       if (!edgesResult.ok) {
         return errResult('graph_error', edgesResult.error.message);
       }
@@ -98,8 +111,8 @@ export function createCheckCompatibilityHandler(deps: Pick<ToolDeps, 'graphRepo'
               : 'No direct compatibility data. These tools may work together but it has not been verified.';
 
       return okResult({
-        tool_a: args.tool_a,
-        tool_b: args.tool_b,
+        tool_a: resolvedA,
+        tool_b: resolvedB,
         status,
         confidence: Math.round(confidence * 100) / 100,
         direct_edges: edges.map((e) => ({

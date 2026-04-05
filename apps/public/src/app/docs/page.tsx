@@ -34,7 +34,7 @@ export default function DocsPage() {
         <h1
           className="text-4xl font-bold tracking-tight sm:text-5xl"
           style={{
-            color: 'var(--color-text-primary)',
+            color: 'var(--tp-text-primary)',
             lineHeight: 1.15,
           }}
         >
@@ -43,7 +43,7 @@ export default function DocsPage() {
         <p
           className="mx-auto mt-4 max-w-2xl text-base sm:text-lg"
           style={{
-            color: 'var(--color-text-secondary)',
+            color: 'var(--tp-text-secondary)',
             lineHeight: 1.6,
           }}
         >
@@ -65,26 +65,26 @@ export default function DocsPage() {
           <div>
             <span
               className="text-sm font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-accent)' }}
+              style={{ color: 'var(--tp-accent)' }}
             >
               Quick Start
             </span>
             <h2
               className="mt-1 text-xl font-semibold"
-              style={{ color: 'var(--color-text-primary)' }}
+              style={{ color: 'var(--tp-text-primary)' }}
             >
               Get started in 2 minutes
             </h2>
             <p
               className="mt-1 text-sm"
-              style={{ color: 'var(--color-text-secondary)' }}
+              style={{ color: 'var(--tp-text-secondary)' }}
             >
               Set up ToolPilot with Claude, Cursor, or any MCP-compatible agent.
             </p>
           </div>
           <span
             className="hidden text-2xl transition-transform duration-200 group-hover:translate-x-1 sm:block"
-            style={{ color: 'var(--color-accent)' }}
+            style={{ color: 'var(--tp-accent)' }}
           >
             →
           </span>
@@ -95,7 +95,7 @@ export default function DocsPage() {
       <section style={{ marginBottom: 56 }}>
         <h2
           className="mb-6 text-lg font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Browse by section
         </h2>
@@ -122,7 +122,7 @@ export default function DocsPage() {
       <section>
         <h2
           className="mb-4 text-lg font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Popular pages
         </h2>
@@ -153,28 +153,28 @@ function SectionCard({ href, icon, title, description, pageCount }: SectionCardP
         <span
           className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-lg"
           style={{
-            background: 'var(--color-surface-3)',
-            border: '1px solid var(--color-border-subtle)',
+            background: 'var(--tp-surface-3)',
+            border: '1px solid var(--tp-border-subtle)',
           }}
         >
           {icon}
         </span>
         <h3
           className="text-base font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           {title}
         </h3>
       </div>
       <p
         className="text-sm leading-relaxed"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         {description}
       </p>
       <span
         className="mt-auto text-xs"
-        style={{ color: 'var(--color-text-muted)' }}
+        style={{ color: 'var(--tp-text-muted)' }}
       >
         {pageCount} {pageCount === 1 ? 'page' : 'pages'}
       </span>

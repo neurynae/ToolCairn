@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
 
 type GlassCardVariant = 'default' | 'elevated' | 'inset' | 'featured';
@@ -12,9 +13,9 @@ interface GlassCardProps {
 }
 
 const paddingMap = {
-  sm: '16px',
-  md: '24px',
-  lg: '32px',
+  sm: 'p-4',
+  md: 'p-6',
+  lg: 'p-8',
 } as const;
 
 const variantClassMap: Record<GlassCardVariant, string> = {
@@ -26,20 +27,20 @@ const variantClassMap: Record<GlassCardVariant, string> = {
 
 export function GlassCard({
   children,
-  className = '',
+  className,
   hover = true,
   padding = 'md',
   as: Tag = 'div',
   variant = 'default',
 }: GlassCardProps) {
-  const baseClass = variantClassMap[variant];
-  const noHoverClass =
-    hover || variant !== 'default' ? '' : ' [&]:hover:transform-none [&]:hover:shadow-none';
-
   return (
     <Tag
-      className={`${baseClass}${noHoverClass} ${className}`}
-      style={{ padding: paddingMap[padding] }}
+      className={cn(
+        variantClassMap[variant],
+        paddingMap[padding],
+        !hover && variant === 'default' && 'hover:transform-none hover:shadow-none',
+        className,
+      )}
     >
       {children}
     </Tag>

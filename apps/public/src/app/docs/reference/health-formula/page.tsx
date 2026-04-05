@@ -150,13 +150,13 @@ export default function HealthFormulaPage() {
 
       <h1
         className="mt-4 text-3xl font-bold tracking-tight"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Health Scoring Formula
       </h1>
       <p
         className="mt-3 text-base leading-relaxed"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Every tool in the graph has a <code>health_score</code> (0–100)
         computed from five weighted factors. This page explains each factor,
@@ -167,7 +167,7 @@ export default function HealthFormulaPage() {
       <h2
         id="formula"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Overall Formula
       </h2>
@@ -179,28 +179,28 @@ export default function HealthFormulaPage() {
       <h2
         id="weight-breakdown"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Weight Breakdown
       </h2>
       <div
         className="mt-4"
         style={{
-          border: '1px solid var(--color-border-subtle)',
+          border: '1px solid var(--tp-border-subtle)',
           borderRadius: 'var(--radius-md)',
           overflow: 'hidden',
         }}
       >
         <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: 'var(--color-surface-2)' }}>
+            <tr style={{ background: 'var(--tp-surface-2)' }}>
               {['Factor', 'Variable', 'Weight'].map((h) => (
                 <th
                   key={h}
                   className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
                   style={{
-                    color: 'var(--color-text-muted)',
-                    borderBottom: '1px solid var(--color-border-subtle)',
+                    color: 'var(--tp-text-muted)',
+                    borderBottom: '1px solid var(--tp-border-subtle)',
                   }}
                 >
                   {h}
@@ -215,31 +215,31 @@ export default function HealthFormulaPage() {
                 style={{
                   background:
                     i % 2 === 0
-                      ? 'var(--color-surface-1)'
-                      : 'var(--color-surface-0)',
+                      ? 'var(--tp-surface-1)'
+                      : 'var(--tp-surface-0)',
                   borderBottom:
                     i < FACTORS.length - 1
-                      ? '1px solid var(--color-border-subtle)'
+                      ? '1px solid var(--tp-border-subtle)'
                       : undefined,
                 }}
               >
                 <td
                   className="px-4 py-3 font-medium"
-                  style={{ color: 'var(--color-text-primary)' }}
+                  style={{ color: 'var(--tp-text-primary)' }}
                 >
                   {f.name}
                 </td>
                 <td className="px-4 py-3">
                   <code
                     className="font-mono text-sm"
-                    style={{ color: 'var(--color-accent)' }}
+                    style={{ color: 'var(--tp-accent)' }}
                   >
                     w{i + 1}
                   </code>
                 </td>
                 <td
                   className="px-4 py-3 font-mono"
-                  style={{ color: 'var(--color-text-secondary)' }}
+                  style={{ color: 'var(--tp-text-secondary)' }}
                 >
                   {f.weight.toFixed(2)}
                 </td>
@@ -253,13 +253,13 @@ export default function HealthFormulaPage() {
       <h2
         id="factor-details"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Factor Details
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Each factor produces a sub-score from 0 to 100 before weighting:
       </p>
@@ -270,8 +270,8 @@ export default function HealthFormulaPage() {
             key={factor.name}
             style={{
               padding: 20,
-              background: 'var(--color-surface-1)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-1)',
+              border: '1px solid var(--tp-border-subtle)',
               borderRadius: 'var(--radius-md)',
             }}
           >
@@ -279,7 +279,7 @@ export default function HealthFormulaPage() {
               <h3
                 id={factor.name.toLowerCase().replace(/\s+/g, '-')}
                 className="text-base font-semibold"
-                style={{ color: 'var(--color-text-primary)', margin: 0 }}
+                style={{ color: 'var(--tp-text-primary)', margin: 0 }}
               >
                 {factor.name}
               </h3>
@@ -287,7 +287,7 @@ export default function HealthFormulaPage() {
                 className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
                 style={{
                   background: 'rgba(99,102,241,0.12)',
-                  color: 'var(--color-accent)',
+                  color: 'var(--tp-accent)',
                 }}
               >
                 {(factor.weight * 100).toFixed(0)}%
@@ -295,14 +295,14 @@ export default function HealthFormulaPage() {
             </div>
             <p
               className="mt-2 text-sm leading-relaxed"
-              style={{ color: 'var(--color-text-secondary)', margin: 0 }}
+              style={{ color: 'var(--tp-text-secondary)', margin: 0 }}
             >
               {factor.description}
             </p>
             <ul
               className="mt-3 flex flex-col gap-1 text-sm"
               style={{
-                color: 'var(--color-text-secondary)',
+                color: 'var(--tp-text-secondary)',
                 paddingLeft: 20,
                 margin: 0,
               }}
@@ -311,7 +311,7 @@ export default function HealthFormulaPage() {
                 <li key={s}>
                   <code
                     className="text-xs"
-                    style={{ color: 'var(--color-text-muted)' }}
+                    style={{ color: 'var(--tp-text-muted)' }}
                   >
                     {s.split(':')[0]}:
                   </code>{' '}
@@ -327,13 +327,13 @@ export default function HealthFormulaPage() {
       <h2
         id="tier-thresholds"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Tier Thresholds
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Health scores map to four human-readable tiers:
       </p>
@@ -359,14 +359,14 @@ export default function HealthFormulaPage() {
                 </span>
                 <span
                   className="font-mono text-xs"
-                  style={{ color: 'var(--color-text-muted)' }}
+                  style={{ color: 'var(--tp-text-muted)' }}
                 >
                   {tier.range}
                 </span>
               </div>
               <p
                 className="mt-1 text-sm leading-relaxed"
-                style={{ color: 'var(--color-text-secondary)', margin: 0 }}
+                style={{ color: 'var(--tp-text-secondary)', margin: 0 }}
               >
                 {tier.description}
               </p>
@@ -379,22 +379,22 @@ export default function HealthFormulaPage() {
       <h2
         id="search-impact"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         How Health Affects Search
       </h2>
       <p
         className="mt-2 text-sm leading-relaxed"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Health scores influence search results in two ways:
       </p>
       <ul
         className="mt-3 flex flex-col gap-2 text-sm"
-        style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+        style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
       >
         <li>
-          <strong style={{ color: 'var(--color-text-primary)' }}>
+          <strong style={{ color: 'var(--tp-text-primary)' }}>
             Stage 3 boost:
           </strong>{' '}
           During graph reranking, tools with higher health scores receive a
@@ -402,7 +402,7 @@ export default function HealthFormulaPage() {
           surface higher when relevance is otherwise equal.
         </li>
         <li>
-          <strong style={{ color: 'var(--color-text-primary)' }}>
+          <strong style={{ color: 'var(--tp-text-primary)' }}>
             Result display:
           </strong>{' '}
           Health tier and score are included in every tool result returned to

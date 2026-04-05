@@ -24,8 +24,8 @@ const STATUS_CONFIG: Record<IssueStatus, { label: string; color: string; bg: str
   },
   unreported: {
     label: 'No Matches Found',
-    color: 'var(--color-text-muted)',
-    bg: 'var(--color-surface-1)',
+    color: 'var(--tp-text-muted)',
+    bg: 'var(--tp-surface-1)',
   },
 };
 
@@ -44,14 +44,14 @@ export function IssueMatchCard({ match, status }: IssueMatchCardProps) {
         >
           {config.label}
         </span>
-        <span className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+        <span className="text-xs font-medium" style={{ color: 'var(--tp-text-muted)' }}>
           {similarity}% match
         </span>
       </div>
 
       {/* Issue title + number */}
       <div>
-        <h3 className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+        <h3 className="text-sm font-semibold" style={{ color: 'var(--tp-text-primary)' }}>
           #{match.issue_number}: {match.title}
         </h3>
         <span
@@ -74,8 +74,8 @@ export function IssueMatchCard({ match, status }: IssueMatchCardProps) {
               key={label}
               className="rounded-md px-2 py-0.5 text-[10px] font-medium"
               style={{
-                background: 'var(--color-surface-2)',
-                color: 'var(--color-text-muted)',
+                background: 'var(--tp-surface-2)',
+                color: 'var(--tp-text-muted)',
               }}
             >
               {label}
@@ -91,7 +91,7 @@ export function IssueMatchCard({ match, status }: IssueMatchCardProps) {
         rel="noopener noreferrer"
         className="text-xs font-medium transition-colors"
         style={{
-          color: linkHovered ? 'var(--color-accent-hover)' : 'var(--color-accent)',
+          color: linkHovered ? 'var(--tp-accent-hover)' : 'var(--tp-accent)',
         }}
         onMouseEnter={() => setLinkHovered(true)}
         onMouseLeave={() => setLinkHovered(false)}

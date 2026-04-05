@@ -27,9 +27,9 @@ export function FollowUpPills({ toolName, category }: FollowUpPillsProps) {
           href={s.href}
           className="rounded-full px-4 py-1.5 text-xs font-medium transition-all hover:scale-[1.03]"
           style={{
-            background: 'var(--color-surface-2)',
-            color: 'var(--color-text-secondary)',
-            border: '1px solid var(--color-border-subtle)',
+            background: 'var(--tp-surface-2)',
+            color: 'var(--tp-text-secondary)',
+            border: '1px solid var(--tp-border-subtle)',
           }}
         >
           {s.label}

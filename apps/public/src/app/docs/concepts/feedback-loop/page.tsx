@@ -122,13 +122,13 @@ export default function FeedbackLoopPage() {
         <section className="mt-4">
           <h1
             className="text-3xl font-bold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Feedback Loop
           </h1>
           <p
             className="mt-3 max-w-2xl text-base"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             ToolPilot gets smarter with every interaction. When agents report whether a recommended
             tool worked, that signal flows back into the graph — reinforcing good recommendations
@@ -141,13 +141,13 @@ export default function FeedbackLoopPage() {
           <h2
             id="the-cycle"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             The Cycle
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The feedback loop is a continuous cycle that connects tool usage to graph improvement:
           </p>
@@ -161,15 +161,15 @@ export default function FeedbackLoopPage() {
           <h2
             id="outcome-types"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Outcome Types
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
-            The <code style={{ color: 'var(--color-accent)' }}>report_outcome</code> MCP tool
+            The <code style={{ color: 'var(--tp-accent)' }}>report_outcome</code> MCP tool
             accepts three outcome types, each with different effects on the graph:
           </p>
         </section>
@@ -179,13 +179,13 @@ export default function FeedbackLoopPage() {
           <h3
             id="outcome-success"
             className="text-lg font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             ✅ Success
           </h3>
           <p
             className="mt-2 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The tool worked as expected. This is the strongest positive signal — it reinforces the
             graph edge between the tool and its related context, resets the decay timer, and adds a
@@ -206,13 +206,13 @@ export default function FeedbackLoopPage() {
           <h3
             id="outcome-failure"
             className="text-lg font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             ❌ Failure
           </h3>
           <p
             className="mt-2 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The tool didn&rsquo;t work for the intended use case. This attenuates the edge weight by
             15%, reducing the likelihood it will be recommended in similar contexts. Repeated
@@ -233,13 +233,13 @@ export default function FeedbackLoopPage() {
           <h3
             id="outcome-partial"
             className="text-lg font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             🔶 Partial
           </h3>
           <p
             className="mt-2 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The tool partially worked or worked with caveats. This is a neutral signal — the outcome
             is logged for analytics but causes minimal weight change. Over time, patterns in partial
@@ -260,7 +260,7 @@ export default function FeedbackLoopPage() {
           <h2
             id="impact-summary"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Impact Summary
           </h2>
@@ -268,7 +268,7 @@ export default function FeedbackLoopPage() {
           <div
             className="mt-4 overflow-x-auto rounded-lg"
             style={{
-              border: '1px solid var(--color-border-subtle)',
+              border: '1px solid var(--tp-border-subtle)',
               borderRadius: 'var(--radius-md)',
             }}
           >
@@ -276,38 +276,38 @@ export default function FeedbackLoopPage() {
               <thead>
                 <tr
                   style={{
-                    background: 'var(--color-surface-2)',
-                    borderBottom: '1px solid var(--color-border-default)',
+                    background: 'var(--tp-surface-2)',
+                    borderBottom: '1px solid var(--tp-border-default)',
                   }}
                 >
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Outcome
                   </th>
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Weight Change
                   </th>
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Decay Timer
                   </th>
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Analytics
                   </th>
                 </tr>
               </thead>
-              <tbody style={{ color: 'var(--color-text-secondary)' }}>
-                <tr style={{ borderBottom: '1px solid var(--color-border-subtle)' }}>
+              <tbody style={{ color: 'var(--tp-text-secondary)' }}>
+                <tr style={{ borderBottom: '1px solid var(--tp-border-subtle)' }}>
                   <td className="px-4 py-3 font-medium" style={{ color: '#22c55e' }}>
                     ✅ Success
                   </td>
@@ -315,7 +315,7 @@ export default function FeedbackLoopPage() {
                   <td className="px-4 py-3">Reset to now</td>
                   <td className="px-4 py-3">Logged</td>
                 </tr>
-                <tr style={{ borderBottom: '1px solid var(--color-border-subtle)' }}>
+                <tr style={{ borderBottom: '1px solid var(--tp-border-subtle)' }}>
                   <td className="px-4 py-3 font-medium" style={{ color: '#ef4444' }}>
                     ❌ Failure
                   </td>
@@ -323,7 +323,7 @@ export default function FeedbackLoopPage() {
                   <td className="px-4 py-3">Unchanged</td>
                   <td className="px-4 py-3">Logged + review flag if repeated</td>
                 </tr>
-                <tr style={{ borderBottom: '1px solid var(--color-border-subtle)' }}>
+                <tr style={{ borderBottom: '1px solid var(--tp-border-subtle)' }}>
                   <td className="px-4 py-3 font-medium" style={{ color: '#f59e0b' }}>
                     🔶 Partial
                   </td>
@@ -341,13 +341,13 @@ export default function FeedbackLoopPage() {
           <h2
             id="self-improving-system"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             A Self-Improving System
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The feedback loop creates a network effect: the more agents use ToolPilot, the better it
             gets for everyone. Each outcome report is a data point that refines the graph&rsquo;s
@@ -356,7 +356,7 @@ export default function FeedbackLoopPage() {
           </p>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Combined with temporal edge decay, the feedback loop ensures that the graph stays both
             accurate (reflecting current reality) and self-correcting (reducing bad recommendations

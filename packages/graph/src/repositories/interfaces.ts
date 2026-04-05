@@ -19,6 +19,7 @@ export interface ToolRepository {
   findByName(name: string): Promise<Result<ToolNode | null, RepositoryError>>;
   findByCategory(category: ToolCategory): Promise<Result<ToolNode[], RepositoryError>>;
   findByCategories(categories: ToolCategory[]): Promise<Result<ToolNode[], RepositoryError>>;
+  findByTopics(topics: string[]): Promise<Result<ToolNode[], RepositoryError>>;
   upsertEdge(edge: GraphEdge): Promise<Result<void, RepositoryError>>;
   getRelated(toolName: string, depth?: number): Promise<Result<ToolNode[], RepositoryError>>;
   getToolNeighborhood(name: string): Promise<Result<ToolNeighborhood | null, RepositoryError>>;

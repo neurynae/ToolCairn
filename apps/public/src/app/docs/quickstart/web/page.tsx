@@ -29,13 +29,13 @@ export default function WebQuickStartPage() {
         <h1
           id="web-interface"
           className="text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.15 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.15 }}
         >
           Web Interface Guide
         </h1>
         <p
           className="text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7, maxWidth: 540 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7, maxWidth: 540 }}
         >
           ToolPilot also has a web-based search interface. No installation required &mdash; just
           open your browser and start discovering tools.
@@ -47,13 +47,13 @@ export default function WebQuickStartPage() {
         <h2
           id="step-1-search"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 1: Start a Search
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Navigate to the{' '}
-          <Link href="/" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>
+          <Link href="/" style={{ color: 'var(--tp-accent)', textDecoration: 'none' }}>
             ToolPilot homepage
           </Link>{' '}
           and type a natural-language query into the search bar. For example:
@@ -75,11 +75,11 @@ export default function WebQuickStartPage() {
         <h2
           id="step-2-guided-discovery"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 2: Guided Discovery
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           If your query is broad, ToolPilot may ask clarification questions to narrow down results.
           This is the same guided discovery flow that MCP agents use:
         </p>
@@ -92,7 +92,7 @@ export default function WebQuickStartPage() {
             fontFamily: 'monospace',
             fontSize: 13,
             lineHeight: 2,
-            color: 'var(--color-text-secondary)',
+            color: 'var(--tp-text-secondary)',
             overflowX: 'auto',
           }}
         >
@@ -107,7 +107,7 @@ export default function WebQuickStartPage() {
           </pre>
         </div>
 
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Answer the clarification questions to get more targeted results. You can also skip
           them to see broader recommendations.
         </p>
@@ -118,11 +118,11 @@ export default function WebQuickStartPage() {
         <h2
           id="step-3-explore-results"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 3: Explore Results
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Search results show each tool with rich context:
         </p>
         <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -131,7 +131,7 @@ export default function WebQuickStartPage() {
           <ResultItem label="Key stats" detail="GitHub stars, license, primary language, last release" />
           <ResultItem label="Relationships" detail="Alternatives, companions, and related tools in the graph" />
         </ul>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Click any tool to see its full profile, including health history, related tools, and
           community signals.
         </p>
@@ -142,11 +142,11 @@ export default function WebQuickStartPage() {
         <h2
           id="step-4-browse-and-explore"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 4: Browse &amp; Explore
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Beyond search, the web interface offers additional ways to discover tools:
         </p>
 
@@ -174,7 +174,7 @@ export default function WebQuickStartPage() {
         <h2
           id="web-vs-mcp"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Web Interface vs MCP
         </h2>
@@ -192,7 +192,7 @@ export default function WebQuickStartPage() {
         <h2
           id="next-steps"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Next Steps
         </h2>
@@ -212,7 +212,7 @@ export default function WebQuickStartPage() {
 
 function QueryExample({ text }: { text: string }) {
   return (
-    <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+    <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
       <em>&ldquo;{text}&rdquo;</em>
     </li>
   );
@@ -220,8 +220,8 @@ function QueryExample({ text }: { text: string }) {
 
 function ResultItem({ label, detail }: { label: string; detail: string }) {
   return (
-    <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-      <strong style={{ color: 'var(--color-text-primary)' }}>{label}</strong> &mdash; {detail}
+    <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
+      <strong style={{ color: 'var(--tp-text-primary)' }}>{label}</strong> &mdash; {detail}
     </li>
   );
 }
@@ -247,17 +247,17 @@ function FeatureCard({
         <span
           className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-lg"
           style={{
-            background: 'var(--color-surface-3)',
-            border: '1px solid var(--color-border-subtle)',
+            background: 'var(--tp-surface-3)',
+            border: '1px solid var(--tp-border-subtle)',
           }}
         >
           {icon}
         </span>
-        <h3 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+        <h3 className="text-base font-semibold" style={{ color: 'var(--tp-text-primary)' }}>
           {title}
         </h3>
       </div>
-      <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+      <p className="text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
         {description}
       </p>
     </Link>
@@ -267,7 +267,7 @@ function FeatureCard({
 function NextStepItem({ href, text }: { href: string; text: string }) {
   return (
     <li className="text-sm" style={{ lineHeight: 1.6 }}>
-      <a href={href} style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>
+      <a href={href} style={{ color: 'var(--tp-accent)', textDecoration: 'none' }}>
         {text} →
       </a>
     </li>

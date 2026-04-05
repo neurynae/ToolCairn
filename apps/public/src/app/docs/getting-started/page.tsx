@@ -23,15 +23,15 @@ export default function GettingStartedPage() {
         <h1
           id="what-is-toolpilot"
           className="text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.15 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.15 }}
         >
           What is ToolPilot?
         </h1>
         <p
           className="text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7, maxWidth: 640 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7, maxWidth: 640 }}
         >
-          ToolPilot is an <strong style={{ color: 'var(--color-text-primary)' }}>agent-first, graph-powered
+          ToolPilot is an <strong style={{ color: 'var(--tp-text-primary)' }}>agent-first, graph-powered
           tool intelligence platform</strong>. It provides an MCP server that AI coding agents&mdash;Claude
           Code, Cursor, Windsurf, and others&mdash;use to discover the right open-source developer tools for
           any task.
@@ -43,11 +43,11 @@ export default function GettingStartedPage() {
         <h2
           id="why-toolpilot"
           className="text-2xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Why ToolPilot?
         </h2>
-        <p className="text-sm sm:text-base" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
+        <p className="text-sm sm:text-base" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}>
           Traditional tool discovery relies on keyword search and static lists. ToolPilot is different&mdash;it
           maps the <em>relationships</em> between tools (alternatives, companions, dependencies) in a living
           knowledge graph, then combines that structure with vector similarity and health scoring to surface
@@ -66,7 +66,7 @@ export default function GettingStartedPage() {
         <h2
           id="three-pillars"
           className="text-2xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           The Three Pillars
         </h2>
@@ -98,7 +98,7 @@ export default function GettingStartedPage() {
         <h2
           id="who-its-for"
           className="text-2xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Who It&apos;s For
         </h2>
@@ -123,11 +123,11 @@ export default function GettingStartedPage() {
         <h2
           id="how-it-works"
           className="text-2xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           How It Works
         </h2>
-        <p className="text-sm sm:text-base" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
+        <p className="text-sm sm:text-base" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}>
           At a high level, ToolPilot follows a guided discovery loop between your AI agent and the
           graph:
         </p>
@@ -140,7 +140,7 @@ export default function GettingStartedPage() {
             fontFamily: 'monospace',
             fontSize: 13,
             lineHeight: 2,
-            color: 'var(--color-text-secondary)',
+            color: 'var(--tp-text-secondary)',
             overflowX: 'auto',
           }}
         >
@@ -178,18 +178,18 @@ export default function GettingStartedPage() {
         <h2
           id="get-started"
           className="text-2xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Ready to get started?
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)' }}>
           Set up ToolPilot with your AI agent in under 2 minutes.
         </p>
         <Link
           href="/docs/quickstart"
           className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold transition-colors"
           style={{
-            background: 'var(--color-accent)',
+            background: 'var(--tp-accent)',
             color: '#fff',
             textDecoration: 'none',
           }}
@@ -220,17 +220,17 @@ function PillarCard({ icon, title, description }: { icon: string; title: string;
         <span
           className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-lg"
           style={{
-            background: 'var(--color-surface-3)',
-            border: '1px solid var(--color-border-subtle)',
+            background: 'var(--tp-surface-3)',
+            border: '1px solid var(--tp-border-subtle)',
           }}
         >
           {icon}
         </span>
-        <h3 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+        <h3 className="text-base font-semibold" style={{ color: 'var(--tp-text-primary)' }}>
           {title}
         </h3>
       </div>
-      <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+      <p className="text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
         {description}
       </p>
     </div>
@@ -239,8 +239,8 @@ function PillarCard({ icon, title, description }: { icon: string; title: string;
 
 function AudienceItem({ title, description }: { title: string; description: string }) {
   return (
-    <li style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1.7 }}>
-      <strong style={{ color: 'var(--color-text-primary)' }}>{title}</strong> &mdash; {description}
+    <li style={{ color: 'var(--tp-text-secondary)', fontSize: 14, lineHeight: 1.7 }}>
+      <strong style={{ color: 'var(--tp-text-primary)' }}>{title}</strong> &mdash; {description}
     </li>
   );
 }

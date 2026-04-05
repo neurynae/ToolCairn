@@ -125,16 +125,16 @@ export default function SearchToolsRespondPage() {
       {/* ─── Header ─── */}
       <h1
         className="text-3xl font-bold tracking-tight sm:text-4xl"
-        style={{ color: 'var(--color-text-primary)', marginTop: 24 }}
+        style={{ color: 'var(--tp-text-primary)', marginTop: 24 }}
       >
         <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>search_tools_respond</code>
       </h1>
       <p
         className="mt-3 text-base leading-relaxed sm:text-lg"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Answers clarification questions returned by{' '}
-        <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+        <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
           search_tools
         </code>{' '}
         to complete a search. Runs stages 2–4 of the pipeline (contextual filters → graph
@@ -146,21 +146,21 @@ export default function SearchToolsRespondPage() {
         <h2
           id="when-to-use"
           className="mb-3 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           When to use
         </h2>
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
           Call{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             search_tools_respond
           </code>{' '}
           only after{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             search_tools
           </code>{' '}
           has returned a response with{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             {'"type": "clarification"'}
           </code>
           . This tool is never called on its own — it always follows a prior search.
@@ -182,7 +182,7 @@ export default function SearchToolsRespondPage() {
         <h2
           id="input-schema"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Input schema
         </h2>
@@ -194,7 +194,7 @@ export default function SearchToolsRespondPage() {
         <h2
           id="examples"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Examples
         </h2>
@@ -202,7 +202,7 @@ export default function SearchToolsRespondPage() {
         <h3
           id="answering-clarification"
           className="mb-3 text-base font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Answering clarification questions
         </h3>
@@ -220,19 +220,19 @@ export default function SearchToolsRespondPage() {
         <h2
           id="response-format"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Response format
         </h2>
 
-        <p className="mb-4 text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="mb-4 text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
           This tool always returns a{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             result
           </code>{' '}
           response — no further clarification is requested. The response structure is identical to
           the result format from{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             search_tools
           </code>
           .
@@ -255,7 +255,7 @@ export default function SearchToolsRespondPage() {
         <h2
           id="error-codes"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Error codes
         </h2>
@@ -267,19 +267,19 @@ export default function SearchToolsRespondPage() {
         <h2
           id="related-tools"
           className="mb-3 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Related tools
         </h2>
         <ul className="flex flex-col gap-2 text-sm" style={{ margin: 0, paddingLeft: 20 }}>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/mcp-tools/search-tools" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/mcp-tools/search-tools" style={{ color: 'var(--tp-accent)' }}>
               <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>search_tools</code>
             </a>{' '}
             — Start a new tool search (prerequisite for this tool)
           </li>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/mcp-tools/report-outcome" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/mcp-tools/report-outcome" style={{ color: 'var(--tp-accent)' }}>
               <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>report_outcome</code>
             </a>{' '}
             — Report usage feedback after using a recommended tool

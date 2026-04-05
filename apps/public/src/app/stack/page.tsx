@@ -1,32 +1,32 @@
-import type { Metadata } from 'next';
+'use client';
+
 import { AmbientBackground } from '@/components/layout/ambient-background';
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { StackBuilder } from '@/components/stack/stack-builder';
-
-export const metadata: Metadata = {
-  title: 'Stack Builder',
-  description:
-    'Describe your project and get AI-powered tool recommendations. Find the perfect stack from 12,000+ open-source tools.',
-};
+import { useCommandPalette } from '@/components/providers/command-palette-provider';
+import { LayersIcon } from 'lucide-react';
 
 export default function StackPage() {
+  const { toggle } = useCommandPalette();
+
   return (
     <>
       <AmbientBackground />
       <div className="flex min-h-dvh flex-col">
-        <SiteHeader />
+        <SiteHeader onOpenSearch={toggle} />
         <main className="flex-1">
-          <section className="mx-auto max-w-4xl px-6 pb-20 pt-12">
-            <div className="mb-10 text-center">
-              <h1
-                className="mb-3 text-4xl font-bold tracking-tight"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
+          <section className="mx-auto max-w-4xl px-4 pb-20 pt-12 sm:px-6">
+            <div className="mb-8">
+              <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <LayersIcon className="size-4" />
                 Stack Builder
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                Build Your Stack
               </h1>
-              <p className="text-lg" style={{ color: 'var(--color-text-secondary)' }}>
-                Describe your project and get tool recommendations
+              <p className="mt-2 text-muted-foreground">
+                Describe your project and get curated tool recommendations from the graph.
               </p>
             </div>
             <StackBuilder />

@@ -66,13 +66,13 @@ export default function McpToolsOverviewPage() {
       {/* ─── Header ─── */}
       <h1
         className="text-3xl font-bold tracking-tight sm:text-4xl"
-        style={{ color: 'var(--color-text-primary)', marginTop: 24 }}
+        style={{ color: 'var(--tp-text-primary)', marginTop: 24 }}
       >
         MCP Tools Reference
       </h1>
       <p
         className="mt-3 text-base leading-relaxed sm:text-lg"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         ToolPilot exposes <strong>5 MCP tools</strong> that AI agents use to discover, evaluate, and
         report on developer tools. Every tool follows the{' '}
@@ -80,7 +80,7 @@ export default function McpToolsOverviewPage() {
           href="https://modelcontextprotocol.io"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}
+          style={{ color: 'var(--tp-accent)', textDecoration: 'underline' }}
         >
           Model Context Protocol
         </a>{' '}
@@ -92,7 +92,7 @@ export default function McpToolsOverviewPage() {
         <h2
           id="all-tools"
           className="mb-5 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           All tools
         </h2>
@@ -104,29 +104,29 @@ export default function McpToolsOverviewPage() {
               href={tool.href}
               className="group flex flex-col gap-2 rounded-lg p-5 transition-colors duration-150"
               style={{
-                background: 'var(--color-surface-1)',
-                border: '1px solid var(--color-border-subtle)',
+                background: 'var(--tp-surface-1)',
+                border: '1px solid var(--tp-border-subtle)',
                 textDecoration: 'none',
               }}
             >
               <div className="flex items-center gap-3">
                 <code
                   className="text-base font-semibold"
-                  style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-mono, monospace)' }}
+                  style={{ color: 'var(--tp-accent)', fontFamily: 'var(--font-mono, monospace)' }}
                 >
                   {tool.name}
                 </code>
                 <span
                   className="rounded-full px-2 py-0.5 text-xs font-medium"
                   style={{
-                    background: 'var(--color-surface-3)',
-                    color: 'var(--color-text-muted)',
+                    background: 'var(--tp-surface-3)',
+                    color: 'var(--tp-text-muted)',
                   }}
                 >
                   {tool.badge}
                 </span>
               </div>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
                 {tool.description}
               </p>
             </Link>
@@ -139,13 +139,13 @@ export default function McpToolsOverviewPage() {
         <h2
           id="typical-flow"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Typical flow
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           A standard agent interaction follows a three-step pattern:
         </p>
@@ -177,26 +177,26 @@ export default function McpToolsOverviewPage() {
                 className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
                 style={{
                   background: 'rgba(99,102,241,0.15)',
-                  color: 'var(--color-accent)',
+                  color: 'var(--tp-accent)',
                   marginTop: 1,
                 }}
               >
                 {item.step}
               </span>
               <div>
-                <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                <span className="font-semibold" style={{ color: 'var(--tp-text-primary)' }}>
                   <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>{item.title}</code>
                   {item.optional && (
                     <span
                       className="ml-2 text-xs font-normal"
-                      style={{ color: 'var(--color-text-muted)' }}
+                      style={{ color: 'var(--tp-text-muted)' }}
                     >
                       (optional)
                     </span>
                   )}
                 </span>
                 <p
-                  style={{ color: 'var(--color-text-secondary)', margin: '4px 0 0' }}
+                  style={{ color: 'var(--tp-text-secondary)', margin: '4px 0 0' }}
                 >
                   {item.text}
                 </p>
@@ -222,24 +222,24 @@ export default function McpToolsOverviewPage() {
         <h2
           id="supplementary-tools"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Supplementary tools
         </h2>
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             get_stack
           </code>{' '}
           and{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             check_issue
           </code>{' '}
           are standalone tools that can be called independently of the search flow. Use{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             get_stack
           </code>{' '}
           when building a new project and{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             check_issue
           </code>{' '}
           when troubleshooting an existing tool.

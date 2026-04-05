@@ -134,13 +134,13 @@ export default function ReportOutcomePage() {
       {/* ─── Header ─── */}
       <h1
         className="text-3xl font-bold tracking-tight sm:text-4xl"
-        style={{ color: 'var(--color-text-primary)', marginTop: 24 }}
+        style={{ color: 'var(--tp-text-primary)', marginTop: 24 }}
       >
         <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>report_outcome</code>
       </h1>
       <p
         className="mt-3 text-base leading-relaxed sm:text-lg"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Reports the outcome of using a recommended tool. Updates graph edge weights to improve
         future recommendations — successful outcomes reinforce recommendation confidence while
@@ -161,30 +161,30 @@ export default function ReportOutcomePage() {
         <h2
           id="when-to-use"
           className="mb-3 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           When to use
         </h2>
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
           Call{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             report_outcome
           </code>{' '}
           after using a tool that ToolPilot recommended. This is typically the final step in the
           discovery flow:{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             search_tools
           </code>{' '}
           →{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             report_outcome
           </code>
           . You can also report outcomes for tools found through{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             get_stack
           </code>{' '}
           or{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             check_issue
           </code>
           .
@@ -196,7 +196,7 @@ export default function ReportOutcomePage() {
         <h2
           id="input-schema"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Input schema
         </h2>
@@ -208,7 +208,7 @@ export default function ReportOutcomePage() {
         <h2
           id="examples"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Examples
         </h2>
@@ -216,7 +216,7 @@ export default function ReportOutcomePage() {
         <h3
           id="success-report"
           className="mb-3 text-base font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Reporting success
         </h3>
@@ -232,7 +232,7 @@ export default function ReportOutcomePage() {
           <h3
             id="failure-report"
             className="mb-3 text-base font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Reporting failure
           </h3>
@@ -243,7 +243,7 @@ export default function ReportOutcomePage() {
           <h3
             id="partial-report"
             className="mb-3 text-base font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Reporting partial success
           </h3>
@@ -265,12 +265,12 @@ export default function ReportOutcomePage() {
         <h2
           id="response-format"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Response format
         </h2>
 
-        <p className="mb-4 text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="mb-4 text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
           Returns a confirmation with the graph update details, including the edge weight change and
           new confidence score.
         </p>
@@ -278,7 +278,7 @@ export default function ReportOutcomePage() {
         <h3
           id="success-response"
           className="mb-3 text-base font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Success outcome response
         </h3>
@@ -288,7 +288,7 @@ export default function ReportOutcomePage() {
           <h3
             id="failure-response"
             className="mb-3 text-base font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Failure outcome response
           </h3>
@@ -310,7 +310,7 @@ export default function ReportOutcomePage() {
         <h2
           id="error-codes"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Error codes
         </h2>
@@ -322,25 +322,25 @@ export default function ReportOutcomePage() {
         <h2
           id="related-tools"
           className="mb-3 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Related tools
         </h2>
         <ul className="flex flex-col gap-2 text-sm" style={{ margin: 0, paddingLeft: 20 }}>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/mcp-tools/search-tools" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/mcp-tools/search-tools" style={{ color: 'var(--tp-accent)' }}>
               <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>search_tools</code>
             </a>{' '}
             — Start a new tool search
           </li>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/mcp-tools/check-issue" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/mcp-tools/check-issue" style={{ color: 'var(--tp-accent)' }}>
               <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>check_issue</code>
             </a>{' '}
             — Diagnose issues before reporting a failure
           </li>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/concepts/feedback-loop" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/concepts/feedback-loop" style={{ color: 'var(--tp-accent)' }}>
               Feedback Loop
             </a>{' '}
             — Learn how outcomes affect the recommendation graph

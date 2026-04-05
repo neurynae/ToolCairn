@@ -65,7 +65,7 @@ export default async function ToolProfilePage({ params }: PageProps) {
   return (
     <main
       className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8"
-      style={{ color: 'var(--color-text-primary)' }}
+      style={{ color: 'var(--tp-text-primary)' }}
     >
       {/* Header */}
       <ToolHeader

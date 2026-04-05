@@ -1,9 +1,10 @@
 import { PrismaClient } from '@toolpilot/db';
 import { SearchPipeline, SearchSessionManager } from '@toolpilot/search';
-import { NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import pino from 'pino';
 import { z } from 'zod';
 import { formatResults } from '@/lib/format-results';
+import { withProxyPost } from '@/lib/api/proxy';
 
 const logger = pino({ name: '@toolpilot/public:api-search-respond' });
 const prisma = new PrismaClient();
@@ -22,7 +23,7 @@ const RespondRequestSchema = z.object({
     .min(1, 'answers must contain at least one entry'),
 });
 
-export async function POST(request: Request) {
+async function directHandler(request: NextRequest) {
   try {
     const body: unknown = await request.json();
     const parsed = RespondRequestSchema.safeParse(body);
@@ -55,10 +56,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build updated context from clarification answers
+    // Build updated context from clarification answers.
+    // "any" means the user skipped that dimension — do NOT store it as a filter,
+    // otherwise Stage 2 creates an impossible filter and falls back incorrectly.
     const filterUpdates: Record<string, string> = {};
     for (const answer of answers) {
-      filterUpdates[answer.dimension] = answer.value;
+      if (answer.value !== 'any') {
+        filterUpdates[answer.dimension] = answer.value;
+      }
     }
     const prevContext = (session.context as Record<string, unknown> | null) ?? {};
     const updatedContext = {
@@ -99,3 +104,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = withProxyPost('/search/respond', directHandler);

@@ -1,51 +1,46 @@
+import { cn } from '@/lib/utils';
+
 interface ScoreBarProps {
   score: number; // 0.0 – 1.0
   label?: string;
   showPercent?: boolean;
+  className?: string;
 }
 
-function getTierColor(score: number): string {
-  if (score >= 0.85) return '#6366f1';
-  if (score >= 0.7) return '#818cf8';
-  if (score >= 0.5) return '#f59e0b';
-  return '#ef4444';
+function getScoreColorClass(score: number): string {
+  if (score >= 0.85) return 'bg-[var(--tp-accent)]';
+  if (score >= 0.7) return 'bg-[var(--tp-accent-hover)]';
+  if (score >= 0.5) return 'bg-[var(--tp-health-slowing)]';
+  return 'bg-[var(--tp-health-at-risk)]';
 }
 
-function getTierLabel(score: number): string {
+function getScoreLabel(score: number): string {
   if (score >= 0.85) return 'Excellent match';
   if (score >= 0.7) return 'Good match';
   if (score >= 0.5) return 'Partial match';
   return 'Weak match';
 }
 
-export function ScoreBar({ score, label, showPercent = false }: ScoreBarProps) {
+export function ScoreBar({ score, label, showPercent = false, className }: ScoreBarProps) {
   const clamped = Math.max(0, Math.min(1, score));
   const pct = Math.round(clamped * 100);
-  const color = getTierColor(clamped);
-  const tierLabel = label ?? getTierLabel(clamped);
+  const colorClass = getScoreColorClass(clamped);
+  const displayLabel = label ?? getScoreLabel(clamped);
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className={cn('flex flex-col gap-1.5', className)}>
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
-          {tierLabel}
-        </span>
+        <span className="text-xs font-medium text-muted-foreground">{displayLabel}</span>
         {showPercent && (
-          <span className="text-xs font-semibold" style={{ color }}>
+          <span className={cn('text-xs font-semibold', colorClass.replace('bg-', 'text-'))}>
             {pct}%
           </span>
         )}
       </div>
-      <div
-        className="h-1.5 w-full overflow-hidden rounded-full"
-        style={{ background: 'rgba(255,255,255,0.08)' }}
-      >
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{
-            width: `${pct}%`,
-            background: `linear-gradient(90deg, ${color}bb, ${color})`,
-          }}
+          className={cn('h-full rounded-full transition-all duration-500', colorClass)}
+          style={{ width: `${pct}%` }}
         />
       </div>
     </div>

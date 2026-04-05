@@ -151,6 +151,13 @@ export const FIND_TOOLS_BY_CATEGORIES = {
    ORDER BY t.health_maintenance_score DESC`,
 };
 
+export const FIND_TOOLS_BY_TOPICS = {
+  text: `MATCH (t:Tool)
+   WHERE ANY(topic IN t.topics WHERE topic IN $topics)
+   RETURN t
+   ORDER BY t.health_maintenance_score DESC`,
+};
+
 export const GET_RELATED_TOOLS = {
   text: `MATCH (t:Tool { name: $name })-[e]-(related:Tool)
    WITH related, e,
@@ -182,9 +189,12 @@ export const GET_ALL_TOOL_NAMES = {
 };
 
 export const GET_TOOL_GRAPH_RERANK = {
+  // Only semantic edges (COMPATIBLE_WITH, INTEGRATES_WITH, POPULAR_WITH, REPLACES) contribute
+  // to the direct_score. REQUIRES edges are build/dependency edges that inflate graph scores for
+  // well-connected dependency packages (e.g. nock) regardless of semantic relevance.
   text: `MATCH (t:Tool)
 WHERE t.name IN $names
-OPTIONAL MATCH (t)-[e]-(related:Tool)
+OPTIONAL MATCH (t)-[e:COMPATIBLE_WITH|INTEGRATES_WITH|POPULAR_WITH|REPLACES]-(related:Tool)
 WHERE related.name IN $names
 WITH t,
      sum(CASE WHEN e IS NULL THEN 0

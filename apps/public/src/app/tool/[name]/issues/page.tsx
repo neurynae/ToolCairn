@@ -52,14 +52,14 @@ export default function ToolIssuesPage() {
   return (
     <main
       className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8"
-      style={{ color: 'var(--color-text-primary)' }}
+      style={{ color: 'var(--tp-text-primary)' }}
     >
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+      <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--tp-text-muted)' }}>
         <Link
           href={`/tool/${encodeURIComponent(toolName)}`}
           className="transition-colors"
-          style={{ color: 'var(--color-accent)' }}
+          style={{ color: 'var(--tp-accent)' }}
         >
           {toolName}
         </Link>
@@ -71,11 +71,11 @@ export default function ToolIssuesPage() {
       <div className="flex flex-col gap-2">
         <h1
           className="text-2xl font-bold tracking-tight"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Issue Diagnosis
         </h1>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)' }}>
           Describe your issue and we&apos;ll check if it&apos;s a known problem with{' '}
           <strong>{toolName}</strong>.
         </p>
@@ -90,9 +90,9 @@ export default function ToolIssuesPage() {
           rows={4}
           className="w-full rounded-lg px-4 py-3 text-sm outline-none transition-colors"
           style={{
-            background: 'var(--color-surface-1)',
-            color: 'var(--color-text-primary)',
-            border: '1px solid var(--color-border-subtle)',
+            background: 'var(--tp-surface-1)',
+            color: 'var(--tp-text-primary)',
+            border: '1px solid var(--tp-border-subtle)',
             resize: 'vertical',
           }}
         />
@@ -100,7 +100,7 @@ export default function ToolIssuesPage() {
           type="submit"
           disabled={loading || !query.trim()}
           className="w-fit rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-150 disabled:opacity-50"
-          style={{ background: 'var(--color-accent)', color: '#fff' }}
+          style={{ background: 'var(--tp-accent)', color: '#fff' }}
         >
           {loading ? 'Checking…' : 'Check Issue'}
         </button>
@@ -133,7 +133,7 @@ export default function ToolIssuesPage() {
             >
               {statusConfig[result.status].label}
             </span>
-            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="text-sm" style={{ color: 'var(--tp-text-secondary)' }}>
               {result.message}
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function ToolIssuesPage() {
             <div className="flex flex-col gap-3">
               <h2
                 className="text-sm font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--color-text-muted)' }}
+                style={{ color: 'var(--tp-text-muted)' }}
               >
                 Matching Issues ({result.matches.length})
               </h2>
@@ -169,8 +169,8 @@ function IssueMatchCard({ match }: { match: IssueMatch }) {
       rel="noopener noreferrer"
       className="flex flex-col gap-2 rounded-lg p-4 transition-colors duration-150 hover:brightness-110"
       style={{
-        background: 'var(--color-surface-1)',
-        border: '1px solid var(--color-border-subtle)',
+        background: 'var(--tp-surface-1)',
+        border: '1px solid var(--tp-border-subtle)',
       }}
     >
       <div className="flex items-center gap-2">
@@ -180,15 +180,15 @@ function IssueMatchCard({ match }: { match: IssueMatch }) {
         >
           {match.state}
         </span>
-        <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+        <span className="text-xs" style={{ color: 'var(--tp-text-muted)' }}>
           #{match.issue_number}
         </span>
-        <span className="ml-auto text-xs" style={{ color: 'var(--color-text-muted)' }}>
+        <span className="ml-auto text-xs" style={{ color: 'var(--tp-text-muted)' }}>
           {Math.round(match.similarity * 100)}% match
         </span>
       </div>
 
-      <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+      <span className="text-sm font-medium" style={{ color: 'var(--tp-text-primary)' }}>
         {match.title}
       </span>
 
@@ -199,8 +199,8 @@ function IssueMatchCard({ match }: { match: IssueMatch }) {
               key={label}
               className="rounded-full px-2 py-0.5 text-[10px] font-medium"
               style={{
-                background: 'var(--color-surface-2)',
-                color: 'var(--color-text-muted)',
+                background: 'var(--tp-surface-2)',
+                color: 'var(--tp-text-muted)',
               }}
             >
               {label}

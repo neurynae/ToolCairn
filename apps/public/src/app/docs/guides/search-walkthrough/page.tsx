@@ -37,19 +37,19 @@ export default function SearchWalkthroughPage() {
           >
             Beginner
           </span>
-          <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+          <span className="text-xs" style={{ color: 'var(--tp-text-muted)' }}>
             ~10 min read
           </span>
         </div>
         <h1
           className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.2 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.2 }}
         >
           Complete Search Walkthrough
         </h1>
         <p
           className="mt-3 text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}
         >
           Follow a real search from start to finish. You&rsquo;ll see exactly what
           happens at every stage of ToolPilot&rsquo;s discovery pipeline.
@@ -69,13 +69,13 @@ export default function SearchWalkthroughPage() {
           <h2
             id="what-youll-learn"
             className="mb-3 text-sm font-bold uppercase tracking-wider"
-            style={{ color: 'var(--color-accent)' }}
+            style={{ color: 'var(--tp-accent)' }}
           >
             What you&rsquo;ll learn
           </h2>
           <ul
             className="space-y-1.5 text-sm"
-            style={{ color: 'var(--color-text-secondary)', margin: 0, paddingLeft: 20 }}
+            style={{ color: 'var(--tp-text-secondary)', margin: 0, paddingLeft: 20 }}
           >
             <li>How to start a search with <code>search_tools</code></li>
             <li>How to respond to clarification questions</li>
@@ -90,16 +90,16 @@ export default function SearchWalkthroughPage() {
         <h2
           id="step-1-starting-a-search"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 1: Starting a search
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Everything begins with a call to{' '}
-          <code style={{ color: 'var(--color-accent)' }}>search_tools</code>. Describe
+          <code style={{ color: 'var(--tp-accent)' }}>search_tools</code>. Describe
           what you need in natural language — ToolPilot handles the intent parsing,
           semantic matching, and graph traversal behind the scenes.
         </p>
@@ -111,7 +111,7 @@ export default function SearchWalkthroughPage() {
         />
         <p
           className="mt-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           The query gets routed through the 4-stage search pipeline: intent extraction,
           vector similarity search, graph expansion, and scoring. Depending on how
@@ -125,13 +125,13 @@ export default function SearchWalkthroughPage() {
         <h2
           id="step-2-receiving-clarification"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 2: Receiving clarification
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           When ToolPilot needs more context to narrow down the best match, it responds
           with a clarification request instead of results. This is part of the{' '}
@@ -161,7 +161,7 @@ export default function SearchWalkthroughPage() {
           <Callout type="tip" title="Not every search triggers clarification">
             If your query is specific enough — or you provide context filters upfront —
             ToolPilot skips clarification entirely. See the{' '}
-            <a href="/docs/guides/rich-context" style={{ color: 'var(--color-accent)' }}>
+            <a href="/docs/guides/rich-context" style={{ color: 'var(--tp-accent)' }}>
               Rich Context guide
             </a>{' '}
             for details.
@@ -174,16 +174,16 @@ export default function SearchWalkthroughPage() {
         <h2
           id="step-3-responding-to-clarification"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 3: Responding to clarification
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Send the answers back using{' '}
-          <code style={{ color: 'var(--color-accent)' }}>search_tools_respond</code>.
+          <code style={{ color: 'var(--tp-accent)' }}>search_tools_respond</code>.
           Include the <code>query_id</code> from the clarification response so ToolPilot
           can continue the same search session.
         </p>
@@ -199,7 +199,7 @@ export default function SearchWalkthroughPage() {
         />
         <p
           className="mt-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           ToolPilot re-scores the candidate tools using your answers as additional
           filters. The graph traversal narrows down, and you get a refined set of
@@ -212,13 +212,13 @@ export default function SearchWalkthroughPage() {
         <h2
           id="step-4-getting-results"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 4: Getting results
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           The response includes the top recommended tool along with alternatives. Each
           result carries a health score, category, and a summary pulled from the graph
@@ -268,35 +268,35 @@ export default function SearchWalkthroughPage() {
         <h2
           id="step-5-evaluating-the-recommendation"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 5: Evaluating the recommendation
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Before committing to a tool, consider these factors:
         </p>
         <ul
           className="mb-4 space-y-2 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+          style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
         >
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Health tier</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Health tier</strong>{' '}
             — Is the tool actively maintained? Check the score breakdown.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Graph relationships</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Graph relationships</strong>{' '}
             — What other tools is it commonly paired with? Strong <code>RELATED_TO</code>{' '}
             edges suggest good ecosystem compatibility.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Documentation quality</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Documentation quality</strong>{' '}
             — Does it have clear guides, API reference, and examples?
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Alternatives</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Alternatives</strong>{' '}
             — Sometimes the second-best option is a better fit for your constraints.
           </li>
         </ul>
@@ -304,7 +304,7 @@ export default function SearchWalkthroughPage() {
           If you&rsquo;re selecting multiple tools for a project, use{' '}
           <code>get_stack</code> instead of individual searches. It considers
           compatibility across the entire toolkit. See the{' '}
-          <a href="/docs/guides/stack-building" style={{ color: 'var(--color-accent)' }}>
+          <a href="/docs/guides/stack-building" style={{ color: 'var(--tp-accent)' }}>
             Stack Building guide
           </a>.
         </Callout>
@@ -315,16 +315,16 @@ export default function SearchWalkthroughPage() {
         <h2
           id="step-6-reporting-the-outcome"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 6: Reporting the outcome
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           After using the recommended tool, close the feedback loop by calling{' '}
-          <code style={{ color: 'var(--color-accent)' }}>report_outcome</code>. This is
+          <code style={{ color: 'var(--tp-accent)' }}>report_outcome</code>. This is
           how ToolPilot learns — positive outcomes strengthen graph edges, and negative
           outcomes trigger decay so future searches surface better alternatives.
         </p>
@@ -351,13 +351,13 @@ export default function SearchWalkthroughPage() {
         <h2
           id="recap"
           className="mb-3 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Recap
         </h2>
         <p
           className="text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           The full search flow is:{' '}
           <code>search_tools</code> → (optional clarification via{' '}

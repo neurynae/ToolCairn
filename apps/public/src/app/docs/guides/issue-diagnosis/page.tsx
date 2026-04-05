@@ -37,22 +37,22 @@ export default function IssueDiagnosisPage() {
           >
             Intermediate
           </span>
-          <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+          <span className="text-xs" style={{ color: 'var(--tp-text-muted)' }}>
             ~8 min read
           </span>
         </div>
         <h1
           className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.2 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.2 }}
         >
           Issue Diagnosis Guide
         </h1>
         <p
           className="mt-3 text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}
         >
           Already using a tool and running into trouble? ToolPilot&rsquo;s{' '}
-          <code style={{ color: 'var(--color-accent)' }}>check_issue</code> can
+          <code style={{ color: 'var(--tp-accent)' }}>check_issue</code> can
           diagnose the problem and point you toward a fix — or a better alternative.
         </p>
       </header>
@@ -70,13 +70,13 @@ export default function IssueDiagnosisPage() {
           <h2
             id="what-youll-learn"
             className="mb-3 text-sm font-bold uppercase tracking-wider"
-            style={{ color: 'var(--color-accent)' }}
+            style={{ color: 'var(--tp-accent)' }}
           >
             What you&rsquo;ll learn
           </h2>
           <ul
             className="space-y-1.5 text-sm"
-            style={{ color: 'var(--color-text-secondary)', margin: 0, paddingLeft: 20 }}
+            style={{ color: 'var(--tp-text-secondary)', margin: 0, paddingLeft: 20 }}
           >
             <li>When to use <code>check_issue</code> vs. a regular search</li>
             <li>How to describe issues for the best diagnostic results</li>
@@ -91,13 +91,13 @@ export default function IssueDiagnosisPage() {
         <h2
           id="when-to-use-check-issue"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           When to use check_issue
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Use <code>check_issue</code> when you&rsquo;re <em>already committed</em> to a
           tool and hitting a specific problem. This isn&rsquo;t for tool discovery — it&rsquo;s
@@ -105,7 +105,7 @@ export default function IssueDiagnosisPage() {
         </p>
         <ul
           className="mb-4 space-y-2 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+          style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
         >
           <li>Unexpected errors or degraded performance in production</li>
           <li>Configuration problems you can&rsquo;t resolve from docs alone</li>
@@ -119,15 +119,15 @@ export default function IssueDiagnosisPage() {
         <h2
           id="step-1-describe-the-issue"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 1: Describe the issue
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
-          Call <code style={{ color: 'var(--color-accent)' }}>check_issue</code> with the
+          Call <code style={{ color: 'var(--tp-accent)' }}>check_issue</code> with the
           tool name and a clear description of what&rsquo;s going wrong. The more detail
           you provide, the better the diagnosis.
         </p>
@@ -153,13 +153,13 @@ export default function IssueDiagnosisPage() {
         <h2
           id="step-2-interpret-the-response"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 2: Interpret the response
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           ToolPilot matches your issue description against known problems in the graph
           and returns diagnostic results with confidence scores. Here&rsquo;s what a
@@ -202,26 +202,26 @@ export default function IssueDiagnosisPage() {
         <h3
           id="reading-confidence-scores"
           className="mt-6 mb-2 text-base font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Reading confidence scores
         </h3>
         <ul
           className="space-y-2 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+          style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
         >
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>0.80 – 1.0</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>0.80 – 1.0</strong>{' '}
             — High confidence. The issue is well-documented and the solutions are proven.
             Start here.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>0.50 – 0.79</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>0.50 – 0.79</strong>{' '}
             — Moderate confidence. The issue is a likely match but may not be exact.
             Worth investigating.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Below 0.50</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Below 0.50</strong>{' '}
             — Low confidence. This is a loose match — useful as a starting point but
             verify against your specific setup.
           </li>
@@ -233,13 +233,13 @@ export default function IssueDiagnosisPage() {
         <h2
           id="step-3-try-the-solutions"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 3: Try the suggested solutions
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Work through the solutions in order of the confidence score. In our Prisma
           example, the highest-confidence fix is to increase the connection pool size:
@@ -259,7 +259,7 @@ export default function IssueDiagnosisPage() {
         />
         <p
           className="mt-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           If the first solution resolves the issue, great — remember to{' '}
           <code>report_outcome</code> so ToolPilot knows this fix worked. If it
@@ -272,13 +272,13 @@ export default function IssueDiagnosisPage() {
         <h2
           id="step-4-consider-alternatives"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 4: Consider alternatives when needed
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Sometimes the issue isn&rsquo;t a bug — it&rsquo;s a fundamental limitation. If
           your Prisma queries are inherently complex and you&rsquo;re spending more time
@@ -287,7 +287,7 @@ export default function IssueDiagnosisPage() {
         </p>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           In our example, ToolPilot suggests <strong>Drizzle</strong> as an alternative
           because it generates explicit joins rather than sequential queries — addressing
@@ -305,47 +305,47 @@ export default function IssueDiagnosisPage() {
         <h2
           id="full-example"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Full example: Prisma timeout diagnosis
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Let&rsquo;s put it all together. You&rsquo;re building an analytics dashboard
           and your Prisma queries with nested includes are timing out under load.
         </p>
         <ol
           className="space-y-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+          style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
         >
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Diagnose</strong> —
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Diagnose</strong> —
             Call <code>check_issue</code> with the tool name and error details.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Read results</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Read results</strong>{' '}
             — The top match (89% confidence) identifies connection pool exhaustion.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Apply fix</strong> —
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Apply fix</strong> —
             Bump <code>connection_limit</code> to 20 and add{' '}
             <code>relationLoadStrategy: &apos;join&apos;</code>.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Verify</strong> —
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Verify</strong> —
             Timeouts stop. Query performance is acceptable.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Report</strong> — Call{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Report</strong> — Call{' '}
             <code>report_outcome</code> with <code>&quot;outcome&quot;: &quot;success&quot;</code>{' '}
             so the graph records this solution as effective.
           </li>
         </ol>
         <p
           className="mt-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           If the fix hadn&rsquo;t worked, you&rsquo;d report{' '}
           <code>&quot;outcome&quot;: &quot;failure&quot;</code> and evaluate the Drizzle alternative —
@@ -359,13 +359,13 @@ export default function IssueDiagnosisPage() {
         <h2
           id="recap"
           className="mb-3 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Recap
         </h2>
         <p
           className="text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           The diagnosis flow is: <code>check_issue</code> → read matched issues and
           confidence scores → apply solutions in order → consider alternatives if the

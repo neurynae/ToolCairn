@@ -24,7 +24,7 @@ export function PipelineProgress({ candidateCount, stage, resultCount }: Pipelin
           <p
             className="text-sm font-medium"
             style={{
-              color: 'var(--color-accent)',
+              color: 'var(--tp-accent)',
               animation: 'progress-pulse 1.5s ease-in-out infinite',
             }}
           >
@@ -34,20 +34,20 @@ export function PipelineProgress({ candidateCount, stage, resultCount }: Pipelin
 
         {stage === 'narrowing' && (
           <div className="flex flex-col items-center gap-1">
-            <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              <span style={{ color: 'var(--color-accent)' }}>{candidateCount}</span> candidates
+            <p className="text-sm font-medium" style={{ color: 'var(--tp-text-primary)' }}>
+              <span style={{ color: 'var(--tp-accent)' }}>{candidateCount}</span> candidates
               found
             </p>
-            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+            <p className="text-xs" style={{ color: 'var(--tp-text-muted)' }}>
               Narrowing down to your best match...
             </p>
           </div>
         )}
 
         {stage === 'complete' && (
-          <p className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="text-sm font-medium" style={{ color: 'var(--tp-text-secondary)' }}>
             {candidateCount} → {resultCount ?? 1}{' '}
-            <span style={{ color: 'var(--color-text-muted)' }}>tools matched</span>
+            <span style={{ color: 'var(--tp-text-muted)' }}>tools matched</span>
           </p>
         )}
       </div>
@@ -59,17 +59,17 @@ export function PipelineProgress({ candidateCount, stage, resultCount }: Pipelin
 
 function PipelineDot({ active, done }: { active: boolean; done: boolean }) {
   const bg = done
-    ? 'var(--color-accent)'
+    ? 'var(--tp-accent)'
     : active
-      ? 'var(--color-accent-glow)'
-      : 'var(--color-surface-3)';
+      ? 'var(--tp-accent-glow)'
+      : 'var(--tp-surface-3)';
 
   return (
     <span
       className="inline-block h-3 w-3 rounded-full transition-all duration-300"
       style={{
         background: bg,
-        boxShadow: active ? '0 0 12px var(--color-accent-glow)' : 'none',
+        boxShadow: active ? '0 0 12px var(--tp-accent-glow)' : 'none',
       }}
     />
   );
@@ -81,8 +81,8 @@ function PipelineConnector({ active }: { active: boolean }) {
       className="inline-block h-0.5 w-8 rounded-full transition-all duration-500"
       style={{
         background: active
-          ? 'linear-gradient(90deg, var(--color-accent), var(--color-accent-hover))'
-          : 'var(--color-surface-3)',
+          ? 'linear-gradient(90deg, var(--tp-accent), var(--tp-accent-hover))'
+          : 'var(--tp-surface-3)',
       }}
     />
   );

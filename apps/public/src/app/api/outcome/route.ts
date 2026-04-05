@@ -1,6 +1,7 @@
 import { PrismaClient } from '@toolpilot/db';
 import { enqueueIndexJob } from '@toolpilot/queue';
-import { NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
+import { withProxyPost } from '@/lib/api/proxy';
 import pino from 'pino';
 import { z } from 'zod';
 
@@ -15,7 +16,7 @@ const OutcomeSchema = z.object({
   feedback: z.string().optional(),
 });
 
-export async function POST(request: Request) {
+async function directHandler(request: NextRequest) {
   try {
     const body: unknown = await request.json();
     const parsed = OutcomeSchema.safeParse(body);
@@ -51,3 +52,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = withProxyPost('/feedback/outcome', directHandler);

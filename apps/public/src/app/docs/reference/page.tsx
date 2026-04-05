@@ -41,13 +41,13 @@ export default function ReferencePage() {
 
       <h1
         className="mt-4 text-3xl font-bold tracking-tight"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Reference
       </h1>
       <p
         className="mt-3 text-base leading-relaxed"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Technical reference material for the ToolPilot platform — schema
         definitions, scoring formulas, and data dictionaries.
@@ -65,8 +65,8 @@ export default function ReferencePage() {
             className="group flex flex-col gap-3"
             style={{
               padding: 24,
-              background: 'var(--color-surface-1)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-1)',
+              border: '1px solid var(--tp-border-subtle)',
               borderRadius: 'var(--radius-lg)',
               textDecoration: 'none',
               transition: 'border-color 0.2s, box-shadow 0.2s',
@@ -76,22 +76,22 @@ export default function ReferencePage() {
               <span
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-lg"
                 style={{
-                  background: 'var(--color-surface-3)',
-                  border: '1px solid var(--color-border-subtle)',
+                  background: 'var(--tp-surface-3)',
+                  border: '1px solid var(--tp-border-subtle)',
                 }}
               >
                 {card.icon}
               </span>
               <h2
                 className="text-base font-semibold"
-                style={{ color: 'var(--color-text-primary)' }}
+                style={{ color: 'var(--tp-text-primary)' }}
               >
                 {card.title}
               </h2>
             </div>
             <p
               className="text-sm leading-relaxed"
-              style={{ color: 'var(--color-text-secondary)' }}
+              style={{ color: 'var(--tp-text-secondary)' }}
             >
               {card.description}
             </p>

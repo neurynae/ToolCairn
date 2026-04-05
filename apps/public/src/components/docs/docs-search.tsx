@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { buildSearchIndex } from '@/lib/docs-navigation';
 import * as Dialog from '@radix-ui/react-dialog';
-import { buildSearchIndex, type SearchEntry } from '@/lib/docs-navigation';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /* ─── helpers ─── */
 
@@ -26,8 +26,8 @@ function highlightMatch(text: string, query: string): React.ReactNode {
       <mark
         key={i}
         style={{
-          background: 'var(--color-accent-subtle)',
-          color: 'var(--color-accent-hover)',
+          background: 'var(--tp-accent-subtle)',
+          color: 'var(--tp-accent-hover)',
           borderRadius: '2px',
           padding: '0 1px',
         }}
@@ -80,18 +80,18 @@ export function DocsSearchTrigger({ onClick }: DocsSearchTriggerProps) {
       onClick={onClick}
       className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
       style={{
-        color: 'var(--color-text-muted)',
-        background: 'var(--color-surface-2)',
-        border: '1px solid var(--color-border-subtle)',
+        color: 'var(--tp-text-muted)',
+        background: 'var(--tp-surface-2)',
+        border: '1px solid var(--tp-border-subtle)',
         minWidth: 200,
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-border-default)';
-        e.currentTarget.style.color = 'var(--color-text-secondary)';
+        e.currentTarget.style.borderColor = 'var(--tp-border-default)';
+        e.currentTarget.style.color = 'var(--tp-text-secondary)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
-        e.currentTarget.style.color = 'var(--color-text-muted)';
+        e.currentTarget.style.borderColor = 'var(--tp-border-subtle)';
+        e.currentTarget.style.color = 'var(--tp-text-muted)';
       }}
     >
       <SearchIcon size={14} />
@@ -99,9 +99,9 @@ export function DocsSearchTrigger({ onClick }: DocsSearchTriggerProps) {
       <kbd
         className="hidden items-center gap-0.5 rounded px-1.5 py-0.5 font-mono text-xs sm:flex"
         style={{
-          background: 'var(--color-surface-3)',
-          color: 'var(--color-text-muted)',
-          border: '1px solid var(--color-border-subtle)',
+          background: 'var(--tp-surface-3)',
+          color: 'var(--tp-text-muted)',
+          border: '1px solid var(--tp-border-subtle)',
         }}
       >
         {isMac ? '⌘' : 'Ctrl'}K
@@ -225,8 +225,8 @@ export function DocsSearch() {
             maxHeight: 'min(70vh, 520px)',
             display: 'flex',
             flexDirection: 'column',
-            backgroundColor: 'var(--color-surface-1)',
-            border: '1px solid var(--color-border-default)',
+            backgroundColor: 'var(--tp-surface-1)',
+            border: '1px solid var(--tp-border-default)',
             borderRadius: 'var(--radius-lg)',
             boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
             zIndex: 101,
@@ -238,7 +238,7 @@ export function DocsSearch() {
           <div
             className="flex items-center gap-3 px-4"
             style={{
-              borderBottom: '1px solid var(--color-border-subtle)',
+              borderBottom: '1px solid var(--tp-border-subtle)',
               height: 52,
               flexShrink: 0,
             }}
@@ -253,16 +253,16 @@ export function DocsSearch() {
               placeholder="Search docs..."
               className="flex-1 bg-transparent text-sm outline-none"
               style={{
-                color: 'var(--color-text-primary)',
-                caretColor: 'var(--color-accent)',
+                color: 'var(--tp-text-primary)',
+                caretColor: 'var(--tp-accent)',
               }}
             />
             <kbd
               className="hidden items-center rounded px-1.5 py-0.5 font-mono text-xs sm:flex"
               style={{
-                background: 'var(--color-surface-3)',
-                color: 'var(--color-text-muted)',
-                border: '1px solid var(--color-border-subtle)',
+                background: 'var(--tp-surface-3)',
+                color: 'var(--tp-text-muted)',
+                border: '1px solid var(--tp-border-subtle)',
               }}
             >
               Esc
@@ -270,15 +270,11 @@ export function DocsSearch() {
           </div>
 
           {/* Results list */}
-          <div
-            ref={listRef}
-            className="flex-1 overflow-y-auto"
-            style={{ padding: '8px' }}
-          >
+          <div ref={listRef} className="flex-1 overflow-y-auto" style={{ padding: '8px' }}>
             {flatResults.length === 0 ? (
               <div
                 className="flex flex-col items-center justify-center py-12 text-sm"
-                style={{ color: 'var(--color-text-muted)' }}
+                style={{ color: 'var(--tp-text-muted)' }}
               >
                 <SearchIcon size={32} />
                 <p className="mt-3">No results found</p>
@@ -289,7 +285,7 @@ export function DocsSearch() {
                 <div key={section} className="mb-2">
                   <div
                     className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wider"
-                    style={{ color: 'var(--color-text-muted)' }}
+                    style={{ color: 'var(--tp-text-muted)' }}
                   >
                     {section}
                   </div>
@@ -305,9 +301,7 @@ export function DocsSearch() {
                         onMouseEnter={() => setActiveIndex(globalIndex)}
                         className="flex w-full items-start gap-3 rounded-md px-3 py-2.5 text-left transition-colors duration-100"
                         style={{
-                          background: isActive
-                            ? 'var(--color-surface-3)'
-                            : 'transparent',
+                          background: isActive ? 'var(--tp-surface-3)' : 'transparent',
                           cursor: 'pointer',
                         }}
                       >
@@ -316,16 +310,16 @@ export function DocsSearch() {
                             className="flex items-center gap-2 text-sm font-medium"
                             style={{
                               color: isActive
-                                ? 'var(--color-text-primary)'
-                                : 'var(--color-text-secondary)',
+                                ? 'var(--tp-text-primary)'
+                                : 'var(--tp-text-secondary)',
                             }}
                           >
                             <span>{highlightMatch(entry.title, query)}</span>
                             <span
                               className="shrink-0 rounded px-1.5 py-0.5 text-xs"
                               style={{
-                                background: 'var(--color-accent-subtle)',
-                                color: 'var(--color-accent)',
+                                background: 'var(--tp-accent-subtle)',
+                                color: 'var(--tp-accent)',
                               }}
                             >
                               {entry.section}
@@ -334,7 +328,7 @@ export function DocsSearch() {
                           {entry.description && (
                             <p
                               className="mt-0.5 text-xs leading-relaxed"
-                              style={{ color: 'var(--color-text-muted)' }}
+                              style={{ color: 'var(--tp-text-muted)' }}
                             >
                               {highlightMatch(entry.description, query)}
                             </p>
@@ -343,7 +337,7 @@ export function DocsSearch() {
                         {isActive && (
                           <span
                             className="mt-0.5 shrink-0 text-xs"
-                            style={{ color: 'var(--color-text-muted)' }}
+                            style={{ color: 'var(--tp-text-muted)' }}
                           >
                             ↵
                           </span>
@@ -360,18 +354,18 @@ export function DocsSearch() {
           <div
             className="flex items-center gap-4 px-4 text-xs"
             style={{
-              borderTop: '1px solid var(--color-border-subtle)',
+              borderTop: '1px solid var(--tp-border-subtle)',
               height: 40,
               flexShrink: 0,
-              color: 'var(--color-text-muted)',
+              color: 'var(--tp-text-muted)',
             }}
           >
             <span className="flex items-center gap-1">
               <kbd
                 className="inline-flex items-center rounded px-1 py-0.5 font-mono text-xs"
                 style={{
-                  background: 'var(--color-surface-3)',
-                  border: '1px solid var(--color-border-subtle)',
+                  background: 'var(--tp-surface-3)',
+                  border: '1px solid var(--tp-border-subtle)',
                 }}
               >
                 ↑↓
@@ -382,8 +376,8 @@ export function DocsSearch() {
               <kbd
                 className="inline-flex items-center rounded px-1 py-0.5 font-mono text-xs"
                 style={{
-                  background: 'var(--color-surface-3)',
-                  border: '1px solid var(--color-border-subtle)',
+                  background: 'var(--tp-surface-3)',
+                  border: '1px solid var(--tp-border-subtle)',
                 }}
               >
                 ↵
@@ -394,8 +388,8 @@ export function DocsSearch() {
               <kbd
                 className="inline-flex items-center rounded px-1 py-0.5 font-mono text-xs"
                 style={{
-                  background: 'var(--color-surface-3)',
-                  border: '1px solid var(--color-border-subtle)',
+                  background: 'var(--tp-surface-3)',
+                  border: '1px solid var(--tp-border-subtle)',
                 }}
               >
                 esc

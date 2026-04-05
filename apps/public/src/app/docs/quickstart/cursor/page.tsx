@@ -57,13 +57,13 @@ export default function CursorQuickStartPage() {
         <h1
           id="cursor-quick-start"
           className="text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.15 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.15 }}
         >
           Cursor Quick Start
         </h1>
         <p
           className="text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7, maxWidth: 540 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7, maxWidth: 540 }}
         >
           Add ToolPilot to Cursor and start discovering developer tools in under 2 minutes.
         </p>
@@ -74,16 +74,16 @@ export default function CursorQuickStartPage() {
         <h2
           id="prerequisites"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Prerequisites
         </h2>
         <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Cursor</strong> editor installed
+          <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Cursor</strong> editor installed
           </li>
-          <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-            Node.js 18+ (for <code style={{ color: 'var(--color-accent)' }}>npx</code>)
+          <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
+            Node.js 18+ (for <code style={{ color: 'var(--tp-accent)' }}>npx</code>)
           </li>
         </ul>
       </section>
@@ -93,13 +93,13 @@ export default function CursorQuickStartPage() {
         <h2
           id="step-1-add-mcp-config"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 1: Add the MCP Server Config
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Create or edit the MCP configuration file in your project&apos;s{' '}
-          <code style={{ color: 'var(--color-accent)' }}>.cursor/</code> directory:
+          <code style={{ color: 'var(--tp-accent)' }}>.cursor/</code> directory:
         </p>
 
         <CodeBlock
@@ -128,11 +128,11 @@ export default function CursorQuickStartPage() {
         <h2
           id="step-2-first-search"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 2: Try Your First Search
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Open Cursor&apos;s AI chat (Cmd+L / Ctrl+L) and ask about developer tools.
           ToolPilot handles tool discovery through the MCP protocol:
         </p>
@@ -150,11 +150,11 @@ export default function CursorQuickStartPage() {
         <h2
           id="step-3-explore-results"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 3: Explore Results
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Each recommendation from ToolPilot includes:
         </p>
         <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -163,7 +163,7 @@ export default function CursorQuickStartPage() {
           <ResultItem label="Key metadata" detail="Stars, license, language, and last release" />
           <ResultItem label="Match rationale" detail="Why this tool fits your specific requirements" />
         </ul>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Ask follow-ups like <em>&ldquo;Compare Drizzle and Prisma for my use case&rdquo;</em> or{' '}
           <em>&ldquo;What testing tools pair well with Drizzle?&rdquo;</em>.
         </p>
@@ -174,11 +174,11 @@ export default function CursorQuickStartPage() {
         <h2
           id="step-4-report-outcomes"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 4: Report Outcomes
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           After adopting a tool, tell Cursor how it went. This feeds back into ToolPilot&apos;s
           graph and improves future results:
         </p>
@@ -191,7 +191,7 @@ export default function CursorQuickStartPage() {
         <h2
           id="next-steps"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Next Steps
         </h2>
@@ -211,8 +211,8 @@ export default function CursorQuickStartPage() {
 
 function ResultItem({ label, detail }: { label: string; detail: string }) {
   return (
-    <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-      <strong style={{ color: 'var(--color-text-primary)' }}>{label}</strong> &mdash; {detail}
+    <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
+      <strong style={{ color: 'var(--tp-text-primary)' }}>{label}</strong> &mdash; {detail}
     </li>
   );
 }
@@ -220,7 +220,7 @@ function ResultItem({ label, detail }: { label: string; detail: string }) {
 function NextStepItem({ href, text }: { href: string; text: string }) {
   return (
     <li className="text-sm" style={{ lineHeight: 1.6 }}>
-      <a href={href} style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>
+      <a href={href} style={{ color: 'var(--tp-accent)', textDecoration: 'none' }}>
         {text} →
       </a>
     </li>

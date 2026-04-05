@@ -58,13 +58,13 @@ export default function GraphMeshPage() {
         <section className="mt-4">
           <h1
             className="text-3xl font-bold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Tool Graph Mesh
           </h1>
           <p
             className="mt-3 max-w-2xl text-base"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             At the heart of ToolPilot is a Memgraph-powered property graph containing 491+ developer
             tools and thousands of relationships. Unlike a flat database, the graph captures how
@@ -77,13 +77,13 @@ export default function GraphMeshPage() {
           <h2
             id="why-a-graph"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Why a Graph?
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Developer tools don&rsquo;t exist in isolation. A testing framework depends on a
             language runtime, pairs naturally with a build tool, and competes with alternatives.
@@ -104,13 +104,13 @@ export default function GraphMeshPage() {
           <h2
             id="node-types"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Node Types
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The graph contains five node types, each serving a distinct role in the tool ecosystem:
           </p>
@@ -120,27 +120,27 @@ export default function GraphMeshPage() {
             <div
               className="rounded-lg p-4"
               style={{
-                background: 'var(--color-surface-1)',
-                border: '1px solid var(--color-border-subtle)',
+                background: 'var(--tp-surface-1)',
+                border: '1px solid var(--tp-border-subtle)',
                 borderRadius: 'var(--radius-md)',
               }}
             >
               <h3
                 id="node-tool"
                 className="text-base font-semibold"
-                style={{ color: 'var(--color-text-primary)' }}
+                style={{ color: 'var(--tp-text-primary)' }}
               >
                 🔧 Tool{' '}
                 <span
                   className="ml-2 text-xs font-normal"
-                  style={{ color: 'var(--color-text-muted)' }}
+                  style={{ color: 'var(--tp-text-muted)' }}
                 >
                   Primary node
                 </span>
               </h3>
               <p
                 className="mt-2 text-sm"
-                style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+                style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
               >
                 Represents a developer tool, library, or framework. This is the central entity in
                 the graph — every other node type connects back to Tool nodes.
@@ -148,7 +148,7 @@ export default function GraphMeshPage() {
               <div className="mt-3">
                 <span
                   className="mb-2 block text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-muted)' }}
+                  style={{ color: 'var(--tp-text-muted)' }}
                 >
                   Properties
                 </span>
@@ -156,30 +156,30 @@ export default function GraphMeshPage() {
                   className="grid gap-1 text-xs"
                   style={{
                     gridTemplateColumns: 'auto 1fr',
-                    color: 'var(--color-text-secondary)',
+                    color: 'var(--tp-text-secondary)',
                   }}
                 >
-                  <code style={{ color: 'var(--color-accent)' }}>name</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>name</code>
                   <span>Short identifier (e.g., &ldquo;prisma&rdquo;)</span>
-                  <code style={{ color: 'var(--color-accent)' }}>full_name</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>full_name</code>
                   <span>GitHub-style owner/repo (e.g., &ldquo;prisma/prisma&rdquo;)</span>
-                  <code style={{ color: 'var(--color-accent)' }}>description</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>description</code>
                   <span>One-line summary of what the tool does</span>
-                  <code style={{ color: 'var(--color-accent)' }}>language</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>language</code>
                   <span>Primary programming language</span>
-                  <code style={{ color: 'var(--color-accent)' }}>category</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>category</code>
                   <span>Functional category (e.g., &ldquo;ORM&rdquo;, &ldquo;Testing&rdquo;)</span>
-                  <code style={{ color: 'var(--color-accent)' }}>stars</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>stars</code>
                   <span>GitHub star count</span>
-                  <code style={{ color: 'var(--color-accent)' }}>health_score</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>health_score</code>
                   <span>Maintenance score (0–100)</span>
-                  <code style={{ color: 'var(--color-accent)' }}>maintenance_score</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>maintenance_score</code>
                   <span>Detailed maintenance metric</span>
-                  <code style={{ color: 'var(--color-accent)' }}>created_at</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>created_at</code>
                   <span>When the tool was first indexed</span>
-                  <code style={{ color: 'var(--color-accent)' }}>updated_at</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>updated_at</code>
                   <span>Last data refresh timestamp</span>
-                  <code style={{ color: 'var(--color-accent)' }}>docs_url</code>
+                  <code style={{ color: 'var(--tp-accent)' }}>docs_url</code>
                   <span>Link to official documentation</span>
                 </div>
               </div>
@@ -216,25 +216,25 @@ export default function GraphMeshPage() {
                 key={node.name}
                 className="rounded-lg p-4"
                 style={{
-                  background: 'var(--color-surface-1)',
-                  border: '1px solid var(--color-border-subtle)',
+                  background: 'var(--tp-surface-1)',
+                  border: '1px solid var(--tp-border-subtle)',
                   borderRadius: 'var(--radius-md)',
                 }}
               >
                 <h3
                   id={`node-${node.name.toLowerCase()}`}
                   className="text-base font-semibold"
-                  style={{ color: 'var(--color-text-primary)' }}
+                  style={{ color: 'var(--tp-text-primary)' }}
                 >
                   {node.icon} {node.name}
                 </h3>
                 <p
                   className="mt-1 text-sm"
-                  style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+                  style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
                 >
                   {node.desc}
                 </p>
-                <p className="mt-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                <p className="mt-2 text-xs" style={{ color: 'var(--tp-text-muted)' }}>
                   <strong>Properties:</strong> {node.props}
                 </p>
               </div>
@@ -247,24 +247,24 @@ export default function GraphMeshPage() {
           <h2
             id="edge-types"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Edge Types
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Edges encode the relationships between nodes. Each edge type carries semantic meaning,
             and most have properties like{' '}
-            <code style={{ color: 'var(--color-accent)' }}>weight</code> that influence search
+            <code style={{ color: 'var(--tp-accent)' }}>weight</code> that influence search
             ranking.
           </p>
 
           <div
             className="mt-4 overflow-x-auto rounded-lg"
             style={{
-              border: '1px solid var(--color-border-subtle)',
+              border: '1px solid var(--tp-border-subtle)',
               borderRadius: 'var(--radius-md)',
             }}
           >
@@ -272,37 +272,37 @@ export default function GraphMeshPage() {
               <thead>
                 <tr
                   style={{
-                    background: 'var(--color-surface-2)',
-                    borderBottom: '1px solid var(--color-border-default)',
+                    background: 'var(--tp-surface-2)',
+                    borderBottom: '1px solid var(--tp-border-default)',
                   }}
                 >
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Edge
                   </th>
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Direction
                   </th>
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Meaning
                   </th>
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Properties
                   </th>
                 </tr>
               </thead>
-              <tbody style={{ color: 'var(--color-text-secondary)' }}>
+              <tbody style={{ color: 'var(--tp-text-secondary)' }}>
                 {[
                   {
                     edge: 'RELATED_TO',
@@ -343,16 +343,16 @@ export default function GraphMeshPage() {
                 ].map((row) => (
                   <tr
                     key={row.edge}
-                    style={{ borderBottom: '1px solid var(--color-border-subtle)' }}
+                    style={{ borderBottom: '1px solid var(--tp-border-subtle)' }}
                   >
                     <td className="px-4 py-3">
-                      <code style={{ color: 'var(--color-accent)' }}>{row.edge}</code>
+                      <code style={{ color: 'var(--tp-accent)' }}>{row.edge}</code>
                     </td>
                     <td className="px-4 py-3" style={{ whiteSpace: 'nowrap' }}>
                       {row.direction}
                     </td>
                     <td className="px-4 py-3">{row.meaning}</td>
-                    <td className="px-4 py-3 text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                    <td className="px-4 py-3 text-xs" style={{ color: 'var(--tp-text-muted)' }}>
                       {row.props}
                     </td>
                   </tr>
@@ -367,13 +367,13 @@ export default function GraphMeshPage() {
           <h2
             id="graph-visualization"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Graph Visualization
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Here&rsquo;s a simplified view of how tool nodes connect through different edge types in
             the graph:
@@ -386,13 +386,13 @@ export default function GraphMeshPage() {
           <h2
             id="querying-the-graph"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Querying the Graph
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Under the hood, ToolPilot uses Cypher queries (via the Bolt protocol) to traverse the
             graph. The search pipeline builds these queries automatically, but here&rsquo;s what a
@@ -413,21 +413,21 @@ export default function GraphMeshPage() {
           <h2
             id="edge-properties"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Edge Properties
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The most important edge property is{' '}
-            <code style={{ color: 'var(--color-accent)' }}>weight</code>, a float between 0 and 1
+            <code style={{ color: 'var(--tp-accent)' }}>weight</code>, a float between 0 and 1
             that represents relationship strength. Weights are influenced by:
           </p>
           <ul
             className="mt-3 list-inside list-disc space-y-2 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             <li>
               <strong>Co-usage frequency</strong> — how often tools appear together in real projects
@@ -438,7 +438,7 @@ export default function GraphMeshPage() {
             </li>
             <li>
               <strong>Agent feedback</strong> — success/failure reports from{' '}
-              <code style={{ color: 'var(--color-accent)' }}>report_outcome</code>
+              <code style={{ color: 'var(--tp-accent)' }}>report_outcome</code>
             </li>
             <li>
               <strong>Temporal decay</strong> — weights decrease over time without reinforcement
@@ -447,12 +447,12 @@ export default function GraphMeshPage() {
           </ul>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Other properties include{' '}
-            <code style={{ color: 'var(--color-accent)' }}>created_at</code> (when the edge was
+            <code style={{ color: 'var(--tp-accent)' }}>created_at</code> (when the edge was
             first established) and{' '}
-            <code style={{ color: 'var(--color-accent)' }}>last_reinforced</code> (when the weight
+            <code style={{ color: 'var(--tp-accent)' }}>last_reinforced</code> (when the weight
             was last boosted by new evidence).
           </p>
         </section>

@@ -150,13 +150,13 @@ export default function ArchitectureOverviewPage() {
 
       <h1
         className="mt-4 text-3xl font-bold tracking-tight"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         System Overview
       </h1>
       <p
         className="mt-3 text-base leading-relaxed"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         ToolPilot is a monorepo built with pnpm workspaces and Turborepo. Four
         apps sit on top of seven shared packages, backed by four infrastructure
@@ -167,13 +167,13 @@ export default function ArchitectureOverviewPage() {
       <h2
         id="architecture-diagram"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Architecture Diagram
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         High-level view of all components and their connections:
       </p>
@@ -183,15 +183,15 @@ export default function ArchitectureOverviewPage() {
       <h2
         id="applications"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Applications
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
-        Four deployable apps live in the <code style={{ color: 'var(--color-accent)' }}>apps/</code> directory:
+        Four deployable apps live in the <code style={{ color: 'var(--tp-accent)' }}>apps/</code> directory:
       </p>
       <div className="flex flex-col gap-3">
         {APPS.map((app) => (
@@ -203,15 +203,15 @@ export default function ArchitectureOverviewPage() {
       <h2
         id="packages"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Shared Packages
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
-        Seven packages in <code style={{ color: 'var(--color-accent)' }}>packages/</code> provide
+        Seven packages in <code style={{ color: 'var(--tp-accent)' }}>packages/</code> provide
         reusable domain logic:
       </p>
       <div className="flex flex-col gap-3">
@@ -224,13 +224,13 @@ export default function ArchitectureOverviewPage() {
       <h2
         id="technology-choices"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Technology Choices
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Each infrastructure service was chosen to match a specific workload
         pattern:
@@ -241,20 +241,20 @@ export default function ArchitectureOverviewPage() {
             key={tech.name}
             style={{
               padding: 16,
-              background: 'var(--color-surface-1)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-1)',
+              border: '1px solid var(--tp-border-subtle)',
               borderRadius: 'var(--radius-md)',
             }}
           >
             <h3
               className="text-sm font-semibold"
-              style={{ color: 'var(--color-text-primary)', margin: 0 }}
+              style={{ color: 'var(--tp-text-primary)', margin: 0 }}
             >
               {tech.name}
             </h3>
             <p
               className="mt-1 text-sm leading-relaxed"
-              style={{ color: 'var(--color-text-secondary)', margin: 0 }}
+              style={{ color: 'var(--tp-text-secondary)', margin: 0 }}
             >
               {tech.reason}
             </p>
@@ -266,7 +266,7 @@ export default function ArchitectureOverviewPage() {
       <h2
         id="infrastructure"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Infrastructure
       </h2>
@@ -291,28 +291,28 @@ function ComponentCard({ component }: { component: ComponentInfo }) {
     <div
       style={{
         padding: 16,
-        background: 'var(--color-surface-1)',
-        border: '1px solid var(--color-border-subtle)',
+        background: 'var(--tp-surface-1)',
+        border: '1px solid var(--tp-border-subtle)',
         borderRadius: 'var(--radius-md)',
       }}
     >
       <div className="flex items-center gap-2">
         <h3
           className="text-sm font-semibold"
-          style={{ color: 'var(--color-text-primary)', margin: 0 }}
+          style={{ color: 'var(--tp-text-primary)', margin: 0 }}
         >
           {component.name}
         </h3>
         <code
           className="text-xs"
-          style={{ color: 'var(--color-text-muted)' }}
+          style={{ color: 'var(--tp-text-muted)' }}
         >
           {component.path}
         </code>
       </div>
       <p
         className="mt-1 text-sm leading-relaxed"
-        style={{ color: 'var(--color-text-secondary)', margin: 0 }}
+        style={{ color: 'var(--tp-text-secondary)', margin: 0 }}
       >
         {component.description}
       </p>

@@ -37,23 +37,23 @@ export default function StackBuildingPage() {
           >
             Intermediate
           </span>
-          <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+          <span className="text-xs" style={{ color: 'var(--tp-text-muted)' }}>
             ~8 min read
           </span>
         </div>
         <h1
           className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.2 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.2 }}
         >
           Stack Building Guide
         </h1>
         <p
           className="mt-3 text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}
         >
           Starting a new project? Instead of searching for tools one at a time, let
           ToolPilot build a compatible stack in a single call using{' '}
-          <code style={{ color: 'var(--color-accent)' }}>get_stack</code>.
+          <code style={{ color: 'var(--tp-accent)' }}>get_stack</code>.
         </p>
       </header>
 
@@ -70,13 +70,13 @@ export default function StackBuildingPage() {
           <h2
             id="what-youll-learn"
             className="mb-3 text-sm font-bold uppercase tracking-wider"
-            style={{ color: 'var(--color-accent)' }}
+            style={{ color: 'var(--tp-accent)' }}
           >
             What you&rsquo;ll learn
           </h2>
           <ul
             className="space-y-1.5 text-sm"
-            style={{ color: 'var(--color-text-secondary)', margin: 0, paddingLeft: 20 }}
+            style={{ color: 'var(--tp-text-secondary)', margin: 0, paddingLeft: 20 }}
           >
             <li>When to use <code>get_stack</code> vs. individual <code>search_tools</code> calls</li>
             <li>How to describe your use case and constraints effectively</li>
@@ -91,20 +91,20 @@ export default function StackBuildingPage() {
         <h2
           id="when-to-use-get-stack"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           When to use get_stack
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Reach for <code>get_stack</code> when you need multiple tools that work well{' '}
           <em>together</em> — not just individually. Typical scenarios:
         </p>
         <ul
           className="mb-4 space-y-2 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+          style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
         >
           <li>Starting a new project from scratch and need a full toolkit</li>
           <li>Migrating from one platform to another and need compatible replacements</li>
@@ -124,13 +124,13 @@ export default function StackBuildingPage() {
         <h2
           id="step-1-describe-your-use-case"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 1: Describe your use case
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Provide a use case description and any constraints that matter for your
           project. The more specific you are, the tighter the recommendations.
@@ -147,7 +147,7 @@ export default function StackBuildingPage() {
         />
         <p
           className="mt-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           ToolPilot parses the use case into required capability categories — data
           ingestion, processing, storage, visualization — and finds tools that cover each
@@ -160,13 +160,13 @@ export default function StackBuildingPage() {
         <h2
           id="step-2-understand-the-results"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 2: Understand the results
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           The response includes a primary stack with each tool categorized by role, plus
           a compatibility score that reflects how well the tools work together.
@@ -223,13 +223,13 @@ export default function StackBuildingPage() {
         <h3
           id="understanding-compatibility-score"
           className="mt-6 mb-2 text-base font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Understanding the compatibility score
         </h3>
         <p
           className="text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           The compatibility score (0–1) is calculated from the <code>RELATED_TO</code>{' '}
           edge weights between every pair of tools in the stack. A score of 0.91 means
@@ -244,37 +244,37 @@ export default function StackBuildingPage() {
         <h2
           id="step-3-evaluate-the-stack"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 3: Evaluate the stack
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Don&rsquo;t accept a stack blindly. For each tool in the recommendation, check:
         </p>
         <ul
           className="mb-4 space-y-2 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+          style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
         >
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Health score</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Health score</strong>{' '}
             — Are all tools in the <em>healthy</em> tier? A single at-risk tool can
             bottleneck your entire stack.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>TypeScript support</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>TypeScript support</strong>{' '}
             — Since we constrained to TypeScript, verify each tool has quality TS
             clients and type definitions.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Cloud deployment</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Cloud deployment</strong>{' '}
             — Confirm managed cloud options exist for each tool if that&rsquo;s your
             constraint.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Team familiarity</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Team familiarity</strong>{' '}
             — Graph data can&rsquo;t account for your team&rsquo;s existing expertise.
             A slightly lower-scoring stack your team already knows may ship faster.
           </li>
@@ -291,13 +291,13 @@ export default function StackBuildingPage() {
         <h2
           id="example-data-pipeline-stack"
           className="mb-2 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Example: Building a data pipeline stack
         </h2>
         <p
           className="mb-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          style={{ color: 'var(--tp-text-secondary)' }}
         >
           Let&rsquo;s walk through a scenario. You&rsquo;re building a real-time
           analytics dashboard that ingests event data from multiple sources, processes
@@ -305,30 +305,30 @@ export default function StackBuildingPage() {
         </p>
         <ol
           className="space-y-4 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+          style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
         >
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Call get_stack</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Call get_stack</strong>{' '}
             — Describe the use case and constraints (TypeScript, cloud deployment).
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Review the primary stack</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Review the primary stack</strong>{' '}
             — Kafka → Flink → ClickHouse → Grafana. Compatibility score: 0.91.
             All tools are healthy.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Check the alternative</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Check the alternative</strong>{' '}
             — Redpanda → Materialize → TimescaleDB → Metabase. Good option if you want
             PostgreSQL compatibility over ClickHouse&rsquo;s columnar speed.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Decide</strong> — Your
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Decide</strong> — Your
             team already uses PostgreSQL extensively. You pick the primary stack&rsquo;s
             ingestion (Kafka) and processing (Flink), but swap storage to TimescaleDB
             and visualization to Grafana.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Report</strong> — As you
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Report</strong> — As you
             build, use <code>report_outcome</code> for each tool to strengthen the graph
             edges between your chosen combination.
           </li>
@@ -340,31 +340,31 @@ export default function StackBuildingPage() {
         <h2
           id="tips-for-better-stacks"
           className="mb-3 text-xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Tips for better stack recommendations
         </h2>
         <ul
           className="space-y-2 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+          style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
         >
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Be specific about the use case</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Be specific about the use case</strong>{' '}
             — &ldquo;web app&rdquo; is too broad; &ldquo;real-time collaborative
             document editor&rdquo; gives ToolPilot real signal to work with.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Include deployment constraints</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Include deployment constraints</strong>{' '}
             — Self-hosted and cloud stacks look very different. This single filter
             removes half the candidates.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Mention scale expectations</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Mention scale expectations</strong>{' '}
             — A stack for 100 users/day and one for 1M events/second have almost
             zero overlap.
           </li>
           <li>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Report outcomes</strong>{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Report outcomes</strong>{' '}
             — Stack quality improves as more teams report which combinations worked.
             Your feedback directly strengthens the graph.
           </li>

@@ -1,61 +1,63 @@
+import { cn } from '@/lib/utils';
 import type { HealthTier } from '@/lib/format-health';
 
 interface HealthTierBadgeProps {
   tier: HealthTier;
   size?: 'sm' | 'md';
+  className?: string;
 }
 
-const tierConfig: Record<HealthTier, { label: string; bg: string; text: string; dot: string }> = {
+const tierConfig: Record<
+  HealthTier,
+  { label: string; dotClass: string; textClass: string; bgClass: string; borderClass: string }
+> = {
   active: {
     label: 'Active',
-    bg: 'rgba(16, 185, 129, 0.12)',
-    text: '#34d399',
-    dot: '#10b981',
+    dotClass: 'bg-[var(--tp-health-active)]',
+    textClass: 'text-[var(--tp-health-active)]',
+    bgClass: 'bg-[var(--tp-health-active)]/10',
+    borderClass: 'border-[var(--tp-health-active)]/25',
   },
   stable: {
     label: 'Stable',
-    bg: 'rgba(59, 130, 246, 0.12)',
-    text: '#60a5fa',
-    dot: '#3b82f6',
+    dotClass: 'bg-[var(--tp-health-stable)]',
+    textClass: 'text-[var(--tp-health-stable)]',
+    bgClass: 'bg-[var(--tp-health-stable)]/10',
+    borderClass: 'border-[var(--tp-health-stable)]/25',
   },
   slowing: {
     label: 'Slowing',
-    bg: 'rgba(245, 158, 11, 0.12)',
-    text: '#fbbf24',
-    dot: '#f59e0b',
+    dotClass: 'bg-[var(--tp-health-slowing)]',
+    textClass: 'text-[var(--tp-health-slowing)]',
+    bgClass: 'bg-[var(--tp-health-slowing)]/10',
+    borderClass: 'border-[var(--tp-health-slowing)]/25',
   },
   'at-risk': {
     label: 'At Risk',
-    bg: 'rgba(239, 68, 68, 0.12)',
-    text: '#f87171',
-    dot: '#ef4444',
+    dotClass: 'bg-[var(--tp-health-at-risk)]',
+    textClass: 'text-[var(--tp-health-at-risk)]',
+    bgClass: 'bg-[var(--tp-health-at-risk)]/10',
+    borderClass: 'border-[var(--tp-health-at-risk)]/25',
   },
 };
 
-export function HealthTierBadge({ tier, size = 'md' }: HealthTierBadgeProps) {
+export function HealthTierBadge({ tier, size = 'md', className }: HealthTierBadgeProps) {
   const config = tierConfig[tier];
-  const fontSize = size === 'sm' ? '11px' : '12px';
-  const padding = size === 'sm' ? '2px 7px' : '3px 9px';
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full font-medium"
-      style={{
-        fontSize,
-        padding,
-        background: config.bg,
-        color: config.text,
-        border: `1px solid ${config.text}30`,
-      }}
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-full border font-medium',
+        config.bgClass,
+        config.textClass,
+        config.borderClass,
+        size === 'sm' ? 'px-1.5 py-0.5 text-[11px]' : 'px-2 py-0.5 text-xs',
+        className,
+      )}
     >
       <span
-        className="inline-block rounded-full"
-        style={{
-          width: '6px',
-          height: '6px',
-          background: config.dot,
-          flexShrink: 0,
-        }}
+        className={cn('inline-block shrink-0 rounded-full', config.dotClass)}
+        style={{ width: '6px', height: '6px' }}
       />
       {config.label}
     </span>

@@ -1,7 +1,8 @@
 import { config } from '@toolpilot/config';
 import { MemgraphToolRepository } from '@toolpilot/graph';
 import { ISSUES_COLLECTION_NAME, embedText, qdrantClient } from '@toolpilot/vector';
-import { NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
+import { withProxyPost } from '@/lib/api/proxy';
 import pino from 'pino';
 import { z } from 'zod';
 
@@ -115,7 +116,7 @@ const CheckIssueSchema = z.object({
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
-export async function POST(request: Request) {
+async function directHandler(request: NextRequest) {
   try {
     const body: unknown = await request.json();
     const parsed = CheckIssueSchema.safeParse(body);
@@ -222,3 +223,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = withProxyPost('/intelligence/issue', directHandler);

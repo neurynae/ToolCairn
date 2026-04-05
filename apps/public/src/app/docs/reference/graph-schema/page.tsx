@@ -157,13 +157,13 @@ export default function GraphSchemaPage() {
 
       <h1
         className="mt-4 text-3xl font-bold tracking-tight"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Graph Schema
       </h1>
       <p
         className="mt-3 text-base leading-relaxed"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Complete reference for the Memgraph tool graph — every node type, edge
         type, and their properties.
@@ -173,7 +173,7 @@ export default function GraphSchemaPage() {
       <h2
         id="node-types"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Node Types
       </h2>
@@ -182,13 +182,13 @@ export default function GraphSchemaPage() {
       <h3
         id="tool-node"
         className="mt-8 text-lg font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Tool
       </h3>
       <p
         className="mt-1 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Represents a developer tool, library, or framework indexed from GitHub.
       </p>
@@ -198,13 +198,13 @@ export default function GraphSchemaPage() {
       <h3
         id="category-node"
         className="mt-8 text-lg font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Category
       </h3>
       <p
         className="mt-1 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         A taxonomy grouping for related tools (e.g. &ldquo;orm&rdquo;,
         &ldquo;testing&rdquo;, &ldquo;bundler&rdquo;).
@@ -215,13 +215,13 @@ export default function GraphSchemaPage() {
       <h3
         id="language-node"
         className="mt-8 text-lg font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Language
       </h3>
       <p
         className="mt-1 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         A programming language that tools are written in.
       </p>
@@ -231,13 +231,13 @@ export default function GraphSchemaPage() {
       <h3
         id="license-node"
         className="mt-8 text-lg font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         License
       </h3>
       <p
         className="mt-1 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         An open-source license type.
       </p>
@@ -247,7 +247,7 @@ export default function GraphSchemaPage() {
       <h2
         id="edge-types"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Edge Types
       </h2>
@@ -257,25 +257,25 @@ export default function GraphSchemaPage() {
           <h3
             id={`edge-${edge.type.toLowerCase().replace(/_/g, '-')}`}
             className="mt-8 text-lg font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             {edge.type}
           </h3>
           <p
             className="mt-1 text-sm"
-            style={{ color: 'var(--color-text-muted)' }}
+            style={{ color: 'var(--tp-text-muted)' }}
           >
-            <code style={{ color: 'var(--color-accent)' }}>
+            <code style={{ color: 'var(--tp-accent)' }}>
               (:{edge.from})
             </code>{' '}
             →{' '}
-            <code style={{ color: 'var(--color-accent)' }}>
+            <code style={{ color: 'var(--tp-accent)' }}>
               (:{edge.to})
             </code>
           </p>
           <p
             className="mt-1 mb-4 text-sm leading-relaxed"
-            style={{ color: 'var(--color-text-secondary)' }}
+            style={{ color: 'var(--tp-text-secondary)' }}
           >
             {edge.description}
           </p>
@@ -289,13 +289,13 @@ export default function GraphSchemaPage() {
       <h2
         id="example-queries"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Example Cypher Queries
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Common patterns for querying the tool graph:
       </p>
@@ -303,7 +303,7 @@ export default function GraphSchemaPage() {
       <h3
         id="query-related"
         className="mt-6 text-base font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Find related tools
       </h3>
@@ -314,7 +314,7 @@ export default function GraphSchemaPage() {
       <h3
         id="query-category"
         className="mt-6 text-base font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         List tools by category
       </h3>
@@ -325,7 +325,7 @@ export default function GraphSchemaPage() {
       <h3
         id="query-alternatives"
         className="mt-6 text-base font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Find alternatives
       </h3>
@@ -336,7 +336,7 @@ export default function GraphSchemaPage() {
       <h3
         id="query-dependencies"
         className="mt-6 text-base font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Trace dependency tree
       </h3>

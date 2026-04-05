@@ -50,7 +50,7 @@ export function OutcomeFeedback({ queryId, chosenTool }: OutcomeFeedbackProps) {
   if (feedbackState === 'submitted') {
     return (
       <div className="fade-up text-center">
-        <p className="text-sm font-medium" style={{ color: 'var(--color-accent)' }}>
+        <p className="text-sm font-medium" style={{ color: 'var(--tp-accent)' }}>
           Thanks for your feedback!
         </p>
       </div>
@@ -59,7 +59,7 @@ export function OutcomeFeedback({ queryId, chosenTool }: OutcomeFeedbackProps) {
 
   return (
     <div className="fade-up flex flex-col items-center gap-3">
-      <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+      <p className="text-sm" style={{ color: 'var(--tp-text-muted)' }}>
         Was this helpful?
       </p>
 
@@ -99,11 +99,11 @@ export function OutcomeFeedback({ queryId, chosenTool }: OutcomeFeedbackProps) {
             onChange={(e) => setFeedbackText(e.target.value)}
             placeholder="What went wrong? How can we improve?"
             rows={3}
-            className="w-full resize-none rounded-lg px-3 py-2 text-sm outline-none placeholder:text-[var(--color-text-muted)]"
+            className="w-full resize-none rounded-lg px-3 py-2 text-sm outline-none placeholder:text-[var(--tp-text-muted)]"
             style={{
-              background: 'var(--color-surface-2)',
-              color: 'var(--color-text-primary)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-2)',
+              color: 'var(--tp-text-primary)',
+              border: '1px solid var(--tp-border-subtle)',
             }}
           />
           <button
@@ -111,7 +111,7 @@ export function OutcomeFeedback({ queryId, chosenTool }: OutcomeFeedbackProps) {
             onClick={handleSubmitNegative}
             className="self-end rounded-lg px-4 py-1.5 text-sm font-medium transition-colors"
             style={{
-              background: 'var(--color-accent)',
+              background: 'var(--tp-accent)',
               color: '#fff',
             }}
           >

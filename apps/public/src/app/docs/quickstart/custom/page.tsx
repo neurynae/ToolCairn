@@ -79,13 +79,13 @@ export default function CustomQuickStartPage() {
         <h1
           id="custom-agent-quick-start"
           className="text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.15 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.15 }}
         >
           Custom Agent / SDK Quick Start
         </h1>
         <p
           className="text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7, maxWidth: 580 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7, maxWidth: 580 }}
         >
           Building your own MCP client? Connect to ToolPilot programmatically using the official
           TypeScript or Python SDK.
@@ -97,21 +97,21 @@ export default function CustomQuickStartPage() {
         <h2
           id="prerequisites"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Prerequisites
         </h2>
         <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+          <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
             Node.js 18+ (for the ToolPilot MCP server and TypeScript SDK)
           </li>
-          <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-            <strong style={{ color: 'var(--color-text-primary)' }}>TypeScript:</strong>{' '}
-            <code style={{ color: 'var(--color-accent)' }}>npm install @modelcontextprotocol/sdk</code>
+          <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
+            <strong style={{ color: 'var(--tp-text-primary)' }}>TypeScript:</strong>{' '}
+            <code style={{ color: 'var(--tp-accent)' }}>npm install @modelcontextprotocol/sdk</code>
           </li>
-          <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Python:</strong>{' '}
-            <code style={{ color: 'var(--color-accent)' }}>pip install mcp</code>
+          <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Python:</strong>{' '}
+            <code style={{ color: 'var(--tp-accent)' }}>pip install mcp</code>
           </li>
         </ul>
       </section>
@@ -121,11 +121,11 @@ export default function CustomQuickStartPage() {
         <h2
           id="step-1-connect"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 1: Connect to ToolPilot
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Use the MCP SDK to spin up the ToolPilot server and connect via stdio transport:
         </p>
 
@@ -147,14 +147,14 @@ export default function CustomQuickStartPage() {
         <h2
           id="step-2-search"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 2: Search for Tools
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-          Call <code style={{ color: 'var(--color-accent)' }}>search_tools</code> with a natural-language
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
+          Call <code style={{ color: 'var(--tp-accent)' }}>search_tools</code> with a natural-language
           query. ToolPilot may return clarification questions — answer them with{' '}
-          <code style={{ color: 'var(--color-accent)' }}>search_tools_respond</code> to refine results.
+          <code style={{ color: 'var(--tp-accent)' }}>search_tools_respond</code> to refine results.
         </p>
 
         <CodeBlock
@@ -179,11 +179,11 @@ const refined = await client.callTool('search_tools_respond', {
         <h2
           id="step-3-available-tools"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 3: Explore Available MCP Tools
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           ToolPilot exposes 5 MCP tools for different stages of tool discovery:
         </p>
 
@@ -201,22 +201,22 @@ const refined = await client.callTool('search_tools_respond', {
             >
               <code
                 className="text-sm font-semibold"
-                style={{ color: 'var(--color-accent)' }}
+                style={{ color: 'var(--tp-accent)' }}
               >
                 {tool.name}
               </code>
-              <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              <span className="text-sm" style={{ color: 'var(--tp-text-secondary)' }}>
                 {tool.description}
               </span>
             </div>
           ))}
         </div>
 
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           See the{' '}
           <Link
             href="/docs/mcp-tools"
-            style={{ color: 'var(--color-accent)', textDecoration: 'none' }}
+            style={{ color: 'var(--tp-accent)', textDecoration: 'none' }}
           >
             MCP Tools Reference
           </Link>{' '}
@@ -229,11 +229,11 @@ const refined = await client.callTool('search_tools_respond', {
         <h2
           id="step-4-report-outcomes"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 4: Report Outcomes
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Close the feedback loop by reporting which tools worked:
         </p>
 
@@ -275,7 +275,7 @@ const refined = await client.callTool('search_tools_respond', {
         <h2
           id="next-steps"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Next Steps
         </h2>
@@ -297,7 +297,7 @@ const refined = await client.callTool('search_tools_respond', {
 function NextStepItem({ href, text }: { href: string; text: string }) {
   return (
     <li className="text-sm" style={{ lineHeight: 1.6 }}>
-      <a href={href} style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>
+      <a href={href} style={{ color: 'var(--tp-accent)', textDecoration: 'none' }}>
         {text} →
       </a>
     </li>

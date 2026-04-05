@@ -60,7 +60,7 @@ export function DocsToc({ headings }: DocsTocProps) {
     >
       <p
         className="mb-3 text-xs font-semibold uppercase tracking-wider"
-        style={{ color: 'var(--color-text-muted)', margin: 0, marginBottom: '12px' }}
+        style={{ color: 'var(--tp-text-muted)', margin: 0, marginBottom: '12px' }}
       >
         On this page
       </p>
@@ -81,22 +81,22 @@ export function DocsToc({ headings }: DocsTocProps) {
                   paddingBottom: '4px',
                   fontSize: '14px',
                   lineHeight: '1.5',
-                  color: isActive ? 'var(--color-accent)' : 'var(--color-text-muted)',
+                  color: isActive ? 'var(--tp-accent)' : 'var(--tp-text-muted)',
                   fontWeight: isActive ? 500 : 400,
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
-                  borderLeft: isActive ? '2px solid var(--color-accent)' : '2px solid transparent',
+                  borderLeft: isActive ? '2px solid var(--tp-accent)' : '2px solid transparent',
                   paddingInlineStart: heading.level === 3 ? '16px' : '8px',
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    e.currentTarget.style.color = 'var(--tp-text-secondary)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.color = 'var(--color-text-muted)';
+                    e.currentTarget.style.color = 'var(--tp-text-muted)';
                   }
                 }}
               >

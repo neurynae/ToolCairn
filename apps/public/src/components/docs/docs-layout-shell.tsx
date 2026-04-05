@@ -69,9 +69,9 @@ export function DocsLayoutShell({ children }: DocsLayoutShellProps) {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--color-border-default)',
-          backgroundColor: 'var(--color-surface-2)',
-          color: 'var(--color-text-primary)',
+          border: '1px solid var(--tp-border-default)',
+          backgroundColor: 'var(--tp-surface-2)',
+          color: 'var(--tp-text-primary)',
           cursor: 'pointer',
           boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
         }}

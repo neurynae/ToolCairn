@@ -142,13 +142,13 @@ export default function ContributingPage() {
 
       <h1
         className="mt-4 text-3xl font-bold tracking-tight"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Contributing
       </h1>
       <p
         className="mt-3 text-base leading-relaxed"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Everything you need to set up a local development environment and
         contribute to ToolPilot.
@@ -158,24 +158,24 @@ export default function ContributingPage() {
       <h2
         id="prerequisites"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Prerequisites
       </h2>
       <ul
         className="mt-3 flex flex-col gap-2 text-sm"
-        style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+        style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
       >
         <li>
-          <strong style={{ color: 'var(--color-text-primary)' }}>Node.js 22 LTS</strong> — required
+          <strong style={{ color: 'var(--tp-text-primary)' }}>Node.js 22 LTS</strong> — required
           runtime
         </li>
         <li>
-          <strong style={{ color: 'var(--color-text-primary)' }}>pnpm 9+</strong> — workspace-aware
+          <strong style={{ color: 'var(--tp-text-primary)' }}>pnpm 9+</strong> — workspace-aware
           package manager
         </li>
         <li>
-          <strong style={{ color: 'var(--color-text-primary)' }}>Docker</strong> — runs Memgraph,
+          <strong style={{ color: 'var(--tp-text-primary)' }}>Docker</strong> — runs Memgraph,
           Qdrant, PostgreSQL, and Redis via Compose
         </li>
       </ul>
@@ -184,13 +184,13 @@ export default function ContributingPage() {
       <h2
         id="dev-setup"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Development Setup
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Clone and start the full stack in under a minute:
       </p>
@@ -208,13 +208,13 @@ export default function ContributingPage() {
       <h2
         id="project-structure"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Project Structure
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Monorepo layout managed by pnpm workspaces and Turborepo:
       </p>
@@ -224,7 +224,7 @@ export default function ContributingPage() {
       <h2
         id="coding-standards"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Coding Standards
       </h2>
@@ -234,20 +234,20 @@ export default function ContributingPage() {
             key={standard.rule}
             style={{
               padding: '12px 16px',
-              background: 'var(--color-surface-1)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-1)',
+              border: '1px solid var(--tp-border-subtle)',
               borderRadius: 'var(--radius-md)',
             }}
           >
             <p
               className="text-sm font-semibold"
-              style={{ color: 'var(--color-text-primary)', margin: 0 }}
+              style={{ color: 'var(--tp-text-primary)', margin: 0 }}
             >
               {standard.rule}
             </p>
             <p
               className="mt-1 text-sm"
-              style={{ color: 'var(--color-text-secondary)', margin: 0 }}
+              style={{ color: 'var(--tp-text-secondary)', margin: 0 }}
             >
               {standard.detail}
             </p>
@@ -259,13 +259,13 @@ export default function ContributingPage() {
       <h3
         id="result-pattern"
         className="mt-8 text-lg font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Result Pattern
       </h3>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Domain functions return typed results instead of throwing:
       </p>
@@ -275,13 +275,13 @@ export default function ContributingPage() {
       <h3
         id="repository-pattern"
         className="mt-8 text-lg font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Repository Pattern
       </h3>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         All database access is abstracted behind interfaces:
       </p>
@@ -295,32 +295,32 @@ export default function ContributingPage() {
       <h2
         id="file-naming"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         File Naming
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         All files and directories use <strong>kebab-case</strong>. Recognised
         suffixes:
       </p>
       <div
         style={{
-          border: '1px solid var(--color-border-subtle)',
+          border: '1px solid var(--tp-border-subtle)',
           borderRadius: 'var(--radius-md)',
           overflow: 'hidden',
         }}
       >
         <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: 'var(--color-surface-2)' }}>
+            <tr style={{ background: 'var(--tp-surface-2)' }}>
               <th
                 className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
                 style={{
-                  color: 'var(--color-text-muted)',
-                  borderBottom: '1px solid var(--color-border-subtle)',
+                  color: 'var(--tp-text-muted)',
+                  borderBottom: '1px solid var(--tp-border-subtle)',
                 }}
               >
                 Suffix
@@ -328,8 +328,8 @@ export default function ContributingPage() {
               <th
                 className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
                 style={{
-                  color: 'var(--color-text-muted)',
-                  borderBottom: '1px solid var(--color-border-subtle)',
+                  color: 'var(--tp-text-muted)',
+                  borderBottom: '1px solid var(--tp-border-subtle)',
                 }}
               >
                 Purpose
@@ -343,25 +343,25 @@ export default function ContributingPage() {
                 style={{
                   background:
                     i % 2 === 0
-                      ? 'var(--color-surface-1)'
-                      : 'var(--color-surface-0)',
+                      ? 'var(--tp-surface-1)'
+                      : 'var(--tp-surface-0)',
                   borderBottom:
                     i < FILE_CONVENTIONS.length - 1
-                      ? '1px solid var(--color-border-subtle)'
+                      ? '1px solid var(--tp-border-subtle)'
                       : undefined,
                 }}
               >
                 <td className="px-4 py-3">
                   <code
                     className="font-mono text-sm"
-                    style={{ color: 'var(--color-accent)' }}
+                    style={{ color: 'var(--tp-accent)' }}
                   >
                     {fc.suffix}
                   </code>
                 </td>
                 <td
                   className="px-4 py-3"
-                  style={{ color: 'var(--color-text-secondary)' }}
+                  style={{ color: 'var(--tp-text-secondary)' }}
                 >
                   {fc.purpose}
                 </td>
@@ -375,21 +375,21 @@ export default function ContributingPage() {
       <h2
         id="testing"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Testing
       </h2>
       <ul
         className="mt-3 flex flex-col gap-2 text-sm"
-        style={{ color: 'var(--color-text-secondary)', paddingLeft: 20 }}
+        style={{ color: 'var(--tp-text-secondary)', paddingLeft: 20 }}
       >
         <li>
-          <strong style={{ color: 'var(--color-text-primary)' }}>Vitest</strong>{' '}
+          <strong style={{ color: 'var(--tp-text-primary)' }}>Vitest</strong>{' '}
           — unit and integration tests (<code>pnpm test</code> or{' '}
           <code>pnpm test:unit</code>)
         </li>
         <li>
-          <strong style={{ color: 'var(--color-text-primary)' }}>Playwright</strong>{' '}
+          <strong style={{ color: 'var(--tp-text-primary)' }}>Playwright</strong>{' '}
           — end-to-end browser tests (<code>pnpm test:e2e</code>)
         </li>
         <li>
@@ -402,16 +402,16 @@ export default function ContributingPage() {
       <h2
         id="commit-conventions"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Commit Conventions
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         ToolPilot follows{' '}
-        <strong style={{ color: 'var(--color-text-primary)' }}>
+        <strong style={{ color: 'var(--tp-text-primary)' }}>
           Conventional Commits
         </strong>
         . Format: <code>type(scope): description</code>

@@ -60,13 +60,13 @@ export default function QuickStartPage() {
         <h1
           id="quick-start"
           className="text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.15 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.15 }}
         >
           Quick Start
         </h1>
         <p
           className="text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7, maxWidth: 540 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7, maxWidth: 540 }}
         >
           Choose your agent to get started. Each guide walks you through setup and your first
           search in just a few minutes.
@@ -112,32 +112,32 @@ function AgentCard({ icon, name, href, time, description }: AgentCardProps) {
           <span
             className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-xl"
             style={{
-              background: 'var(--color-surface-3)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-3)',
+              border: '1px solid var(--tp-border-subtle)',
             }}
           >
             {icon}
           </span>
-          <h2 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+          <h2 className="text-base font-semibold" style={{ color: 'var(--tp-text-primary)' }}>
             {name}
           </h2>
         </div>
         <span
           className="rounded-md px-2 py-0.5 text-xs font-medium"
           style={{
-            background: 'var(--color-accent-subtle)',
-            color: 'var(--color-accent)',
+            background: 'var(--tp-accent-subtle)',
+            color: 'var(--tp-accent)',
           }}
         >
           {time}
         </span>
       </div>
-      <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+      <p className="text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
         {description}
       </p>
       <span
         className="mt-auto text-sm font-medium transition-colors"
-        style={{ color: 'var(--color-accent)' }}
+        style={{ color: 'var(--tp-accent)' }}
       >
         Get started →
       </span>

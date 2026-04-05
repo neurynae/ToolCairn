@@ -46,7 +46,7 @@ export function Callout({ type, title, children }: CalloutProps) {
         )}
         <div
           className="text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)', margin: 0 }}
+          style={{ color: 'var(--tp-text-secondary)', margin: 0 }}
         >
           {children}
         </div>

@@ -92,13 +92,13 @@ export default function HealthTiersPage() {
         <section className="mt-4">
           <h1
             className="text-3xl font-bold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Health Tiers
           </h1>
           <p
             className="mt-3 max-w-2xl text-base"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Not all tools are equally maintained. ToolPilot computes a maintenance score for every
             tool in the graph, then maps it to one of four health tiers that agents can use to make
@@ -111,7 +111,7 @@ export default function HealthTiersPage() {
           <h2
             id="the-four-tiers"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             The Four Tiers
           </h2>
@@ -121,7 +121,7 @@ export default function HealthTiersPage() {
                 key={tier.name}
                 className="rounded-lg p-4"
                 style={{
-                  background: 'var(--color-surface-1)',
+                  background: 'var(--tp-surface-1)',
                   borderLeft: `4px solid ${tier.color}`,
                   borderRadius: 'var(--radius-md)',
                 }}
@@ -131,7 +131,7 @@ export default function HealthTiersPage() {
                   <h3
                     id={`tier-${tier.name.toLowerCase()}`}
                     className="text-base font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     {tier.name}
                   </h3>
@@ -148,7 +148,7 @@ export default function HealthTiersPage() {
                 </div>
                 <p
                   className="mt-2 text-sm"
-                  style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+                  style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
                 >
                   {tier.description}
                 </p>
@@ -162,13 +162,13 @@ export default function HealthTiersPage() {
           <h2
             id="scoring-formula"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Scoring Formula
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             The maintenance score is a weighted composite of five GitHub-derived signals. Each
             signal is normalized to a 0–1 range before weighting:
@@ -183,13 +183,13 @@ export default function HealthTiersPage() {
           <h2
             id="health-signals"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Health Signals
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Each signal captures a different dimension of project health:
           </p>
@@ -197,7 +197,7 @@ export default function HealthTiersPage() {
           <div
             className="mt-4 overflow-x-auto rounded-lg"
             style={{
-              border: '1px solid var(--color-border-subtle)',
+              border: '1px solid var(--tp-border-subtle)',
               borderRadius: 'var(--radius-md)',
             }}
           >
@@ -205,37 +205,37 @@ export default function HealthTiersPage() {
               <thead>
                 <tr
                   style={{
-                    background: 'var(--color-surface-2)',
-                    borderBottom: '1px solid var(--color-border-default)',
+                    background: 'var(--tp-surface-2)',
+                    borderBottom: '1px solid var(--tp-border-default)',
                   }}
                 >
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Signal
                   </th>
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Weight
                   </th>
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     What It Measures
                   </th>
                   <th
                     className="px-4 py-3 text-left font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     Graph Property
                   </th>
                 </tr>
               </thead>
-              <tbody style={{ color: 'var(--color-text-secondary)' }}>
+              <tbody style={{ color: 'var(--tp-text-secondary)' }}>
                 {[
                   {
                     signal: 'Commit Frequency',
@@ -272,18 +272,18 @@ export default function HealthTiersPage() {
                 ].map((row) => (
                   <tr
                     key={row.signal}
-                    style={{ borderBottom: '1px solid var(--color-border-subtle)' }}
+                    style={{ borderBottom: '1px solid var(--tp-border-subtle)' }}
                   >
                     <td
                       className="px-4 py-3 font-medium"
-                      style={{ color: 'var(--color-text-primary)' }}
+                      style={{ color: 'var(--tp-text-primary)' }}
                     >
                       {row.signal}
                     </td>
                     <td className="px-4 py-3">{row.weight}</td>
                     <td className="px-4 py-3">{row.measures}</td>
                     <td className="px-4 py-3">
-                      <code style={{ color: 'var(--color-accent)' }}>{row.prop}</code>
+                      <code style={{ color: 'var(--tp-accent)' }}>{row.prop}</code>
                     </td>
                   </tr>
                 ))}
@@ -297,19 +297,19 @@ export default function HealthTiersPage() {
           <h2
             id="health-in-search"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             How Health Affects Search
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Health tiers influence the search pipeline in two ways:
           </p>
           <ul
             className="mt-3 list-inside list-disc space-y-2 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             <li>
               <strong>Stage 3 graph reranking</strong> — Tools with higher health scores receive a
@@ -335,17 +335,17 @@ export default function HealthTiersPage() {
           <h2
             id="refresh-cadence"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Refresh Cadence
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Health scores are recalculated by the GitHub indexer on a rolling basis. Each tool is
             refreshed at least once every 7 days, with high-traffic tools refreshed more frequently.
-            The <code style={{ color: 'var(--color-accent)' }}>updated_at</code> property on each
+            The <code style={{ color: 'var(--tp-accent)' }}>updated_at</code> property on each
             Tool node indicates when its health data was last recalculated.
           </p>
         </section>

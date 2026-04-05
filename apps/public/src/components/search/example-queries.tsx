@@ -23,8 +23,8 @@ export function ExampleQueries({ onSelect }: ExampleQueriesProps) {
           onClick={() => onSelect(query)}
           className="rounded-full px-4 py-1.5 text-sm font-medium transition-all hover:scale-[1.04]"
           style={{
-            background: 'var(--color-accent-subtle)',
-            color: 'var(--color-accent-hover)',
+            background: 'var(--tp-accent-subtle)',
+            color: 'var(--tp-accent-hover)',
             border: '1px solid rgba(99, 102, 241, 0.18)',
           }}
         >

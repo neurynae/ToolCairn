@@ -1,5 +1,7 @@
 import { PrismaClient } from '@toolpilot/db';
 import { enqueueSearchEvent } from '@toolpilot/queue';
+import { type NextRequest } from 'next/server';
+import { withProxyPost } from '@/lib/api/proxy';
 import {
   ClarificationEngine,
   SearchPipeline,
@@ -23,7 +25,7 @@ const SearchRequestSchema = z.object({
   query: z.string().min(1, 'query must not be empty').max(500),
 });
 
-export async function POST(request: Request) {
+async function directHandler(request: NextRequest) {
   try {
     const body: unknown = await request.json();
     const parsed = SearchRequestSchema.safeParse(body);
@@ -113,3 +115,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = withProxyPost('/search', directHandler);

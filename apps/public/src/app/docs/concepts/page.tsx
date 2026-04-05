@@ -69,13 +69,13 @@ export default function ConceptsOverviewPage() {
         <section className="mt-4">
           <h1
             className="text-3xl font-bold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Core Concepts
           </h1>
           <p
             className="mt-3 max-w-2xl text-base"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             ToolPilot is more than a search engine — it&rsquo;s a graph-powered intelligence layer
             for developer tools. These pages explain the data model, algorithms, and feedback
@@ -102,28 +102,28 @@ export default function ConceptsOverviewPage() {
                   <span
                     className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-lg"
                     style={{
-                      background: 'var(--color-surface-3)',
-                      border: '1px solid var(--color-border-subtle)',
+                      background: 'var(--tp-surface-3)',
+                      border: '1px solid var(--tp-border-subtle)',
                     }}
                   >
                     {concept.icon}
                   </span>
                   <h2
                     className="text-base font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     {concept.title}
                   </h2>
                 </div>
                 <p
                   className="text-sm leading-relaxed"
-                  style={{ color: 'var(--color-text-secondary)' }}
+                  style={{ color: 'var(--tp-text-secondary)' }}
                 >
                   {concept.description}
                 </p>
                 <span
                   className="mt-auto inline-flex items-center gap-1 text-xs font-medium transition-transform duration-200 group-hover:translate-x-1"
-                  style={{ color: 'var(--color-accent)' }}
+                  style={{ color: 'var(--tp-accent)' }}
                 >
                   Learn more →
                 </span>

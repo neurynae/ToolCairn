@@ -99,13 +99,13 @@ export default function GuidedDiscoveryPage() {
         <section className="mt-4">
           <h1
             className="text-3xl font-bold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Guided Discovery
           </h1>
           <p
             className="mt-3 max-w-2xl text-base"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Not every query has a single right answer. When a search is ambiguous, ToolPilot&rsquo;s
             clarification engine asks targeted questions to understand what you actually need before
@@ -118,13 +118,13 @@ export default function GuidedDiscoveryPage() {
           <h2
             id="the-problem"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             The Problem
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Consider the query &ldquo;vector database&rdquo;. This could mean an embedded library
             like ChromaDB, a hosted service like Pinecone, or a specialized engine like Milvus.
@@ -138,13 +138,13 @@ export default function GuidedDiscoveryPage() {
           <h2
             id="how-it-works"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             How It Works
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             After Stage 1 retrieval, ToolPilot analyzes the candidate distribution. If the
             confidence score is below the threshold (typically 0.7), it generates clarification
@@ -152,7 +152,7 @@ export default function GuidedDiscoveryPage() {
           </p>
           <ul
             className="mt-3 list-inside list-disc space-y-2 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             <li>
               Candidates span <strong>3 languages</strong> → ask which language
@@ -174,13 +174,13 @@ export default function GuidedDiscoveryPage() {
           <h2
             id="the-flow"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             The Flow
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Here&rsquo;s the complete interaction flow between an agent and the ToolPilot MCP server
             during a guided discovery session:
@@ -195,13 +195,13 @@ export default function GuidedDiscoveryPage() {
           <h2
             id="question-types"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Question Types
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             Clarification questions are generated dynamically based on candidate variance. The four
             question types are:
@@ -238,8 +238,8 @@ export default function GuidedDiscoveryPage() {
                 key={q.type}
                 className="flex gap-3 rounded-lg p-4"
                 style={{
-                  background: 'var(--color-surface-1)',
-                  border: '1px solid var(--color-border-subtle)',
+                  background: 'var(--tp-surface-1)',
+                  border: '1px solid var(--tp-border-subtle)',
                   borderRadius: 'var(--radius-md)',
                 }}
               >
@@ -248,14 +248,14 @@ export default function GuidedDiscoveryPage() {
                   <h3
                     id={`question-${q.type.toLowerCase()}`}
                     className="text-sm font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
+                    style={{ color: 'var(--tp-text-primary)' }}
                   >
                     {q.type}
                   </h3>
-                  <p className="mt-1 text-xs italic" style={{ color: 'var(--color-text-muted)' }}>
+                  <p className="mt-1 text-xs italic" style={{ color: 'var(--tp-text-muted)' }}>
                     {q.example}
                   </p>
-                  <p className="mt-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                  <p className="mt-1 text-xs" style={{ color: 'var(--tp-text-secondary)' }}>
                     <strong>Triggered when:</strong> {q.trigger}
                   </p>
                 </div>
@@ -269,17 +269,17 @@ export default function GuidedDiscoveryPage() {
           <h2
             id="clarification-response"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Clarification Response
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             When clarification is needed, the MCP server returns a structured response with a
             session ID and one or more questions. Agents answer using{' '}
-            <code style={{ color: 'var(--color-accent)' }}>search_tools_respond</code>:
+            <code style={{ color: 'var(--tp-accent)' }}>search_tools_respond</code>:
           </p>
           <div className="mt-4">
             <CodeBlock
@@ -296,17 +296,17 @@ export default function GuidedDiscoveryPage() {
           <h2
             id="rich-context-shortcut"
             className="text-xl font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Rich Context Shortcut
           </h2>
           <p
             className="mt-3 text-sm"
-            style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7 }}
+            style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7 }}
           >
             If you already know the context (language, deployment model, etc.), you can bypass
             clarification entirely by including it in the initial{' '}
-            <code style={{ color: 'var(--color-accent)' }}>search_tools</code> call. The pipeline
+            <code style={{ color: 'var(--tp-accent)' }}>search_tools</code> call. The pipeline
             skips directly to Stage 2 with your filters pre-applied:
           </p>
           <div className="mt-4">

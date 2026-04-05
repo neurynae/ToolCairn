@@ -21,7 +21,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
         return (
           <span key={`${item.label}-${index}`} className="flex items-center gap-1.5">
             {index > 0 && (
-              <span aria-hidden="true" style={{ color: 'var(--color-text-muted)' }}>
+              <span aria-hidden="true" style={{ color: 'var(--tp-text-muted)' }}>
                 ›
               </span>
             )}
@@ -29,7 +29,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
               <span
                 className="font-medium"
                 style={{
-                  color: isLast ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+                  color: isLast ? 'var(--tp-text-primary)' : 'var(--tp-text-muted)',
                 }}
                 aria-current={isLast ? 'page' : undefined}
               >
@@ -40,14 +40,14 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
                 href={item.href}
                 className="font-medium transition-colors"
                 style={{
-                  color: 'var(--color-text-muted)',
+                  color: 'var(--tp-text-muted)',
                   textDecoration: 'none',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'var(--color-accent-hover)';
+                  e.currentTarget.style.color = 'var(--tp-accent-hover)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'var(--color-text-muted)';
+                  e.currentTarget.style.color = 'var(--tp-text-muted)';
                 }}
               >
                 {item.label}

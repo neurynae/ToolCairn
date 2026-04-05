@@ -60,13 +60,13 @@ export default function DataFlowPage() {
 
       <h1
         className="mt-4 text-3xl font-bold tracking-tight"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Data Flow
       </h1>
       <p
         className="mt-3 text-base leading-relaxed"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         ToolPilot has three primary data paths: a <strong>read path</strong> for
         query processing, a <strong>write path</strong> for data ingestion, and
@@ -77,13 +77,13 @@ export default function DataFlowPage() {
       <h2
         id="read-path"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Read Path (Query Processing)
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Every tool discovery request follows this pipeline:
       </p>
@@ -99,13 +99,13 @@ export default function DataFlowPage() {
       <h2
         id="write-path"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Write Path (Data Ingestion)
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         The indexer continuously updates the tool corpus:
       </p>
@@ -121,13 +121,13 @@ export default function DataFlowPage() {
       <h2
         id="feedback-path"
         className="mt-10 text-xl font-semibold"
-        style={{ color: 'var(--color-text-primary)' }}
+        style={{ color: 'var(--tp-text-primary)' }}
       >
         Feedback Path
       </h2>
       <p
         className="mt-2 mb-4 text-sm"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Agent feedback creates a reinforcement loop that improves future
         recommendations:
@@ -287,7 +287,7 @@ function StepRow({ step }: { step: StepInfo }) {
         className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
         style={{
           background: 'rgba(99,102,241,0.12)',
-          color: 'var(--color-accent)',
+          color: 'var(--tp-accent)',
         }}
       >
         {step.number}
@@ -295,13 +295,13 @@ function StepRow({ step }: { step: StepInfo }) {
       <div>
         <p
           className="text-sm font-semibold"
-          style={{ color: 'var(--color-text-primary)', margin: 0 }}
+          style={{ color: 'var(--tp-text-primary)', margin: 0 }}
         >
           {step.title}
         </p>
         <p
           className="mt-1 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)', margin: 0 }}
+          style={{ color: 'var(--tp-text-secondary)', margin: 0 }}
         >
           {step.detail}
         </p>

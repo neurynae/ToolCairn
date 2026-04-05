@@ -165,13 +165,13 @@ export default function GetStackPage() {
       {/* ─── Header ─── */}
       <h1
         className="text-3xl font-bold tracking-tight sm:text-4xl"
-        style={{ color: 'var(--color-text-primary)', marginTop: 24 }}
+        style={{ color: 'var(--tp-text-primary)', marginTop: 24 }}
       >
         <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>get_stack</code>
       </h1>
       <p
         className="mt-3 text-base leading-relaxed sm:text-lg"
-        style={{ color: 'var(--color-text-secondary)' }}
+        style={{ color: 'var(--tp-text-secondary)' }}
       >
         Builds a compatible tool stack for a given use case. Selects tools from the graph based on
         relationship strength and compatibility scores, ensuring every tool in the stack works well
@@ -183,18 +183,18 @@ export default function GetStackPage() {
         <h2
           id="when-to-use"
           className="mb-3 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           When to use
         </h2>
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
           Call{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             get_stack
           </code>{' '}
           when you need a complete set of tools for a project rather than a single recommendation.
           Unlike{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             search_tools
           </code>
           , this tool focuses on inter-tool compatibility and returns multiple tools that are known
@@ -207,7 +207,7 @@ export default function GetStackPage() {
         <h2
           id="input-schema"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Input schema
         </h2>
@@ -219,7 +219,7 @@ export default function GetStackPage() {
         <h2
           id="examples"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Examples
         </h2>
@@ -227,7 +227,7 @@ export default function GetStackPage() {
         <h3
           id="basic-stack"
           className="mb-3 text-base font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Basic stack request
         </h3>
@@ -243,7 +243,7 @@ export default function GetStackPage() {
           <h3
             id="constrained-stack"
             className="mb-3 text-base font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Stack with constraints
           </h3>
@@ -254,7 +254,7 @@ export default function GetStackPage() {
           <h3
             id="language-only-constraint"
             className="mb-3 text-base font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
+            style={{ color: 'var(--tp-text-primary)' }}
           >
             Language-only constraint
           </h3>
@@ -276,15 +276,15 @@ export default function GetStackPage() {
         <h2
           id="response-format"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Response format
         </h2>
 
-        <p className="mb-4 text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="mb-4 text-sm leading-relaxed" style={{ color: 'var(--tp-text-secondary)' }}>
           Returns an array of compatible tools with their roles, confidence scores, and pairwise
           compatibility scores. An{' '}
-          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--color-accent)' }}>
+          <code style={{ fontFamily: 'var(--font-mono, monospace)', color: 'var(--tp-accent)' }}>
             overall_compatibility
           </code>{' '}
           score indicates how well the entire stack works together.
@@ -298,7 +298,7 @@ export default function GetStackPage() {
         <h2
           id="error-codes"
           className="mb-4 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Error codes
         </h2>
@@ -310,25 +310,25 @@ export default function GetStackPage() {
         <h2
           id="related-tools"
           className="mb-3 text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Related tools
         </h2>
         <ul className="flex flex-col gap-2 text-sm" style={{ margin: 0, paddingLeft: 20 }}>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/mcp-tools/search-tools" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/mcp-tools/search-tools" style={{ color: 'var(--tp-accent)' }}>
               <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>search_tools</code>
             </a>{' '}
             — Find a single tool for a specific need
           </li>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/mcp-tools/check-issue" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/mcp-tools/check-issue" style={{ color: 'var(--tp-accent)' }}>
               <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>check_issue</code>
             </a>{' '}
             — Diagnose issues with any tool in your stack
           </li>
-          <li style={{ color: 'var(--color-text-secondary)' }}>
-            <a href="/docs/mcp-tools/report-outcome" style={{ color: 'var(--color-accent)' }}>
+          <li style={{ color: 'var(--tp-text-secondary)' }}>
+            <a href="/docs/mcp-tools/report-outcome" style={{ color: 'var(--tp-accent)' }}>
               <code style={{ fontFamily: 'var(--font-mono, monospace)' }}>report_outcome</code>
             </a>{' '}
             — Report usage feedback for stack tools

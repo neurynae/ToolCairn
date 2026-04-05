@@ -42,30 +42,30 @@ function NavCard({ direction, item }: NavCardProps) {
       href={item.href}
       className="group block rounded-xl p-5 no-underline transition-all"
       style={{
-        background: 'var(--color-surface-1)',
-        border: '1px solid var(--color-border-subtle)',
+        background: 'var(--tp-surface-1)',
+        border: '1px solid var(--tp-border-subtle)',
         borderRadius: 'var(--radius-lg)',
         textAlign: isPrev ? 'left' : 'right',
         textDecoration: 'none',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.borderColor = 'var(--color-border-emphasis)';
+        e.currentTarget.style.borderColor = 'var(--tp-border-emphasis)';
         e.currentTarget.style.boxShadow = '0 4px 24px rgba(99,102,241,0.10)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
+        e.currentTarget.style.borderColor = 'var(--tp-border-subtle)';
         e.currentTarget.style.boxShadow = 'none';
       }}
     >
       <span
         className="mb-1 block text-xs font-medium uppercase tracking-wider"
-        style={{ color: 'var(--color-text-muted)' }}
+        style={{ color: 'var(--tp-text-muted)' }}
       >
         {isPrev ? '← Previous' : 'Next →'}
       </span>
-      <span className="block text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+      <span className="block text-sm font-semibold" style={{ color: 'var(--tp-text-primary)' }}>
         {item.title}
       </span>
     </Link>

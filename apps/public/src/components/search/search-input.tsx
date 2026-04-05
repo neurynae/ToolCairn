@@ -1,6 +1,9 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef } from 'react';
+import { SearchIcon, Loader2Icon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface SearchInputProps {
   value: string;
@@ -17,7 +20,7 @@ export function SearchInput({
   disabled = false,
   placeholder = "Describe what you're building...",
 }: SearchInputProps) {
-  const [focused, setFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -31,64 +34,49 @@ export function SearchInput({
 
   return (
     <div
-      className={`gradient-border relative flex w-full max-w-2xl items-center gap-3 rounded-2xl transition-shadow ${
-        focused ? 'shadow-[0_0_32px_rgba(99,102,241,0.15)]' : ''
-      }`}
-      style={{
-        background: 'var(--color-surface-1)',
-        padding: '14px 20px',
-      }}
+      className={cn(
+        'gradient-border relative flex w-full max-w-2xl cursor-text items-center gap-3 rounded-2xl',
+        // Light mode: white card with border. Dark mode: elevated surface with visible border
+        'border border-[var(--tp-border-default)] bg-card px-5 py-3.5',
+        // Hover: slightly stronger border
+        'transition-all duration-200 hover:border-[var(--tp-border-emphasis)]',
+        // Focus: accent glow ring
+        'focus-within:border-[var(--tp-accent)]/50 focus-within:shadow-[0_0_0_3px_var(--tp-accent-glow),0_0_32px_var(--tp-accent-glow)]',
+        disabled && 'opacity-70',
+      )}
+      onClick={() => inputRef.current?.focus()}
     >
       {/* Search icon */}
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
-        fill="none"
-        className="shrink-0"
-        style={{ color: focused ? 'var(--color-accent)' : 'var(--color-text-muted)' }}
-        aria-hidden="true"
-      >
-        <path
-          d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.45 4.39l3.58 3.58a.75.75 0 1 1-1.06 1.06l-3.58-3.58A7 7 0 0 1 2 9Z"
-          fill="currentColor"
+      {disabled ? (
+        <Loader2Icon
+          className="size-5 shrink-0 animate-spin text-[var(--tp-accent)]"
+          aria-hidden="true"
         />
-      </svg>
+      ) : (
+        <SearchIcon
+          className="size-5 shrink-0 text-muted-foreground"
+          aria-hidden="true"
+        />
+      )}
 
       <input
+        ref={inputRef}
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
         disabled={disabled}
         placeholder={placeholder}
-        className="w-full bg-transparent text-base outline-none placeholder:text-[var(--color-text-muted)] disabled:opacity-50"
-        style={{ color: 'var(--color-text-primary)' }}
+        className="w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground disabled:opacity-50"
         autoComplete="off"
         spellCheck={false}
+        aria-label="Search for developer tools"
       />
 
       {value.trim() && !disabled && (
-        <button
-          type="button"
-          onClick={onSubmit}
-          className="shrink-0 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors"
-          style={{
-            background: 'var(--color-accent)',
-            color: '#fff',
-          }}
-        >
+        <Button type="button" size="sm" onClick={onSubmit} className="shrink-0">
           Search
-        </button>
-      )}
-
-      {disabled && (
-        <div
-          className="shrink-0 h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent"
-          style={{ color: 'var(--color-accent)' }}
-        />
+        </Button>
       )}
     </div>
   );

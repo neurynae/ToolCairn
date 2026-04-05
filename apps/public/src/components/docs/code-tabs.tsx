@@ -25,7 +25,7 @@ export function CodeTabs({ tabs }: CodeTabsProps) {
   return (
     <div
       style={{
-        border: '1px solid var(--color-border-subtle)',
+        border: '1px solid var(--tp-border-subtle)',
         borderRadius: 'var(--radius-md)',
         overflow: 'hidden',
       }}
@@ -33,8 +33,8 @@ export function CodeTabs({ tabs }: CodeTabsProps) {
       <div
         className="flex overflow-x-auto"
         style={{
-          background: 'var(--color-surface-1)',
-          borderBottom: '1px solid var(--color-border-subtle)',
+          background: 'var(--tp-surface-1)',
+          borderBottom: '1px solid var(--tp-border-subtle)',
         }}
         role="tablist"
       >
@@ -49,20 +49,20 @@ export function CodeTabs({ tabs }: CodeTabsProps) {
               onClick={() => setActiveIndex(index)}
               className="relative shrink-0 px-4 py-2.5 text-sm font-medium transition-colors"
               style={{
-                color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+                color: isActive ? 'var(--tp-text-primary)' : 'var(--tp-text-muted)',
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                borderBottom: isActive ? '2px solid var(--color-accent)' : '2px solid transparent',
+                borderBottom: isActive ? '2px solid var(--tp-accent)' : '2px solid transparent',
               }}
               onMouseEnter={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.color = 'var(--color-text-secondary)';
+                  e.currentTarget.style.color = 'var(--tp-text-secondary)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.color = 'var(--color-text-muted)';
+                  e.currentTarget.style.color = 'var(--tp-text-muted)';
                 }
               }}
             >

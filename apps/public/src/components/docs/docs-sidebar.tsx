@@ -73,7 +73,7 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
             alignItems: 'center',
             gap: '10px',
             textDecoration: 'none',
-            color: 'var(--color-text-primary)',
+            color: 'var(--tp-text-primary)',
           }}
         >
           <span
@@ -126,7 +126,7 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
                   background: 'none',
                   cursor: 'pointer',
                   borderRadius: 'var(--radius-sm)',
-                  color: hasActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                  color: hasActive ? 'var(--tp-text-primary)' : 'var(--tp-text-secondary)',
                   fontSize: '13px',
                   fontWeight: 600,
                   letterSpacing: '0.01em',
@@ -134,13 +134,13 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
                   transition: 'color var(--duration-fast) ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                  e.currentTarget.style.color = 'var(--tp-text-primary)';
                   e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.color = hasActive
-                    ? 'var(--color-text-primary)'
-                    : 'var(--color-text-secondary)';
+                    ? 'var(--tp-text-primary)'
+                    : 'var(--tp-text-secondary)';
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
@@ -191,21 +191,21 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
                         lineHeight: '1.5',
                         borderRadius: 'var(--radius-sm)',
                         textDecoration: 'none',
-                        color: isActive ? 'var(--color-accent-hover)' : 'var(--color-text-muted)',
-                        backgroundColor: isActive ? 'var(--color-accent-subtle)' : 'transparent',
+                        color: isActive ? 'var(--tp-accent-hover)' : 'var(--tp-text-muted)',
+                        backgroundColor: isActive ? 'var(--tp-accent-subtle)' : 'transparent',
                         fontWeight: isActive ? 500 : 400,
                         transition:
                           'color var(--duration-fast) ease, background-color var(--duration-fast) ease',
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive) {
-                          e.currentTarget.style.color = 'var(--color-text-primary)';
+                          e.currentTarget.style.color = 'var(--tp-text-primary)';
                           e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isActive) {
-                          e.currentTarget.style.color = 'var(--color-text-muted)';
+                          e.currentTarget.style.color = 'var(--tp-text-muted)';
                           e.currentTarget.style.backgroundColor = 'transparent';
                         }
                       }}
@@ -235,8 +235,8 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
           top: '56px',
           height: 'calc(100dvh - 56px)',
           overflowY: 'auto',
-          borderRight: '1px solid var(--color-border-subtle)',
-          backgroundColor: 'var(--color-surface-1)',
+          borderRight: '1px solid var(--tp-border-subtle)',
+          backgroundColor: 'var(--tp-surface-1)',
         }}
       >
         {sidebarContent}
@@ -275,8 +275,8 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
               width: '300px',
               maxWidth: '85vw',
               height: '100%',
-              backgroundColor: 'var(--color-surface-1)',
-              borderRight: '1px solid var(--color-border-default)',
+              backgroundColor: 'var(--tp-surface-1)',
+              borderRight: '1px solid var(--tp-border-default)',
               overflowY: 'auto',
               animation: 'slideInLeft var(--duration-base) ease forwards',
             }}
@@ -297,16 +297,16 @@ export function DocsSidebar({ isOpen, onClose }: DocsSidebarProps) {
                 justifyContent: 'center',
                 border: 'none',
                 background: 'none',
-                color: 'var(--color-text-muted)',
+                color: 'var(--tp-text-muted)',
                 cursor: 'pointer',
                 borderRadius: 'var(--radius-sm)',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'var(--color-text-primary)';
+                e.currentTarget.style.color = 'var(--tp-text-primary)';
                 e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--color-text-muted)';
+                e.currentTarget.style.color = 'var(--tp-text-muted)';
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >

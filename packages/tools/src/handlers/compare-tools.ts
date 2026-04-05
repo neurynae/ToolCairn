@@ -1,7 +1,7 @@
 import type { ToolNode } from '@toolpilot/core';
 import pino from 'pino';
 import type { ToolDeps } from '../types.js';
-import { errResult, okResult } from '../utils.js';
+import { errResult, okResult, resolveToolName } from '../utils.js';
 
 const logger = pino({ name: '@toolpilot/tools:compare-tools' });
 
@@ -66,26 +66,33 @@ export function createCompareToolsHandler(deps: Pick<ToolDeps, 'graphRepo' | 'en
     try {
       logger.info({ tool_a: args.tool_a, tool_b: args.tool_b }, 'compare_tools called');
 
+      // Fuzzy-resolve names so "nextjs" → "next.js", "mcpserver" → "mcp-server", etc.
+      const [nameA, nameB] = await Promise.all([
+        resolveToolName(args.tool_a, deps.graphRepo),
+        resolveToolName(args.tool_b, deps.graphRepo),
+      ]);
+      if (nameA !== args.tool_a)
+        logger.info({ original: args.tool_a, resolved: nameA }, 'tool_a name resolved');
+      if (nameB !== args.tool_b)
+        logger.info({ original: args.tool_b, resolved: nameB }, 'tool_b name resolved');
+
       const [resultA, resultB] = await Promise.all([
-        deps.graphRepo.findByName(args.tool_a),
-        deps.graphRepo.findByName(args.tool_b),
+        deps.graphRepo.findByName(nameA),
+        deps.graphRepo.findByName(nameB),
       ]);
 
       const toolAFound = resultA.ok && resultA.data != null;
       const toolBFound = resultB.ok && resultB.data != null;
 
       if (!toolAFound && !toolBFound) {
-        await Promise.allSettled([
-          deps.enqueueIndexJob(args.tool_a, 2),
-          deps.enqueueIndexJob(args.tool_b, 2),
-        ]);
+        await Promise.allSettled([deps.enqueueIndexJob(nameA, 2), deps.enqueueIndexJob(nameB, 2)]);
         return okResult({
           status: 'not_indexed',
-          tool_a: args.tool_a,
-          tool_b: args.tool_b,
+          tool_a: nameA,
+          tool_b: nameB,
           async_index_triggered: true,
           agent_instructions: [
-            `Neither "${args.tool_a}" nor "${args.tool_b}" is in the ToolPilot index.`,
+            `Neither "${nameA}" nor "${nameB}" is in the ToolCairn index.`,
             'Indexing has been triggered for both — results will be available in ~2 minutes.',
             'In the meantime, search GitHub for both tools to gather basic information for comparison.',
             'Use search_tools to find alternatives if these tools are not found.',
@@ -94,7 +101,7 @@ export function createCompareToolsHandler(deps: Pick<ToolDeps, 'graphRepo' | 'en
       }
 
       if (!toolAFound || !toolBFound) {
-        const missingName = !toolAFound ? args.tool_a : args.tool_b;
+        const missingName = !toolAFound ? nameA : nameB;
         const indexedData = toolAFound
           ? resultA.ok
             ? resultA.data
@@ -110,7 +117,7 @@ export function createCompareToolsHandler(deps: Pick<ToolDeps, 'graphRepo' | 'en
           unindexed_tool: {
             name: missingName,
             status: 'not_in_index',
-            message: `"${missingName}" is not in the ToolPilot index yet.`,
+            message: `"${missingName}" is not in the ToolCairn index yet.`,
           },
           async_index_triggered: true,
           agent_instructions: [
@@ -123,7 +130,7 @@ export function createCompareToolsHandler(deps: Pick<ToolDeps, 'graphRepo' | 'en
 
       const toolA = resultA.data as ToolNode;
       const toolB = resultB.data as ToolNode;
-      const edgesResult = await deps.graphRepo.getDirectEdges(args.tool_a, args.tool_b);
+      const edgesResult = await deps.graphRepo.getDirectEdges(nameA, nameB);
       const edges = edgesResult.ok ? edgesResult.data : [];
 
       const compatibilitySignal = edges.some((e) => POSITIVE_EDGE_TYPES.has(e.edgeType))
@@ -145,17 +152,14 @@ export function createCompareToolsHandler(deps: Pick<ToolDeps, 'graphRepo' | 'en
           dimension: 'Maintenance',
           tool_a: toolA.health.maintenance_score,
           tool_b: toolB.health.maintenance_score,
-          winner:
-            toolA.health.maintenance_score >= toolB.health.maintenance_score
-              ? args.tool_a
-              : args.tool_b,
+          winner: toolA.health.maintenance_score >= toolB.health.maintenance_score ? nameA : nameB,
           note: 'Composite score across commits, stars velocity, issue resolution, PR response',
         },
         {
           dimension: 'Community',
           tool_a: toolA.health.stars,
           tool_b: toolB.health.stars,
-          winner: toolA.health.stars >= toolB.health.stars ? args.tool_a : args.tool_b,
+          winner: toolA.health.stars >= toolB.health.stars ? nameA : nameB,
           note: 'GitHub stars',
         },
         {
@@ -164,18 +168,15 @@ export function createCompareToolsHandler(deps: Pick<ToolDeps, 'graphRepo' | 'en
           tool_b: toolB.health.commit_velocity_30d ?? 0,
           winner:
             (toolA.health.commit_velocity_30d ?? 0) >= (toolB.health.commit_velocity_30d ?? 0)
-              ? args.tool_a
-              : args.tool_b,
+              ? nameA
+              : nameB,
           note: 'Commits in last 30 days',
         },
         {
           dimension: 'Contributors',
           tool_a: toolA.health.contributor_count,
           tool_b: toolB.health.contributor_count,
-          winner:
-            toolA.health.contributor_count >= toolB.health.contributor_count
-              ? args.tool_a
-              : args.tool_b,
+          winner: toolA.health.contributor_count >= toolB.health.contributor_count ? nameA : nameB,
           note: 'Total contributor count',
         },
       ];
@@ -205,7 +206,7 @@ export function createCompareToolsHandler(deps: Pick<ToolDeps, 'graphRepo' | 'en
         dominant_winner: dominantWinner,
         confidence: edges.length > 0 ? 0.9 : 0.7,
         decision_guide: {
-          accept_recommendation: `Call update_project_config with action: "add_tool", tool_name: "${recommendation === 'tool_a' ? args.tool_a : args.tool_b}"`,
+          accept_recommendation: `Call update_project_config with action: "add_tool", tool_name: "${recommendation === 'tool_a' ? nameA : nameB}"`,
           override_recommendation: `Call update_project_config with action: "add_tool", tool_name: "<user_choice>" to persist the override`,
           add_both_to_consider: `Call update_project_config with action: "add_evaluation" for each to track in pending_evaluation`,
         },

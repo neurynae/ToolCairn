@@ -35,12 +35,12 @@ function Chip({
       className="rounded-full px-3 py-1.5 text-sm font-medium transition-all"
       style={{
         background: selected
-          ? 'var(--color-accent)'
+          ? 'var(--tp-accent)'
           : hovered
-            ? 'var(--color-surface-2)'
-            : 'var(--color-surface-1)',
-        color: selected ? '#fff' : 'var(--color-text-secondary)',
-        border: `1px solid ${selected ? 'var(--color-accent)' : 'var(--color-border-subtle)'}`,
+            ? 'var(--tp-surface-2)'
+            : 'var(--tp-surface-1)',
+        color: selected ? '#fff' : 'var(--tp-text-secondary)',
+        border: `1px solid ${selected ? 'var(--tp-accent)' : 'var(--tp-border-subtle)'}`,
       }}
     >
       {label}
@@ -82,7 +82,7 @@ export function StackConstraints({
       <div className="flex flex-col gap-2">
         <span
           className="text-xs font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-muted)' }}
+          style={{ color: 'var(--tp-text-muted)' }}
         >
           Deployment
         </span>
@@ -102,7 +102,7 @@ export function StackConstraints({
       <div className="flex flex-col gap-2">
         <span
           className="text-xs font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-muted)' }}
+          style={{ color: 'var(--tp-text-muted)' }}
         >
           Language
         </span>
@@ -122,9 +122,9 @@ export function StackConstraints({
             onChange={(e) => handleCustomLang(e.target.value)}
             className="rounded-full px-3 py-1.5 text-sm outline-none transition-colors"
             style={{
-              background: 'var(--color-surface-1)',
-              color: 'var(--color-text-primary)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-1)',
+              color: 'var(--tp-text-primary)',
+              border: '1px solid var(--tp-border-subtle)',
               width: '90px',
             }}
           />
@@ -135,7 +135,7 @@ export function StackConstraints({
       <div className="flex flex-col gap-2">
         <span
           className="text-xs font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-muted)' }}
+          style={{ color: 'var(--tp-text-muted)' }}
         >
           License
         </span>

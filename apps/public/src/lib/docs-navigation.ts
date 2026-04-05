@@ -18,7 +18,11 @@ export const docsNavigation: DocSection[] = [
     href: '/docs/getting-started',
     icon: '🚀',
     pages: [
-      { title: 'What is ToolPilot?', href: '/docs/getting-started', description: 'Overview of the platform' },
+      {
+        title: 'What is ToolPilot?',
+        href: '/docs/getting-started',
+        description: 'Overview of the platform',
+      },
     ],
   },
   {
@@ -27,11 +31,23 @@ export const docsNavigation: DocSection[] = [
     icon: '⚡',
     pages: [
       { title: 'Quick Start Overview', href: '/docs/quickstart' },
-      { title: 'Claude Code / Desktop', href: '/docs/quickstart/claude', description: 'Set up with Claude' },
+      {
+        title: 'Claude Code / Desktop',
+        href: '/docs/quickstart/claude',
+        description: 'Set up with Claude',
+      },
       { title: 'Cursor', href: '/docs/quickstart/cursor', description: 'Set up with Cursor' },
       { title: 'Windsurf', href: '/docs/quickstart/windsurf', description: 'Set up with Windsurf' },
-      { title: 'Custom Agent / SDK', href: '/docs/quickstart/custom', description: 'Integrate with any MCP client' },
-      { title: 'Web Interface', href: '/docs/quickstart/web', description: 'Use the web search UI' },
+      {
+        title: 'Custom Agent / SDK',
+        href: '/docs/quickstart/custom',
+        description: 'Integrate with any MCP client',
+      },
+      {
+        title: 'Web Interface',
+        href: '/docs/quickstart/web',
+        description: 'Use the web search UI',
+      },
     ],
   },
   {
@@ -40,12 +56,36 @@ export const docsNavigation: DocSection[] = [
     icon: '💡',
     pages: [
       { title: 'Concepts Overview', href: '/docs/concepts' },
-      { title: 'Tool Graph Mesh', href: '/docs/concepts/graph-mesh', description: 'Nodes, edges, and properties' },
-      { title: 'Search Pipeline', href: '/docs/concepts/search-pipeline', description: '4-stage discovery engine' },
-      { title: 'Health Tiers', href: '/docs/concepts/health-tiers', description: 'Maintenance scoring' },
-      { title: 'Guided Discovery', href: '/docs/concepts/guided-discovery', description: 'Clarification engine' },
-      { title: 'Edge Decay', href: '/docs/concepts/edge-decay', description: 'Temporal weight formula' },
-      { title: 'Feedback Loop', href: '/docs/concepts/feedback-loop', description: 'report_outcome → graph' },
+      {
+        title: 'Tool Graph Mesh',
+        href: '/docs/concepts/graph-mesh',
+        description: 'Nodes, edges, and properties',
+      },
+      {
+        title: 'Search Pipeline',
+        href: '/docs/concepts/search-pipeline',
+        description: '4-stage discovery engine',
+      },
+      {
+        title: 'Health Tiers',
+        href: '/docs/concepts/health-tiers',
+        description: 'Maintenance scoring',
+      },
+      {
+        title: 'Guided Discovery',
+        href: '/docs/concepts/guided-discovery',
+        description: 'Clarification engine',
+      },
+      {
+        title: 'Edge Decay',
+        href: '/docs/concepts/edge-decay',
+        description: 'Temporal weight formula',
+      },
+      {
+        title: 'Feedback Loop',
+        href: '/docs/concepts/feedback-loop',
+        description: 'report_outcome → graph',
+      },
     ],
   },
   {
@@ -54,11 +94,23 @@ export const docsNavigation: DocSection[] = [
     icon: '🔧',
     pages: [
       { title: 'Tools Overview', href: '/docs/mcp-tools' },
-      { title: 'search_tools', href: '/docs/mcp-tools/search-tools', description: 'Find the right tool' },
-      { title: 'search_tools_respond', href: '/docs/mcp-tools/search-tools-respond', description: 'Answer clarification' },
+      {
+        title: 'search_tools',
+        href: '/docs/mcp-tools/search-tools',
+        description: 'Find the right tool',
+      },
+      {
+        title: 'search_tools_respond',
+        href: '/docs/mcp-tools/search-tools-respond',
+        description: 'Answer clarification',
+      },
       { title: 'get_stack', href: '/docs/mcp-tools/get-stack', description: 'Build a tool stack' },
       { title: 'check_issue', href: '/docs/mcp-tools/check-issue', description: 'Diagnose issues' },
-      { title: 'report_outcome', href: '/docs/mcp-tools/report-outcome', description: 'Report feedback' },
+      {
+        title: 'report_outcome',
+        href: '/docs/mcp-tools/report-outcome',
+        description: 'Report feedback',
+      },
     ],
   },
   {
@@ -67,10 +119,26 @@ export const docsNavigation: DocSection[] = [
     icon: '📖',
     pages: [
       { title: 'Guides Overview', href: '/docs/guides' },
-      { title: 'Search Walkthrough', href: '/docs/guides/search-walkthrough', description: 'Complete search flow' },
-      { title: 'Issue Diagnosis', href: '/docs/guides/issue-diagnosis', description: 'Debug with check_issue' },
-      { title: 'Stack Building', href: '/docs/guides/stack-building', description: 'Build a compatible stack' },
-      { title: 'Rich Context', href: '/docs/guides/rich-context', description: 'Skip clarification stages' },
+      {
+        title: 'Search Walkthrough',
+        href: '/docs/guides/search-walkthrough',
+        description: 'Complete search flow',
+      },
+      {
+        title: 'Issue Diagnosis',
+        href: '/docs/guides/issue-diagnosis',
+        description: 'Debug with check_issue',
+      },
+      {
+        title: 'Stack Building',
+        href: '/docs/guides/stack-building',
+        description: 'Build a compatible stack',
+      },
+      {
+        title: 'Rich Context',
+        href: '/docs/guides/rich-context',
+        description: 'Skip clarification stages',
+      },
     ],
   },
   {
@@ -79,9 +147,17 @@ export const docsNavigation: DocSection[] = [
     icon: '🏗️',
     pages: [
       { title: 'Architecture Overview', href: '/docs/architecture' },
-      { title: 'System Overview', href: '/docs/architecture/overview', description: 'Component diagram' },
+      {
+        title: 'System Overview',
+        href: '/docs/architecture/overview',
+        description: 'Component diagram',
+      },
       { title: 'Data Flow', href: '/docs/architecture/data-flow', description: 'Read/write paths' },
-      { title: 'Contributing', href: '/docs/architecture/contributing', description: 'Dev setup & conventions' },
+      {
+        title: 'Contributing',
+        href: '/docs/architecture/contributing',
+        description: 'Dev setup & conventions',
+      },
     ],
   },
   {
@@ -90,8 +166,16 @@ export const docsNavigation: DocSection[] = [
     icon: '📚',
     pages: [
       { title: 'Reference Overview', href: '/docs/reference' },
-      { title: 'Graph Schema', href: '/docs/reference/graph-schema', description: 'Node & edge types' },
-      { title: 'Health Formula', href: '/docs/reference/health-formula', description: 'Scoring breakdown' },
+      {
+        title: 'Graph Schema',
+        href: '/docs/reference/graph-schema',
+        description: 'Node & edge types',
+      },
+      {
+        title: 'Health Formula',
+        href: '/docs/reference/health-formula',
+        description: 'Scoring breakdown',
+      },
     ],
   },
 ];

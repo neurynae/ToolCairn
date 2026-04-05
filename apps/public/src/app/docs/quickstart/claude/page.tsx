@@ -58,13 +58,13 @@ export default function ClaudeQuickStartPage() {
         <h1
           id="claude-quick-start"
           className="text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.15 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.15 }}
         >
           Claude Code / Desktop Quick Start
         </h1>
         <p
           className="text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7, maxWidth: 540 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.7, maxWidth: 540 }}
         >
           Get ToolPilot running with Claude in under 2 minutes. Your agent will be able to
           search 491+ developer tools, compare alternatives, and build stacks.
@@ -76,17 +76,17 @@ export default function ClaudeQuickStartPage() {
         <h2
           id="prerequisites"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Prerequisites
         </h2>
         <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-            <strong style={{ color: 'var(--color-text-primary)' }}>Claude Code</strong> (CLI) or{' '}
-            <strong style={{ color: 'var(--color-text-primary)' }}>Claude Desktop</strong> installed
+          <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Claude Code</strong> (CLI) or{' '}
+            <strong style={{ color: 'var(--tp-text-primary)' }}>Claude Desktop</strong> installed
           </li>
-          <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-            Node.js 18+ (for <code style={{ color: 'var(--color-accent)' }}>npx</code>)
+          <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
+            Node.js 18+ (for <code style={{ color: 'var(--tp-accent)' }}>npx</code>)
           </li>
         </ul>
       </section>
@@ -96,11 +96,11 @@ export default function ClaudeQuickStartPage() {
         <h2
           id="step-1-add-mcp-config"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 1: Add the MCP Server Config
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Add the ToolPilot MCP server to your Claude configuration file:
         </p>
 
@@ -128,11 +128,11 @@ export default function ClaudeQuickStartPage() {
         <h2
           id="step-2-first-search"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 2: Try Your First Search
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Restart Claude, then ask a natural-language question about developer tools.
           ToolPilot handles the rest via the MCP protocol:
         </p>
@@ -150,11 +150,11 @@ export default function ClaudeQuickStartPage() {
         <h2
           id="step-3-explore-results"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 3: Explore Results
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Each tool recommendation includes:
         </p>
         <ul style={{ paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -163,7 +163,7 @@ export default function ClaudeQuickStartPage() {
           <ResultItem label="Key metadata" detail="Stars, license, language, last release date, and category tags" />
           <ResultItem label="Match rationale" detail="Why the tool was selected for your specific query" />
         </ul>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           Ask Claude follow-up questions like <em>&ldquo;Compare Qdrant and Milvus&rdquo;</em> or{' '}
           <em>&ldquo;Build me a full RAG stack&rdquo;</em> to dig deeper.
         </p>
@@ -174,11 +174,11 @@ export default function ClaudeQuickStartPage() {
         <h2
           id="step-4-report-outcomes"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Step 4: Report Outcomes
         </h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
           After you&apos;ve tried a tool, let Claude know how it went. This feeds back into the
           graph and improves future recommendations:
         </p>
@@ -196,7 +196,7 @@ export default function ClaudeQuickStartPage() {
         <h2
           id="next-steps"
           className="text-xl font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
+          style={{ color: 'var(--tp-text-primary)' }}
         >
           Next Steps
         </h2>
@@ -216,8 +216,8 @@ export default function ClaudeQuickStartPage() {
 
 function ResultItem({ label, detail }: { label: string; detail: string }) {
   return (
-    <li className="text-sm" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-      <strong style={{ color: 'var(--color-text-primary)' }}>{label}</strong> &mdash; {detail}
+    <li className="text-sm" style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}>
+      <strong style={{ color: 'var(--tp-text-primary)' }}>{label}</strong> &mdash; {detail}
     </li>
   );
 }
@@ -225,7 +225,7 @@ function ResultItem({ label, detail }: { label: string; detail: string }) {
 function NextStepItem({ href, text }: { href: string; text: string }) {
   return (
     <li className="text-sm" style={{ lineHeight: 1.6 }}>
-      <a href={href} style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>
+      <a href={href} style={{ color: 'var(--tp-accent)', textDecoration: 'none' }}>
         {text} →
       </a>
     </li>

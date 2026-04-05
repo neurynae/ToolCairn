@@ -29,7 +29,7 @@ export function ClarificationStep({
             className="inline-block h-1.5 rounded-full transition-all duration-300"
             style={{
               width: i === questionIndex ? '24px' : '8px',
-              background: i <= questionIndex ? 'var(--color-accent)' : 'var(--color-surface-3)',
+              background: i <= questionIndex ? 'var(--tp-accent)' : 'var(--tp-surface-3)',
               boxShadow: i === questionIndex ? '0 0 8px rgba(99,102,241,0.5)' : 'none',
             }}
           />
@@ -50,7 +50,7 @@ export function ClarificationStep({
             fontSize: '1.5rem',
             letterSpacing: '-0.02em',
             lineHeight: 1.2,
-            color: 'var(--color-text-primary)',
+            color: 'var(--tp-text-primary)',
           }}
         >
           {question.question}
@@ -68,8 +68,8 @@ export function ClarificationStep({
       <button
         type="button"
         onClick={onSkip}
-        className="text-sm transition-colors hover:text-[var(--color-text-secondary)] hover:underline"
-        style={{ color: 'var(--color-text-muted)' }}
+        className="text-sm transition-colors hover:text-[var(--tp-text-secondary)] hover:underline"
+        style={{ color: 'var(--tp-text-muted)' }}
       >
         Skip this question
       </button>
@@ -99,12 +99,12 @@ function TileOptions({
           className="tile-option group relative w-full p-4 text-left"
           style={{ animationDelay: `${i * 50}ms` }}
         >
-          <span className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+          <span className="text-sm font-semibold" style={{ color: 'var(--tp-text-primary)' }}>
             {option}
           </span>
           <span
             className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
-            style={{ color: 'var(--color-accent)' }}
+            style={{ color: 'var(--tp-accent)' }}
             aria-hidden="true"
           >
             →
@@ -133,9 +133,9 @@ function CompactOptions({
           onClick={() => onAnswer(question.dimension, option)}
           className="rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:border-[rgba(99,102,241,0.35)] hover:bg-[rgba(99,102,241,0.07)] hover:scale-[1.03]"
           style={{
-            background: 'var(--color-surface-2)',
-            color: 'var(--color-text-primary)',
-            border: '1px solid var(--color-border-subtle)',
+            background: 'var(--tp-surface-2)',
+            color: 'var(--tp-text-primary)',
+            border: '1px solid var(--tp-border-subtle)',
           }}
         >
           {option}

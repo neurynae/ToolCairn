@@ -71,13 +71,13 @@ export default function GuidesPage() {
       <header style={{ marginTop: 24, marginBottom: 48 }}>
         <h1
           className="text-3xl font-bold tracking-tight sm:text-4xl"
-          style={{ color: 'var(--color-text-primary)', lineHeight: 1.2 }}
+          style={{ color: 'var(--tp-text-primary)', lineHeight: 1.2 }}
         >
           Guides
         </h1>
         <p
           className="mt-3 text-base sm:text-lg"
-          style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}
+          style={{ color: 'var(--tp-text-secondary)', lineHeight: 1.6 }}
         >
           Hands-on tutorials that walk you through real workflows — from your first
           search to building production-ready tool stacks.
@@ -95,8 +95,8 @@ export default function GuidesPage() {
             href={guide.href}
             className="group flex flex-col gap-3 rounded-xl p-6 no-underline transition-all"
             style={{
-              background: 'var(--color-surface-1)',
-              border: '1px solid var(--color-border-subtle)',
+              background: 'var(--tp-surface-1)',
+              border: '1px solid var(--tp-border-subtle)',
               borderRadius: 'var(--radius-lg)',
               textDecoration: 'none',
             }}
@@ -105,8 +105,8 @@ export default function GuidesPage() {
               <span
                 className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-xl"
                 style={{
-                  background: 'var(--color-surface-3)',
-                  border: '1px solid var(--color-border-subtle)',
+                  background: 'var(--tp-surface-3)',
+                  border: '1px solid var(--tp-border-subtle)',
                 }}
               >
                 {guide.icon}
@@ -124,7 +124,7 @@ export default function GuidesPage() {
                 </span>
                 <span
                   className="text-xs font-medium"
-                  style={{ color: 'var(--color-text-muted)' }}
+                  style={{ color: 'var(--tp-text-muted)' }}
                 >
                   {guide.time}
                 </span>
@@ -133,21 +133,21 @@ export default function GuidesPage() {
 
             <h2
               className="text-base font-semibold"
-              style={{ color: 'var(--color-text-primary)' }}
+              style={{ color: 'var(--tp-text-primary)' }}
             >
               {guide.title}
             </h2>
 
             <p
               className="text-sm leading-relaxed"
-              style={{ color: 'var(--color-text-secondary)' }}
+              style={{ color: 'var(--tp-text-secondary)' }}
             >
               {guide.description}
             </p>
 
             <span
               className="mt-auto text-sm font-medium transition-colors"
-              style={{ color: 'var(--color-accent)' }}
+              style={{ color: 'var(--tp-accent)' }}
             >
               Read guide →
             </span>
