@@ -118,7 +118,8 @@ export default {
  * The VPS API validates this header and rejects requests without it.
  */
 async function forwardToOrigin(request: Request, env: Env, path: string): Promise<Response> {
-  const originUrl = env.API_ORIGIN_URL.replace(/\/$/, '') + path;
+  const search = new URL(request.url).search;
+  const originUrl = env.API_ORIGIN_URL.replace(/\/$/, '') + path + search;
 
   const headers = new Headers(request.headers);
   headers.set('X-Origin-Secret', env.ORIGIN_SECRET);
