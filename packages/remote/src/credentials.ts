@@ -1,6 +1,6 @@
 /**
- * Manages anonymous API key stored in ~/.toolcairn/credentials.json.
- * Generated on first run — no login required.
+ * Manages authentication credentials stored in ~/.toolpilot/credentials.json.
+ * Authentication is required — there is no anonymous access.
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
@@ -13,7 +13,6 @@ export interface Credentials {
   client_id: string;
   created_at: string;
   api_url?: string;
-  // Auth fields (present when user has authenticated via toolcairn_auth login)
   access_token?: string;
   user_id?: string;
   user_email?: string;
@@ -21,27 +20,52 @@ export interface Credentials {
   authenticated_at?: string;
 }
 
-export async function loadOrCreateCredentials(
-  registerFn?: (clientId: string) => Promise<void>,
-): Promise<Credentials> {
+/**
+ * Returns true if the credentials contain a valid, non-expired JWT access token.
+ */
+export function isTokenValid(creds: Credentials): boolean {
+  if (!creds.access_token) return false;
+  try {
+    const parts = creds.access_token.split('.');
+    if (parts.length !== 3) return false;
+    // Decode payload without verifying signature — just check expiry client-side
+    const payload = JSON.parse(Buffer.from(parts[1] ?? '', 'base64url').toString('utf-8')) as {
+      exp?: number;
+    };
+    // Treat token as expired 5 min early to avoid race conditions
+    if (payload.exp && payload.exp < Date.now() / 1000 + 300) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Load credentials from disk. Returns null if the file doesn't exist or has no valid token.
+ */
+export async function loadCredentials(): Promise<Credentials | null> {
   try {
     const raw = await readFile(CREDENTIALS_FILE, 'utf-8');
     return JSON.parse(raw) as Credentials;
   } catch {
-    // First run — generate anonymous key
-    const creds: Credentials = {
-      client_id: crypto.randomUUID(),
-      created_at: new Date().toISOString(),
-    };
-    await saveCredentials(creds);
-
-    // Register with the API (fire-and-forget; non-blocking)
-    if (registerFn) {
-      registerFn(creds.client_id).catch(() => {});
-    }
-
-    return creds;
+    return null;
   }
+}
+
+/**
+ * Load or create a minimal credentials stub (client_id only, no token).
+ * Used as a placeholder before authentication completes.
+ */
+export async function loadOrCreateCredentials(): Promise<Credentials> {
+  const existing = await loadCredentials();
+  if (existing) return existing;
+
+  const creds: Credentials = {
+    client_id: crypto.randomUUID(),
+    created_at: new Date().toISOString(),
+  };
+  await saveCredentials(creds);
+  return creds;
 }
 
 export async function saveCredentials(creds: Credentials): Promise<void> {
@@ -76,14 +100,13 @@ export async function upgradeToAuthenticated(
 }
 
 /**
- * Remove authentication data and revert to anonymous.
+ * Remove authentication data. Next startup will automatically trigger re-auth.
  */
 export async function clearAuthentication(): Promise<void> {
   const existing = await loadOrCreateCredentials();
-  const anon: Credentials = {
+  await saveCredentials({
     client_id: existing.client_id,
     created_at: existing.created_at,
     api_url: existing.api_url,
-  };
-  await saveCredentials(anon);
+  });
 }

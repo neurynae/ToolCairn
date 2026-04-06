@@ -52,8 +52,11 @@ export default {
       return Response.json(
         {
           ok: false,
-          error: error ?? 'unauthorized',
-          message: 'Valid API key required. Add X-ToolPilot-Key header.',
+          error: error ?? 'authentication_required',
+          message:
+            error === 'token_expired'
+              ? 'Your session has expired. Restart your agent to sign in again.'
+              : 'Authentication required. Restart your agent — sign-in starts automatically.',
         },
         { status: 401 },
       );

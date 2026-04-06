@@ -11,7 +11,13 @@
  */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { config } from '@toolpilot/config';
-import { ToolCairnClient, loadOrCreateCredentials } from '@toolpilot/remote';
+import {
+  ToolCairnClient,
+  clearAuthentication,
+  isTokenValid,
+  loadCredentials,
+  startDeviceAuth,
+} from '@toolpilot/remote';
 // Use the /local subpath — excludes heavy DB/search/graph deps from the npm bundle.
 // The full '@toolpilot/tools' CJS dist requires Prisma/neo4j/ioredis at load time
 // even though prod mode never calls those code paths.
@@ -87,8 +93,13 @@ The server wrote the file at startup. You still need to fill in the project deta
 `.trim();
 
 export async function buildProdServer(): Promise<McpServer> {
-  // Load or create credentials (anonymous UUID or authenticated JWT)
-  const creds = await loadOrCreateCredentials();
+  // Auth is guaranteed by ensureAuthenticated() in index.ts before this is called.
+  // If credentials are somehow missing here, fail fast rather than fall back to anonymous.
+  const creds = await loadCredentials();
+  if (!creds || !isTokenValid(creds)) {
+    throw new Error('ToolCairn: authentication required. Restart your agent to sign in.');
+  }
+
   const remote = new ToolCairnClient({
     baseUrl: config.TOOLPILOT_API_URL,
     apiKey: creds.client_id,
@@ -98,10 +109,9 @@ export async function buildProdServer(): Promise<McpServer> {
   logger.info(
     {
       apiUrl: config.TOOLPILOT_API_URL,
-      clientId: `${creds.client_id.slice(0, 8)}...`,
-      authenticated: !!creds.access_token,
+      user: creds.user_email,
     },
-    'Production MCP mode: connecting to remote API',
+    'Production MCP mode: authenticated',
   );
 
   const server = new McpServer(
@@ -277,18 +287,17 @@ export async function buildProdServer(): Promise<McpServer> {
     },
     async ({ action }) => {
       if (action === 'status') {
-        const c = await loadOrCreateCredentials();
-        const isAuth = !!c.access_token;
+        const c = await loadCredentials();
+        const isAuth = c !== null && isTokenValid(c);
         return {
           content: [
             {
               type: 'text' as const,
               text: JSON.stringify({
                 authenticated: isAuth,
-                user_email: c.user_email ?? null,
-                user_name: c.user_name ?? null,
-                authenticated_at: c.authenticated_at ?? null,
-                tier: isAuth ? 'authenticated' : 'anonymous (free, 60 req/min)',
+                user_email: c?.user_email ?? null,
+                user_name: c?.user_name ?? null,
+                authenticated_at: c?.authenticated_at ?? null,
               }),
             },
           ],
@@ -303,7 +312,8 @@ export async function buildProdServer(): Promise<McpServer> {
               type: 'text' as const,
               text: JSON.stringify({
                 ok: true,
-                message: 'Logged out. Reverted to anonymous mode.',
+                message:
+                  'Signed out. Restart your agent to sign in again — authentication will start automatically.',
               }),
             },
           ],
