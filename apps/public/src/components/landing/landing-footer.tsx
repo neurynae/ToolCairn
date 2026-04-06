@@ -4,10 +4,10 @@ import { Logo } from '@/components/ui/logo';
 
 const LINKS = [
   { href: '/explore', label: 'Explore' },
-  { href: '/compare', label: 'Compare' },
-  { href: '/stack', label: 'Stack Builder' },
   { href: '/docs', label: 'Docs' },
   { href: '/about', label: 'How it Works' },
+  { href: '/privacy', label: 'Privacy' },
+  { href: '/terms', label: 'Terms' },
 ] as const;
 
 export function LandingFooter() {

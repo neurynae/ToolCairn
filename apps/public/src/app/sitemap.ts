@@ -10,6 +10,8 @@ const STATIC_ROUTES: { path: string; priority: number; changeFreq: MetadataRoute
   { path: '/stack', priority: 0.8, changeFreq: 'weekly' },
   { path: '/compatibility', priority: 0.7, changeFreq: 'weekly' },
   { path: '/about', priority: 0.6, changeFreq: 'monthly' },
+  { path: '/privacy', priority: 0.3, changeFreq: 'monthly' },
+  { path: '/terms', priority: 0.3, changeFreq: 'monthly' },
   { path: '/suggest', priority: 0.5, changeFreq: 'monthly' },
   { path: '/docs', priority: 0.9, changeFreq: 'weekly' },
   { path: '/docs/getting-started', priority: 0.8, changeFreq: 'weekly' },

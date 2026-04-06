@@ -19,6 +19,8 @@ const FOOTER_SECTIONS = [
       { href: '/docs', label: 'Documentation' },
       { href: '/docs/getting-started', label: 'Getting Started' },
       { href: '/about', label: 'How it Works' },
+      { href: '/privacy', label: 'Privacy Policy' },
+      { href: '/terms', label: 'Terms of Service' },
     ],
   },
   {

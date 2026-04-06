@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
-const PUBLIC_PATHS = new Set(['/', '/about']);
+const PUBLIC_PATHS = new Set(['/', '/about', '/privacy', '/terms']);
 const PUBLIC_PREFIXES = [
   '/docs/',
   '/docs',
