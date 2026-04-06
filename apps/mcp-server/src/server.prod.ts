@@ -9,7 +9,7 @@
  * @toolpilot/vector, @toolpilot/db, or @toolpilot/queue so those packages
  * are not bundled into the published npm package.
  */
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { config } from '@toolpilot/config';
 import {
   ToolCairnClient,
@@ -44,6 +44,7 @@ import {
   verifySuggestionSchema,
 } from '@toolpilot/tools/local';
 import pino from 'pino';
+import { z } from 'zod';
 import { withEventLogging } from './middleware/event-logger.js';
 
 const logger = pino({ name: '@toolcairn/mcp-server:prod' });
@@ -92,12 +93,16 @@ The server wrote the file at startup. You still need to fill in the project deta
 | Tool added/removed from project | \`update_project_config\` |
 `.trim();
 
-export async function buildProdServer(): Promise<McpServer> {
-  // Auth is guaranteed by ensureAuthenticated() in index.ts before this is called.
-  // If credentials are somehow missing here, fail fast rather than fall back to anonymous.
+/**
+ * Register all 14 production tools (local + remote) on an existing McpServer.
+ * Called either during buildProdServer() or dynamically after auth completes
+ * on the waiting server — the MCP SDK notifies the client via
+ * notifications/tools/list_changed so tools appear without reconnect.
+ */
+export async function addToolsToServer(server: McpServer): Promise<void> {
   const creds = await loadCredentials();
   if (!creds || !isTokenValid(creds)) {
-    throw new Error('ToolCairn: authentication required. Restart your agent to sign in.');
+    throw new Error('ToolCairn: authentication required.');
   }
 
   const remote = new ToolCairnClient({
@@ -106,18 +111,7 @@ export async function buildProdServer(): Promise<McpServer> {
     accessToken: creds.access_token,
   });
 
-  logger.info(
-    {
-      apiUrl: config.TOOLPILOT_API_URL,
-      user: creds.user_email,
-    },
-    'Production MCP mode: authenticated',
-  );
-
-  const server = new McpServer(
-    { name: 'toolcairn', version: '0.1.0' },
-    { instructions: SETUP_INSTRUCTIONS },
-  );
+  logger.info({ user: creds.user_email }, 'Registering production tools');
 
   // ── LOCAL tools (zero network, run on user's machine) ──────────────────────
 
@@ -345,6 +339,17 @@ export async function buildProdServer(): Promise<McpServer> {
       }
     },
   );
+}
 
+/**
+ * Build a new fully-authenticated prod server.
+ * Creates the McpServer then delegates tool registration to addToolsToServer().
+ */
+export async function buildProdServer(): Promise<McpServer> {
+  const server = new McpServer(
+    { name: 'toolcairn', version: '0.1.0' },
+    { instructions: SETUP_INSTRUCTIONS },
+  );
+  await addToolsToServer(server);
   return server;
 }

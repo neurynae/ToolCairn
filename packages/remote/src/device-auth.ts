@@ -94,7 +94,8 @@ export async function startDeviceAuth(
   let codeData: DeviceCodeResponse;
 
   if (pending && pending.api_url === apiUrl) {
-    // Resume — reuse the existing code, don't re-open browser
+    // Resume from a previous (killed/restarted) process.
+    // The browser was already opened — do NOT open it again (causes duplicate tabs).
     codeData = {
       device_code: pending.device_code,
       user_code: pending.user_code,
@@ -102,13 +103,10 @@ export async function startDeviceAuth(
       expires_in: Math.floor((new Date(pending.expires_at).getTime() - Date.now()) / 1000),
       interval: 5,
     };
-    process.stderr.write('\n──────────────────────────────────────────\n');
-    process.stderr.write('  ToolCairn — Resuming sign-in\n');
-    process.stderr.write('──────────────────────────────────────────\n');
-    process.stderr.write(`\n  URL:  ${codeData.verification_uri}\n`);
-    process.stderr.write(`  Code: ${codeData.user_code}\n`);
-    process.stderr.write('\n  Waiting for confirmation...\n\n');
-    await openBrowser(codeData.verification_uri);
+    process.stderr.write('\n  ToolCairn: Waiting for sign-in confirmation...\n');
+    process.stderr.write(`  URL:  ${codeData.verification_uri}\n`);
+    process.stderr.write(`  Code: ${codeData.user_code}\n\n`);
+    // No openBrowser() call here — browser already open from previous session
   } else {
     // Fresh start — request new code and open browser
     codeData = await requestDeviceCode(apiUrl);
