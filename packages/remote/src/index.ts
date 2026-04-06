@@ -10,4 +10,4 @@ export {
   isTokenValid,
 } from './credentials.js';
 export type { Credentials } from './credentials.js';
-export { startDeviceAuth } from './device-auth.js';
+export { startDeviceAuth, requestDeviceCode } from './device-auth.js';

@@ -273,6 +273,36 @@ export function authRoutes(prisma: PrismaClient): Hono {
     }
   });
 
+  // POST /v1/auth/device/approve — approve a device code (called by Vercel consent page)
+  app.post('/device/approve', async (c) => {
+    try {
+      const body = (await c.req.json()) as { userCode?: string; userId?: string };
+      const userCode = body.userCode?.trim().toUpperCase();
+      if (!userCode || !body.userId) {
+        return c.json({ error: 'userCode and userId required' }, 400);
+      }
+
+      const record = await prisma.deviceCode.findUnique({ where: { userCode } });
+      if (!record) return c.json({ error: 'Invalid or expired code' }, 404);
+      if (record.status !== 'pending')
+        return c.json({ error: 'Code already used or expired' }, 409);
+      if (new Date() > record.expiresAt) {
+        await prisma.deviceCode.update({ where: { id: record.id }, data: { status: 'expired' } });
+        return c.json({ error: 'Code has expired' }, 410);
+      }
+
+      await prisma.deviceCode.update({
+        where: { id: record.id },
+        data: { status: 'approved', userId: body.userId },
+      });
+
+      logger.info({ userCode }, 'device approved');
+      return c.json({ ok: true });
+    } catch {
+      return c.json({ error: 'Internal server error' }, 500);
+    }
+  });
+
   // Cleanup expired device codes on startup
   prisma.deviceCode
     .updateMany({

@@ -4,7 +4,7 @@
  *
  * Flow:
  *   1. POST /v1/auth/device-code  → get device_code, user_code, verification_uri
- *   2. Open browser to verification_uri
+ *   2. Open browser to verification_uri (spawn + detached, works from stdio child processes)
  *   3. Poll /v1/auth/token until approved, expired, or user cancels
  *   4. Store access_token in ~/.toolcairn/credentials.json
  */
@@ -26,52 +26,76 @@ interface TokenResponse {
 }
 
 /**
- * Open a URL in the default browser (cross-platform).
+ * Open a URL in the default browser.
+ * Uses spawn + detached so it works from stdio child processes (e.g. MCP server).
+ * execSync blocks and fails silently in non-interactive contexts; spawn does not.
  */
 async function openBrowser(url: string): Promise<void> {
-  const platform = process.platform;
-  const { execSync } = await import('node:child_process');
+  const { spawn } = await import('node:child_process');
   try {
-    if (platform === 'win32') execSync(`start "" "${url}"`, { stdio: 'ignore' });
-    else if (platform === 'darwin') execSync(`open "${url}"`, { stdio: 'ignore' });
-    else execSync(`xdg-open "${url}"`, { stdio: 'ignore' });
+    const platform = process.platform;
+    let cmd: string;
+    let args: string[];
+
+    if (platform === 'win32') {
+      // cmd /c start is more reliable than bare `start` from a child process
+      cmd = 'cmd';
+      args = ['/c', 'start', '', url];
+    } else if (platform === 'darwin') {
+      cmd = 'open';
+      args = [url];
+    } else {
+      cmd = 'xdg-open';
+      args = [url];
+    }
+
+    const child = spawn(cmd, args, {
+      detached: true, // detach from parent process group
+      stdio: 'ignore', // don't inherit parent's stdio
+      shell: false,
+    });
+    child.unref(); // let parent process exit independently
   } catch {
-    // Silently fail — user will see the URL printed below
+    // Silently fail — URL is always printed to stderr as fallback
   }
 }
 
 /**
- * Start the device auth flow.
- * Returns the user info on success, or throws on failure/cancellation.
+ * Request a device code and return the code data.
+ * Exported separately so callers can surface the URL before blocking on poll.
+ */
+export async function requestDeviceCode(apiUrl: string): Promise<DeviceCodeResponse> {
+  const res = await fetch(`${apiUrl}/v1/auth/device-code`, { method: 'POST' });
+  if (!res.ok) throw new Error('Failed to start device auth. Check your internet connection.');
+  return (await res.json()) as DeviceCodeResponse;
+}
+
+/**
+ * Start the full device auth flow — request code, open browser, poll for token.
+ * Returns user info on success, throws on failure/cancellation.
  */
 export async function startDeviceAuth(
   apiUrl: string,
 ): Promise<{ userId: string; email: string; name: string | null }> {
-  // Step 1: Request device code
-  const codeRes = await fetch(`${apiUrl}/v1/auth/device-code`, { method: 'POST' });
-  if (!codeRes.ok) throw new Error('Failed to start device auth. Check your connection.');
+  const codeData = await requestDeviceCode(apiUrl);
 
-  const codeData = (await codeRes.json()) as DeviceCodeResponse;
+  // Print instructions to stderr — visible in terminal and some MCP clients
+  process.stderr.write('\n──────────────────────────────────────────\n');
+  process.stderr.write('  ToolCairn — Sign In Required\n');
+  process.stderr.write('──────────────────────────────────────────\n');
+  process.stderr.write('\n  Opening browser for authentication...\n\n');
+  process.stderr.write(`  URL:  ${codeData.verification_uri}\n`);
+  process.stderr.write(`  Code: ${codeData.user_code}\n`);
+  process.stderr.write('\n  Waiting... (browser should open automatically)\n\n');
 
-  // Step 2: Print instructions + open browser
-  console.error('\n──────────────────────────────────────────');
-  console.error('  Authenticate ToolCairn MCP');
-  console.error('──────────────────────────────────────────');
-  console.error('\n  Open this URL in your browser:\n');
-  console.error(`  ${codeData.verification_uri}\n`);
-  console.error(`  Your device code: ${codeData.user_code}`);
-  console.error('\n  Waiting for authorization...');
-  console.error('  (Press Ctrl+C to cancel)\n');
-
+  // Open browser — detached spawn works from MCP stdio child processes
   await openBrowser(codeData.verification_uri);
 
-  // Step 3: Poll until approved or expired
   const result = await pollForToken(apiUrl, codeData.device_code, codeData.interval);
 
-  // Step 4: Persist credentials
   await upgradeToAuthenticated(result.access_token, result.api_key, result.user);
 
-  console.error(`\n  ✓ Authenticated as ${result.user.email}\n`);
+  process.stderr.write(`\n  ✓ Signed in as ${result.user.email}\n\n`);
 
   return {
     userId: result.user.id,
