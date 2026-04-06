@@ -1,4 +1,3 @@
-import { auth } from '@/auth';
 import { type NextRequest, NextResponse } from 'next/server';
 
 const PUBLIC_PATHS = new Set(['/', '/about']);
@@ -27,31 +26,35 @@ const PROTECTED_PREFIXES = [
   '/compatibility',
 ];
 
-// biome-ignore lint/style/noDefaultExport: Next.js middleware requires a default export
-export default async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+/**
+ * Check for a valid Auth.js session cookie without importing the full auth stack.
+ * Importing `auth` from '@/auth' bundles Prisma + bcryptjs and exceeds the 1MB
+ * Edge Function size limit. Cookie presence is sufficient for redirect logic —
+ * the actual JWT is verified server-side in route handlers and server components.
+ */
+function hasSession(req: NextRequest): boolean {
+  // Auth.js v5 stores the session token in one of these cookies
+  return (
+    req.cookies.has('next-auth.session-token') ||
+    req.cookies.has('__Secure-next-auth.session-token') ||
+    req.cookies.has('authjs.session-token') ||
+    req.cookies.has('__Secure-authjs.session-token')
+  );
+}
 
-  // Always allow public paths and static assets
+// biome-ignore lint/style/noDefaultExport: Next.js middleware requires a default export
+export default function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const isLoggedIn = hasSession(req);
+
   if (PUBLIC_PATHS.has(pathname)) return NextResponse.next();
   if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
-  // Only check session for routes that need it
-  const needsAuthCheck =
-    AUTH_PATHS.some((p) => pathname.startsWith(p)) ||
-    PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
-
-  if (!needsAuthCheck) return NextResponse.next();
-
-  const session = await auth();
-  const isLoggedIn = !!session;
-
-  // Redirect logged-in users away from auth pages
   if (AUTH_PATHS.some((p) => pathname.startsWith(p))) {
     if (isLoggedIn) return NextResponse.redirect(new URL('/explore', req.url));
     return NextResponse.next();
   }
 
-  // Protect platform routes
   if (PROTECTED_PREFIXES.some((p) => pathname.startsWith(p)) && !isLoggedIn) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
