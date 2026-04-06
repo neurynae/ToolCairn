@@ -41,9 +41,32 @@ async function openBrowser(url: string): Promise<void> {
     let cmd: string;
     let args: string[];
     if (platform === 'win32') {
-      cmd = 'cmd';
-      args = ['/c', 'start', '', url];
-    } else if (platform === 'darwin') {
+      // explorer.exe is more reliable than cmd/start from stdio child processes
+      // Fallback chain: explorer → cmd start → powershell
+      const tried: Array<{ cmd: string; args: string[] }> = [
+        { cmd: 'explorer.exe', args: [url] },
+        { cmd: 'cmd', args: ['/c', 'start', '', url] },
+        {
+          cmd: 'powershell.exe',
+          args: ['-NoProfile', '-Command', `Start-Process '${url}'`],
+        },
+      ];
+      for (const attempt of tried) {
+        try {
+          const child = spawn(attempt.cmd, attempt.args, {
+            detached: true,
+            stdio: 'ignore',
+            shell: false,
+          });
+          child.unref();
+          break; // stop after first success
+        } catch {
+          // try next fallback
+        }
+      }
+      return;
+    }
+    if (platform === 'darwin') {
       cmd = 'open';
       args = [url];
     } else {
@@ -58,8 +81,12 @@ async function openBrowser(url: string): Promise<void> {
 }
 
 /**
- * Request a new device code and persist it to ~/.toolcairn/pending-auth.json.
- * Exported so index.prod.ts can call it independently to get the URL upfront.
+ * Request a new device code, persist it to ~/.toolcairn/pending-auth.json,
+ * and open the browser automatically.
+ *
+ * Only call this on a FRESH start (no pending-auth.json). This is the only
+ * place that opens the browser — the resume path in startDeviceAuth() never
+ * opens the browser (prevents duplicate tabs on process restart).
  */
 export async function requestDeviceCode(apiUrl: string): Promise<DeviceCodeResponse> {
   const res = await fetch(`${apiUrl}/v1/auth/device-code`, { method: 'POST' });
@@ -74,6 +101,15 @@ export async function requestDeviceCode(apiUrl: string): Promise<DeviceCodeRespo
     expires_at: new Date(Date.now() + data.expires_in * 1000).toISOString(),
     api_url: apiUrl,
   });
+
+  // Open browser here (fresh start only — resume path skips this)
+  process.stderr.write('\n──────────────────────────────────────────\n');
+  process.stderr.write('  ToolCairn — Sign In Required\n');
+  process.stderr.write('──────────────────────────────────────────\n');
+  process.stderr.write('\n  Opening browser for authentication...\n\n');
+  process.stderr.write(`  URL:  ${data.verification_uri}\n`);
+  process.stderr.write(`  Code: ${data.user_code}\n\n`);
+  await openBrowser(data.verification_uri);
 
   return data;
 }
@@ -108,16 +144,8 @@ export async function startDeviceAuth(
     process.stderr.write(`  Code: ${codeData.user_code}\n\n`);
     // No openBrowser() call here — browser already open from previous session
   } else {
-    // Fresh start — request new code and open browser
+    // Fresh start — requestDeviceCode() opens the browser (only place that does)
     codeData = await requestDeviceCode(apiUrl);
-    process.stderr.write('\n──────────────────────────────────────────\n');
-    process.stderr.write('  ToolCairn — Sign In Required\n');
-    process.stderr.write('──────────────────────────────────────────\n');
-    process.stderr.write('\n  Opening browser for authentication...\n\n');
-    process.stderr.write(`  URL:  ${codeData.verification_uri}\n`);
-    process.stderr.write(`  Code: ${codeData.user_code}\n`);
-    process.stderr.write('\n  Waiting... (browser should open automatically)\n\n');
-    await openBrowser(codeData.verification_uri);
   }
 
   const result = await pollForToken(apiUrl, codeData.device_code, 5);
