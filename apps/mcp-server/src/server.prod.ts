@@ -9,7 +9,7 @@
  * @toolpilot/vector, @toolpilot/db, or @toolpilot/queue so those packages
  * are not bundled into the published npm package.
  */
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { config } from '@toolpilot/config';
 import {
   ToolCairnClient,
