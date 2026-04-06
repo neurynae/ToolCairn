@@ -56,5 +56,9 @@ ToolPilot Dev/
 ToolPilot_Real_Test/
 .playwright-mcp/
 *.png
-# ToolPilot
-.toolpilot/events.jsonl
+# Allow static web assets (logos, icons, OG images)
+!apps/public/public/**/*.png
+!apps/web/public/**/*.png
+!logo_and_icons/**/*.png
+# ToolCairn
+.toolcairn/events.jsonl
