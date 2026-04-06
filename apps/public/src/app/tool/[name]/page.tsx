@@ -19,9 +19,29 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { name } = await params;
   const decoded = decodeURIComponent(name);
+  try {
+    const result = await repo.findByName(decoded);
+    if (result.ok && result.data) {
+      const tool = result.data;
+      const desc = tool.description
+        ? `${tool.description.slice(0, 155)}…`
+        : `Health metrics, compatibility signals, and graph relationships for ${decoded}.`;
+      return {
+        title: `${decoded} — ToolCairn`,
+        description: desc,
+        openGraph: {
+          title: `${decoded} on ToolCairn`,
+          description: desc,
+          type: 'website',
+        },
+      };
+    }
+  } catch {
+    // fall through to default
+  }
   return {
-    title: `${decoded} — ToolPilot`,
-    description: `Tool profile for ${decoded}`,
+    title: `${decoded} — ToolCairn`,
+    description: `Explore health metrics, compatibility signals, and graph relationships for ${decoded} on ToolCairn.`,
   };
 }
 

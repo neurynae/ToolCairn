@@ -44,6 +44,9 @@ app.use('*', async (c, next) => {
 // System endpoints (no origin-auth required — health check must be public)
 app.route('/v1', systemRoutes());
 
+// Auth endpoints — no origin-auth (called by web app + MCP CLI directly)
+app.route('/v1/auth', authRoutes(prisma));
+
 // Admin endpoints — use their own JWT auth (must be before originAuth)
 app.route('/v1/admin', adminRoutes());
 

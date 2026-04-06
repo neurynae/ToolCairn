@@ -87,15 +87,20 @@ The server wrote the file at startup. You still need to fill in the project deta
 `.trim();
 
 export async function buildProdServer(): Promise<McpServer> {
-  // Load or create anonymous API key
+  // Load or create credentials (anonymous UUID or authenticated JWT)
   const creds = await loadOrCreateCredentials();
   const remote = new ToolCairnClient({
     baseUrl: config.TOOLPILOT_API_URL,
     apiKey: creds.client_id,
+    accessToken: creds.access_token,
   });
 
   logger.info(
-    { apiUrl: config.TOOLPILOT_API_URL, clientId: `${creds.client_id.slice(0, 8)}...` },
+    {
+      apiUrl: config.TOOLPILOT_API_URL,
+      clientId: `${creds.client_id.slice(0, 8)}...`,
+      authenticated: !!creds.access_token,
+    },
     'Production MCP mode: connecting to remote API',
   );
 
@@ -253,6 +258,82 @@ export async function buildProdServer(): Promise<McpServer> {
       inputSchema: suggestGraphUpdateSchema,
     },
     withEventLogging('suggest_graph_update', async (args) => remote.suggestGraphUpdate(args)),
+  );
+
+  // ── AUTH tool (local — manages ~/.toolpilot/credentials.json) ─────────────
+
+  server.registerTool(
+    'toolcairn_auth',
+    {
+      description:
+        'Manage your ToolCairn authentication. Use "login" to authenticate via browser (unlocks higher rate limits), "status" to check current auth state, or "logout" to revert to anonymous mode.',
+      inputSchema: z.object({
+        action: z
+          .enum(['login', 'status', 'logout'])
+          .describe(
+            '"login" opens a browser to authenticate, "status" shows current auth state, "logout" clears authentication',
+          ),
+      }),
+    },
+    async ({ action }) => {
+      if (action === 'status') {
+        const c = await loadOrCreateCredentials();
+        const isAuth = !!c.access_token;
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                authenticated: isAuth,
+                user_email: c.user_email ?? null,
+                user_name: c.user_name ?? null,
+                authenticated_at: c.authenticated_at ?? null,
+                tier: isAuth ? 'authenticated' : 'anonymous (free, 60 req/min)',
+              }),
+            },
+          ],
+        };
+      }
+
+      if (action === 'logout') {
+        await clearAuthentication();
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                ok: true,
+                message: 'Logged out. Reverted to anonymous mode.',
+              }),
+            },
+          ],
+        };
+      }
+
+      // action === 'login'
+      try {
+        const user = await startDeviceAuth(config.TOOLPILOT_API_URL);
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                ok: true,
+                message: `Successfully authenticated as ${user.email}. All tools are now authorized.`,
+                user_email: user.email,
+                user_name: user.name,
+              }),
+            },
+          ],
+        };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Authentication failed';
+        return {
+          content: [{ type: 'text' as const, text: JSON.stringify({ ok: false, error: msg }) }],
+          isError: true,
+        };
+      }
+    },
   );
 
   return server;

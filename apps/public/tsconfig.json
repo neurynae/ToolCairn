@@ -3,6 +3,7 @@
   "compilerOptions": {
     "allowJs": true,
     "noEmit": true,
+    "skipLibCheck": true,
     "paths": {
       "@/*": ["./src/*"]
     }
@@ -19,6 +20,7 @@
     { "path": "../../packages/graph" },
     { "path": "../../packages/search" },
     { "path": "../../packages/vector" },
-    { "path": "../../packages/queue" }
+    { "path": "../../packages/queue" },
+    { "path": "../../packages/auth" }
   ]
 }

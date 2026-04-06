@@ -12,7 +12,7 @@
  *   5. Cache response (async, non-blocking)
  *   6. Meter usage (async, non-blocking)
  */
-import { checkRateLimit, meterUsage, validateApiKey } from './auth.js';
+import { checkRateLimit, meterUsage } from './auth.js';
 import { getCached, isCacheable, putCached } from './cache.js';
 import type { Env } from './types.js';
 
@@ -37,14 +37,17 @@ export default {
     }
 
     // ── Admin routes — bypass API key, use JWT auth instead ────────────────
-    // /v1/admin/* is protected by admin JWT (Authorization: Bearer <token>)
-    // not by the ToolPilot API key system.
     if (path.startsWith('/v1/admin/') || path === '/v1/admin') {
       return forwardToOrigin(request, env, path);
     }
 
-    // ── API Key validation ──────────────────────────────────────────────────
-    const { valid, record, error } = await validateApiKey(request, env);
+    // ── Auth routes — no API key required (device code flow, signup, token) ──
+    if (path.startsWith('/v1/auth/')) {
+      return forwardToOrigin(request, env, path);
+    }
+
+    // ── API Key + JWT validation ────────────────────────────────────────────
+    const { valid, record, error } = await validateRequest(request, env);
     if (!valid || !record) {
       return Response.json(
         {

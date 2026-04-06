@@ -2,8 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { GithubIcon, SearchIcon } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
+import { GithubIcon, SearchIcon, UserIcon, LogOutIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/ui/logo';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from './theme-toggle';
 import { MobileNav } from './mobile-nav';
 import { cn } from '@/lib/utils';
@@ -21,6 +30,7 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ onOpenSearch }: SiteHeaderProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   return (
     <header className="nav-border-gradient sticky top-0 z-50 w-full bg-background/85 backdrop-blur-md">
@@ -30,9 +40,7 @@ export function SiteHeader({ onOpenSearch }: SiteHeaderProps) {
           href="/"
           className="flex shrink-0 items-center gap-2 text-sm font-semibold tracking-tight text-foreground"
         >
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-[var(--tp-accent)] to-[var(--tp-accent-secondary)] text-xs font-extrabold text-white shadow-sm">
-            T
-          </span>
+          <Logo size="xs" priority />
           ToolCairn
         </Link>
 
@@ -88,6 +96,43 @@ export function SiteHeader({ onOpenSearch }: SiteHeaderProps) {
             <GithubIcon className="size-3.5" />
             GitHub
           </Button>
+
+          {/* Auth */}
+          {session?.user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="hidden sm:flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="User menu"
+              >
+                <UserIcon className="size-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <div className="px-2 py-1.5">
+                  <p className="text-xs font-medium text-foreground truncate">{session.user.name ?? session.user.email}</p>
+                  {session.user.name && <p className="text-[10px] text-muted-foreground truncate">{session.user.email}</p>}
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-red-500 focus:text-red-500 cursor-pointer"
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                >
+                  <LogOutIcon className="mr-2 size-3.5" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden sm:flex"
+              nativeButton={false}
+              render={<Link href="/login" />}
+            >
+              Sign In
+            </Button>
+          )}
+
 
           {/* Mobile nav */}
           <MobileNav onOpenSearch={onOpenSearch} />

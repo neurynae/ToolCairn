@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { GithubIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Logo } from '@/components/ui/logo';
 
 const FOOTER_SECTIONS = [
   {
@@ -44,9 +45,7 @@ export function SiteFooter() {
               href="/"
               className="flex items-center gap-2 text-sm font-semibold text-foreground"
             >
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded bg-gradient-to-br from-[var(--tp-accent)] to-[var(--tp-accent-secondary)] text-[10px] font-extrabold text-white">
-                T
-              </span>
+              <Logo size="xs" />
               ToolCairn
             </Link>
             <p className="mt-2 text-xs text-muted-foreground">

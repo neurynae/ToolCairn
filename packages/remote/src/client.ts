@@ -13,8 +13,10 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 export interface ToolCairnClientOptions {
   /** Base URL of the ToolCairn API, e.g. https://api.neurynae.com */
   baseUrl: string;
-  /** Anonymous API key generated on first run */
+  /** Anonymous API key (UUID) sent in X-ToolCairn-Key header */
   apiKey: string;
+  /** Optional JWT access token — sent as Authorization: Bearer when present */
+  accessToken?: string;
   /** Request timeout in ms (default 30s) */
   timeoutMs?: number;
 }
@@ -24,9 +26,12 @@ export class ToolCairnClient {
   private readonly apiKey: string;
   private readonly timeoutMs: number;
 
+  private readonly accessToken?: string;
+
   constructor(opts: ToolCairnClientOptions) {
     this.baseUrl = opts.baseUrl.replace(/\/$/, '');
     this.apiKey = opts.apiKey;
+    this.accessToken = opts.accessToken;
     this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   }
 
@@ -131,13 +136,17 @@ export class ToolCairnClient {
   }
 
   private rawPost(path: string, body: unknown): Promise<Response> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-ToolCairn-Key': this.apiKey,
+      'Accept-Encoding': 'gzip',
+    };
+    if (this.accessToken) {
+      headers.Authorization = `Bearer ${this.accessToken}`;
+    }
     return fetch(`${this.baseUrl}${path}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-ToolCairn-Key': this.apiKey,
-        'Accept-Encoding': 'gzip',
-      },
+      headers,
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(this.timeoutMs),
     });

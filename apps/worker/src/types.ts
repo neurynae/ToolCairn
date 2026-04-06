@@ -5,6 +5,8 @@ export interface Env {
   API_ORIGIN_URL: string;
   /** Secret: shared between Worker and VPS API to block direct VPS access */
   ORIGIN_SECRET: string;
+  /** Secret: JWT signing key shared with Auth.js — used to validate Bearer tokens at the edge */
+  AUTH_SECRET: string;
   ENVIRONMENT: string;
 }
 
@@ -14,4 +16,6 @@ export interface ApiKeyRecord {
   /** Max requests per minute */
   rate_limit: number;
   created_at: string;
+  /** Present for authenticated users */
+  user_id?: string;
 }

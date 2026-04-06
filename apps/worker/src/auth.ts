@@ -1,6 +1,61 @@
 import type { ApiKeyRecord, Env } from './types.js';
 
 const FREE_RATE_LIMIT = 60; // requests per minute for free tier keys
+const AUTH_RATE_LIMIT = 300; // requests per minute for authenticated users
+
+/**
+ * Validate a request — tries JWT Bearer token first, then falls back to API key.
+ * Anonymous API-key access is preserved for backward compatibility.
+ */
+export async function validateRequest(
+  request: Request,
+  env: Env,
+): Promise<{ valid: boolean; record: ApiKeyRecord | null; error?: string }> {
+  // Try JWT Bearer token first (authenticated users from MCP CLI or web)
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader?.startsWith('Bearer ') && env.AUTH_SECRET) {
+    const token = authHeader.slice(7);
+    try {
+      // Minimal JWT decode + verify using Web Crypto (available in CF Workers)
+      const [headerB64, payloadB64, sigB64] = token.split('.');
+      if (!headerB64 || !payloadB64 || !sigB64) throw new Error('malformed');
+
+      // Verify HS256 signature
+      const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode(env.AUTH_SECRET),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['verify'],
+      );
+      const data = new TextEncoder().encode(`${headerB64}.${payloadB64}`);
+      const sig = Uint8Array.from(atob(sigB64.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
+        c.charCodeAt(0),
+      );
+      const valid = await crypto.subtle.verify('HMAC', key, sig, data);
+      if (!valid) throw new Error('invalid signature');
+
+      const payload = JSON.parse(atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/')));
+      if (payload.exp && payload.exp < Date.now() / 1000) throw new Error('expired');
+
+      // JWT is valid — build a record using the API key from the header or sub
+      const apiKey = request.headers.get('x-toolcairn-key') ?? (payload.sub as string);
+      const record: ApiKeyRecord = {
+        client_id: apiKey,
+        tier: (payload.tier as 'free' | 'pro' | 'team') ?? 'free',
+        rate_limit: AUTH_RATE_LIMIT,
+        created_at: new Date().toISOString(),
+        user_id: payload.sub as string,
+      };
+      return { valid: true, record };
+    } catch {
+      // Invalid/expired JWT — fall through to API key check
+    }
+  }
+
+  // Fall back to anonymous API key validation
+  return validateApiKey(request, env);
+}
 
 /**
  * Validates X-ToolPilot-Key header.

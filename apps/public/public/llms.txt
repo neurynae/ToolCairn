@@ -1,0 +1,66 @@
+# ToolCairn
+
+> Graph-powered tool intelligence for AI agents and developers.
+
+ToolCairn is an open-source platform that helps AI agents and developers find, compare, and
+evaluate open source tools. It indexes 12,000+ tools, stores relationships in a knowledge graph
+(Memgraph), and exposes a 4-stage search pipeline via an MCP server.
+
+## What ToolCairn Does
+
+- **Tool search**: Natural-language queries return ranked tools with confidence scores
+- **Tool comparison**: Side-by-side health metrics, commit activity, ecosystem signals
+- **Stack recommendation**: Describe a project, get a curated tool stack
+- **Compatibility checking**: Know if two tools are known to work together
+- **Issue lookup**: Check known GitHub issues before wasting debugging hours
+
+## How to Use (MCP Integration)
+
+Add to your MCP config (Claude Code, Cursor, VS Code, Windsurf):
+
+```json
+{
+  "mcpServers": {
+    "toolcairn": {
+      "command": "npx",
+      "args": ["@neurynae/toolcairn-mcp"]
+    }
+  }
+}
+```
+
+Install: `npx @neurynae/toolcairn-mcp`
+
+## Available MCP Tools
+
+- `search_tools` — Natural-language tool discovery with guided clarification
+- `search_tools_respond` — Submit clarification answers to refine results
+- `get_stack` — Full stack recommendation for a project description
+- `compare_tools` — Head-to-head comparison of two tools
+- `check_compatibility` — Check if two tools are known to work together
+- `check_issue` — Look up known bugs for a tool
+- `report_outcome` — Feed results back to improve recommendations
+- `refine_requirement` — Decompose vague needs into searchable requirements
+- `verify_suggestion` — Validate agent-suggested tools against the graph
+- `suggest_graph_update` — Contribute new tool relationships to the graph
+- `toolcairn_init` — Set up ToolCairn for the current project
+- `init_project_config` — Initialize project configuration
+- `read_project_config` — Read and validate project config
+- `update_project_config` — Add/remove tools from project config
+- `toolcairn_auth` — Authenticate with ToolCairn (login / status / logout)
+
+## Architecture
+
+- **Knowledge graph**: Memgraph (Neo4j-compatible) storing tool nodes and relationships
+- **Vector search**: Qdrant with Nomic Embed Code 768d embeddings
+- **Search pipeline**: 4 stages — BM25+Vector → Graph re-ranking → Clarification → Final selection
+- **API**: Hono (Node.js) on AWS EC2, fronted by a Cloudflare Worker
+- **npm package**: `@neurynae/toolcairn-mcp` (v0.2.0+)
+
+## Links
+
+- Website: https://toolcairn.neurynae.com
+- Docs: https://toolcairn.neurynae.com/docs
+- GitHub: https://github.com/NEURYNAE/ToolCairn
+- npm: https://www.npmjs.com/package/@neurynae/toolcairn-mcp
+- API: https://api.neurynae.com/v1/health

@@ -11,6 +11,10 @@ const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 export const metadata: Metadata = {
   title: 'ToolCairn Admin',
   description: 'Admin dashboard for ToolCairn — graph-powered tool intelligence platform',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

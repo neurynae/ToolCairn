@@ -13,6 +13,7 @@ import {
   SheetClose,
 } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { Logo } from '@/components/ui/logo';
 import { ThemeToggle } from './theme-toggle';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -56,9 +57,7 @@ export function MobileNav({ onOpenSearch }: MobileNavProps) {
               className="flex items-center gap-2 text-sm font-semibold tracking-tight"
               onClick={() => setOpen(false)}
             >
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-[var(--tp-accent)] to-[var(--tp-accent-secondary)] text-xs font-extrabold text-white shadow-sm">
-                T
-              </span>
+              <Logo size="xs" />
               ToolCairn
             </Link>
           </SheetTitle>

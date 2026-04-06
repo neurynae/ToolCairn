@@ -83,8 +83,14 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex items-center gap-2 px-1 py-1.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground text-xs font-bold shrink-0">
-                TC
+              <div className="flex h-7 w-7 items-center justify-center rounded-md overflow-hidden shrink-0">
+                <Image
+                  src="/logo-wordmark.png"
+                  alt="ToolCairn"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
               </div>
               <div className="flex flex-col leading-none group-data-[collapsible=icon]:hidden">
                 <span className="font-semibold text-sm">ToolCairn</span>

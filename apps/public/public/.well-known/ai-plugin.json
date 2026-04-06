@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "ToolCairn",
+  "name_for_model": "toolcairn",
+  "description_for_human": "Graph-powered tool intelligence for AI agents and developers. Find, compare, and build stacks across 12,000+ open source tools.",
+  "description_for_model": "ToolCairn provides graph-powered tool intelligence. Use it to search for the best open source tool for a specific need, compare tools head-to-head, check compatibility, get full stack recommendations, and look up known issues. All tools are available via the MCP server at npx @neurynae/toolcairn-mcp.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://api.neurynae.com/v1/openapi.json"
+  },
+  "logo_url": "https://toolcairn.neurynae.com/logo/icon-512.png",
+  "contact_email": "support@neurynae.com",
+  "legal_info_url": "https://github.com/NEURYNAE/ToolCairn/blob/main/LICENSE"
+}
