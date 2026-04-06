@@ -1,24 +1,17 @@
-'use client';
-
 import type { ReactNode } from 'react';
-import { useEffect } from 'react';
-import { useTheme } from 'next-themes';
+import { ForceLightMode } from '@/components/landing/force-light-mode';
 
 /**
- * Landing page layout — forces light mode.
- * Restores the user's previous theme preference on navigation away.
+ * Server component layout for the landing page.
+ * ForceLightMode is a null-rendering client component that sets the theme.
+ * Keeping the layout itself as a server component ensures Next.js generates
+ * page_client-reference-manifest.js correctly.
  */
 export default function LandingLayout({ children }: { children: ReactNode }) {
-  const { theme, setTheme } = useTheme();
-
-  useEffect(() => {
-    const previous = theme;
-    setTheme('light');
-    return () => {
-      if (previous) setTheme(previous);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return <>{children}</>;
+  return (
+    <>
+      <ForceLightMode />
+      {children}
+    </>
+  );
 }
