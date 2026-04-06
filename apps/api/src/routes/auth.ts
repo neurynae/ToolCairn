@@ -1,8 +1,9 @@
 import type { PrismaClient } from '@toolpilot/db';
 /**
- * Auth routes — device code flow for MCP CLI authentication.
- * These routes do NOT require origin-auth (called before user has a key).
+ * Auth routes — device code flow + user management for the web app.
+ * These routes do NOT require origin-auth (called by Vercel public app + MCP CLI directly).
  */
+import bcrypt from 'bcryptjs';
 import { Hono } from 'hono';
 import { SignJWT } from 'jose';
 import pino from 'pino';
@@ -11,6 +12,7 @@ const logger = pino({ name: '@toolpilot/api/auth' });
 
 const USER_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const DEVICE_CODE_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
+const SALT_ROUNDS = 12;
 
 function randomDeviceCode(): string {
   const bytes = new Uint8Array(16);
@@ -35,6 +37,151 @@ async function mintAccessToken(userId: string, email: string, secret: string): P
 
 export function authRoutes(prisma: PrismaClient): Hono {
   const app = new Hono();
+
+  // ── Signup (email + password) ──────────────────────────────────────────────
+  // Called by Vercel public app /api/auth/signup route
+  app.post('/signup', async (c) => {
+    try {
+      const body = (await c.req.json()) as { name?: string; email?: string; password?: string };
+      if (!body.email || !body.password)
+        return c.json({ error: 'email and password required' }, 400);
+      if (body.password.length < 8)
+        return c.json({ error: 'Password must be at least 8 characters' }, 400);
+
+      const existing = await prisma.user.findUnique({ where: { email: body.email } });
+      if (existing) return c.json({ error: 'An account with this email already exists.' }, 409);
+
+      const passwordHash = await bcrypt.hash(body.password, SALT_ROUNDS);
+      const user = await prisma.user.create({
+        data: {
+          name: body.name ?? null,
+          email: body.email,
+          passwordHash,
+          accounts: {
+            create: {
+              type: 'credentials',
+              provider: 'credentials',
+              providerAccountId: body.email,
+            },
+          },
+        },
+        select: { id: true, name: true, email: true, createdAt: true },
+      });
+
+      return c.json({ ok: true, user }, 201);
+    } catch {
+      return c.json({ error: 'Internal server error' }, 500);
+    }
+  });
+
+  // ── User CRUD (for Auth.js VpsAdapter) ────────────────────────────────────
+
+  // POST /v1/auth/users — createUser (OAuth sign-in, no password)
+  app.post('/users', async (c) => {
+    try {
+      const body = (await c.req.json()) as {
+        email: string;
+        name?: string | null;
+        emailVerified?: string | null;
+        image?: string | null;
+      };
+      const existing = await prisma.user.findUnique({ where: { email: body.email } });
+      if (existing) return c.json(existing);
+
+      const user = await prisma.user.create({
+        data: {
+          email: body.email,
+          name: body.name ?? null,
+          emailVerified: body.emailVerified ? new Date(body.emailVerified) : null,
+          image: body.image ?? null,
+        },
+      });
+      return c.json(user, 201);
+    } catch {
+      return c.json({ error: 'Internal server error' }, 500);
+    }
+  });
+
+  // GET /v1/auth/users/:id — getUser
+  app.get('/users/:id', async (c) => {
+    const id = c.req.param('id');
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) return c.json(null);
+    return c.json(user);
+  });
+
+  // GET /v1/auth/users?email=xxx — getUserByEmail
+  app.get('/users', async (c) => {
+    const email = c.req.query('email');
+    if (!email) return c.json({ error: 'email query required' }, 400);
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        emailVerified: true,
+        image: true,
+        passwordHash: true,
+      },
+    });
+    return c.json(user ?? null);
+  });
+
+  // GET /v1/auth/users/by-account?provider=xxx&providerAccountId=xxx — getUserByAccount
+  app.get('/users/by-account', async (c) => {
+    const provider = c.req.query('provider');
+    const providerAccountId = c.req.query('providerAccountId');
+    if (!provider || !providerAccountId) return c.json(null);
+    const account = await prisma.account.findUnique({
+      where: { provider_providerAccountId: { provider, providerAccountId } },
+      include: { user: true },
+    });
+    return c.json(account?.user ?? null);
+  });
+
+  // PATCH /v1/auth/users/:id — updateUser
+  app.patch('/users/:id', async (c) => {
+    const id = c.req.param('id');
+    try {
+      const body = (await c.req.json()) as Record<string, unknown>;
+      const { passwordHash: _ph, ...safeFields } = body;
+      const user = await prisma.user.update({
+        where: { id },
+        data: safeFields as Parameters<typeof prisma.user.update>[0]['data'],
+      });
+      return c.json(user);
+    } catch {
+      return c.json({ error: 'user not found' }, 404);
+    }
+  });
+
+  // POST /v1/auth/users/:id/accounts — linkAccount
+  app.post('/users/:id/accounts', async (c) => {
+    try {
+      const body = (await c.req.json()) as {
+        type: string;
+        provider: string;
+        providerAccountId: string;
+        refresh_token?: string | null;
+        access_token?: string | null;
+        expires_at?: number | null;
+        token_type?: string | null;
+        scope?: string | null;
+        id_token?: string | null;
+        session_state?: string | null;
+      };
+      const userId = c.req.param('id');
+      const account = await prisma.account.create({
+        data: { ...body, userId },
+      });
+      return c.json(account, 201);
+    } catch {
+      return c.json({ error: 'Internal server error' }, 500);
+    }
+  });
+
+  // ── Device code flow ───────────────────────────────────────────────────────
 
   // POST /v1/auth/device-code — initiate device auth
   app.post('/device-code', async (c) => {
@@ -88,7 +235,6 @@ export function authRoutes(prisma: PrismaClient): Hono {
 
     const accessToken = await mintAccessToken(record.user.id, record.user.email ?? '', authSecret);
 
-    // Create an ApiKey entry linked to this user
     const apiKey = await prisma.apiKey.upsert({
       where: { key: `${record.user.id}-mcp` },
       update: { lastUsed: new Date() },
@@ -101,7 +247,6 @@ export function authRoutes(prisma: PrismaClient): Hono {
       },
     });
 
-    // Clean up the device code
     await prisma.deviceCode.update({
       where: { id: record.id },
       data: { status: 'expired' },
@@ -120,7 +265,6 @@ export function authRoutes(prisma: PrismaClient): Hono {
   app.get('/me', async (c) => {
     const auth = c.req.header('Authorization');
     if (!auth?.startsWith('Bearer ')) return c.json({ error: 'unauthorized' }, 401);
-    // Soft check — just decode without verify (Worker validates at edge)
     try {
       const payload = JSON.parse(atob(auth.slice(7).split('.')[1] ?? ''));
       return c.json({ ok: true, user: { id: payload.sub, email: payload.email } });
@@ -129,16 +273,13 @@ export function authRoutes(prisma: PrismaClient): Hono {
     }
   });
 
-  // Expire old device codes (cleanup — called by background job or can be cron)
-  const expireOldCodes = async () => {
-    await prisma.deviceCode.updateMany({
+  // Cleanup expired device codes on startup
+  prisma.deviceCode
+    .updateMany({
       where: { status: 'pending', expiresAt: { lt: new Date() } },
       data: { status: 'expired' },
-    });
-  };
-
-  // Run cleanup on startup
-  expireOldCodes().catch(() => {});
+    })
+    .catch(() => {});
 
   return app;
 }

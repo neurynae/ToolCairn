@@ -1,7 +1,16 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@toolpilot/db';
-import { hashPassword, signupSchema } from '@toolpilot/auth';
+import { signupSchema } from '@toolpilot/auth';
+import pino from 'pino';
 
+const logger = pino({ name: '@toolpilot/public:auth-signup' });
+
+const API_URL = process.env['TOOLPILOT_API_URL'] ?? 'https://api.neurynae.com';
+const API_KEY = process.env['TOOLPILOT_API_KEY'];
+
+/**
+ * Proxy signup to the VPS API — no DATABASE_URL needed on Vercel.
+ * The VPS creates the user in the production DB and returns the user object.
+ */
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as unknown;
@@ -13,31 +22,25 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, password } = parsed.data;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (API_KEY) headers['x-toolpilot-key'] = API_KEY;
 
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      return NextResponse.json({ error: 'An account with this email already exists.' }, { status: 409 });
-    }
-
-    const passwordHash = await hashPassword(password);
-    await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash,
-        accounts: {
-          create: {
-            type: 'credentials',
-            provider: 'credentials',
-            providerAccountId: email,
-          },
-        },
-      },
+    const res = await fetch(`${API_URL}/v1/auth/signup`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(parsed.data),
     });
 
+    const data = (await res.json()) as { error?: string };
+    if (!res.ok) {
+      logger.warn({ status: res.status, error: data.error }, 'Signup failed at VPS');
+      return NextResponse.json({ error: data.error ?? 'Signup failed' }, { status: res.status });
+    }
+
+    logger.info({ email: parsed.data.email }, 'User signed up');
     return NextResponse.json({ ok: true }, { status: 201 });
-  } catch {
+  } catch (err) {
+    logger.error({ err }, 'Signup route error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
