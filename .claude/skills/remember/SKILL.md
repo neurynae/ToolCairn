@@ -21,10 +21,16 @@ Save learnings from this session to persistent memory.
    - Only save what is non-obvious and genuinely useful in a future session
    - Skip if nothing noteworthy emerged
 
-3. **OBSIDIAN VAULT PROMPT** — After saving to memory, ask the user:
-   > "Any ADRs, research findings, or design decisions to record in the Obsidian vault (`ToolPilot Dev/`)?"
-   - If yes, guide them to create the file (ADR in `ADRs/`, research in `Research/`, design in `Design/`)
-   - This is intentionally manual — Layer 5 is for deliberate knowledge capture, not auto-generated noise
+3. **OBSIDIAN VAULT** — Automatically write significant session learnings to `D:\ToolPilot\ToolPilot Dev\`:
+   - Review the session for decisions/patterns worth preserving in the vault
+   - **ADR** (Architecture Decision Record) → write to `D:\ToolPilot\ToolPilot Dev\ADRs\` if a significant architectural decision was made this session (e.g. new node type, search algorithm change, new MCP tool)
+     - Filename: `ADR-NNN-short-title.md` (increment from the latest existing ADR number)
+     - Format: `# ADR-NNN: Title`, `## Status: Accepted`, `## Context`, `## Decision`, `## Consequences`
+   - **Research** → write to `D:\ToolPilot\ToolPilot Dev\Research\` if a root-cause investigation produced a non-obvious finding (e.g. Nomic task type asymmetry, BM25 name tokenization, Qdrant scroll ordering bug)
+     - Filename: `YYYY-MM-DD-topic.md`
+   - **Design** → write to `D:\ToolPilot\ToolPilot Dev\Design\` if a new feature was designed (interfaces, flow diagrams, data shapes)
+   - Skip vault writes only if the session had no decisions or findings beyond routine fixes
+   - Use your own judgement on what is vault-worthy — deliberate, non-obvious, reusable knowledge only
 
 4. **If `$ARGUMENTS` is provided**, save that specific learning:
    - Classify as: `user` / `feedback` / `project` / `reference`

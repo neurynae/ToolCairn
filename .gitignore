@@ -56,3 +56,5 @@ ToolPilot Dev/
 ToolPilot_Real_Test/
 .playwright-mcp/
 *.png
+# ToolPilot
+.toolpilot/events.jsonl

@@ -8,22 +8,29 @@
  */
 
 import { spawn } from 'node:child_process';
-import { join, dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // ─── Colour helpers ────────────────────────────────────────────────────────
-const C = { green: '\x1b[32m', red: '\x1b[31m', yellow: '\x1b[33m', cyan: '\x1b[36m', reset: '\x1b[0m', bold: '\x1b[1m' };
-const ok    = (msg) => console.log(`${C.green}✓${C.reset} ${msg}`);
-const fail  = (msg) => console.log(`${C.red}✗${C.reset} ${msg}`);
-const info  = (msg) => console.log(`${C.cyan}ℹ${C.reset} ${msg}`);
-const title = (msg) => console.log(`\n${C.bold}${C.cyan}── ${msg} ──${C.reset}`);
+const _C = {
+  green: '\x1b[32m',
+  red: '\x1b[31m',
+  yellow: '\x1b[33m',
+  cyan: '\x1b[36m',
+  reset: '\x1b[0m',
+  bold: '\x1b[1m',
+};
+const ok = (_msg) => ;
+const fail = (_msg) => ;
+const info = (_msg) => ;
+const title = (_msg) => ;
 
 // ─── JSON-RPC helpers ───────────────────────────────────────────────────────
 let msgId = 1;
 function buildRequest(method, params) {
-  return JSON.stringify({ jsonrpc: '2.0', id: msgId++, method, params }) + '\n';
+  return `${JSON.stringify({ jsonrpc: '2.0', id: msgId++, method, params })}\n`;
 }
 
 // ─── MCP Server process ─────────────────────────────────────────────────────
@@ -49,7 +56,9 @@ server.stdout.on('data', (chunk) => {
         pendingRequests.delete(msg.id);
         resolve(msg);
       }
-    } catch { /* not JSON — MCP initialisation traffic, ignore */ }
+    } catch {
+      /* not JSON — MCP initialisation traffic, ignore */
+    }
   }
 });
 
@@ -58,10 +67,15 @@ server.stderr.on('data', (d) => {
   try {
     const entry = JSON.parse(d.toString().trim());
     if (entry.level >= 50) console.error(`[server error] ${entry.msg}`, entry.err ?? '');
-  } catch { /* raw stderr */ }
+  } catch {
+    /* raw stderr */
+  }
 });
 
-server.on('error', (e) => { console.error('Server spawn error:', e); process.exit(1); });
+server.on('error', (e) => {
+  console.error('Server spawn error:', e);
+  process.exit(1);
+});
 server.on('exit', (code) => {
   if (code !== 0 && code !== null) console.error(`Server exited with code ${code}`);
 });
@@ -82,11 +96,17 @@ function send(method, params) {
 }
 
 // ─── Test harness ───────────────────────────────────────────────────────────
-let passed = 0, failed = 0;
+let _passed = 0;
+let failed = 0;
 
 function assert(condition, description, detail = '') {
-  if (condition) { ok(description); passed++; }
-  else           { fail(`${description}${detail ? ` — ${detail}` : ''}`); failed++; }
+  if (condition) {
+    ok(description);
+    _passed++;
+  } else {
+    fail(`${description}${detail ? ` — ${detail}` : ''}`);
+    failed++;
+  }
 }
 
 async function callTool(toolName, args) {
@@ -100,7 +120,7 @@ async function callTool(toolName, args) {
 // ─── Test runner ────────────────────────────────────────────────────────────
 async function run() {
   // Give server a moment to start
-  await new Promise(r => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 1000));
 
   // ── 1. MCP handshake ──────────────────────────────────────────────────────
   title('MCP Handshake');
@@ -112,15 +132,15 @@ async function run() {
   assert(initRes.result?.serverInfo?.name === 'toolpilot', 'Server name is "toolpilot"');
 
   const toolsRes = await send('tools/list', {});
-  const toolNames = toolsRes.result?.tools?.map(t => t.name) ?? [];
+  const toolNames = toolsRes.result?.tools?.map((t) => t.name) ?? [];
   info(`Registered tools: ${toolNames.join(', ')}`);
-  assert(toolNames.includes('search_tools'),        'search_tools registered');
+  assert(toolNames.includes('search_tools'), 'search_tools registered');
   assert(toolNames.includes('search_tools_respond'), 'search_tools_respond registered');
-  assert(toolNames.includes('get_stack'),            'get_stack registered');
-  assert(toolNames.includes('report_outcome'),       'report_outcome registered');
-  assert(toolNames.includes('check_issue'),          'check_issue registered');
-  assert(toolNames.includes('check_compatibility'),  'check_compatibility registered');
-  assert(toolNames.length === 6,                     `All 6 tools registered (got ${toolNames.length})`);
+  assert(toolNames.includes('get_stack'), 'get_stack registered');
+  assert(toolNames.includes('report_outcome'), 'report_outcome registered');
+  assert(toolNames.includes('check_issue'), 'check_issue registered');
+  assert(toolNames.includes('check_compatibility'), 'check_compatibility registered');
+  assert(toolNames.length === 6, `All 6 tools registered (got ${toolNames.length})`);
 
   // ── 2. get_stack ──────────────────────────────────────────────────────────
   title('Tool: get_stack');
@@ -138,14 +158,18 @@ async function run() {
       info(`Top result: ${t.name} — ${t.description?.slice(0, 60)}…`);
     }
   } catch (e) {
-    fail(`get_stack threw: ${e.message}`); failed++;
+    fail(`get_stack threw: ${e.message}`);
+    failed++;
   }
 
   // ── 3. search_tools ───────────────────────────────────────────────────────
   title('Tool: search_tools (new session)');
   let queryId = null;
   try {
-    const r = await callTool('search_tools', { query: 'fast TypeScript HTTP framework', user_id: 'test' });
+    const r = await callTool('search_tools', {
+      query: 'fast TypeScript HTTP framework',
+      user_id: 'test',
+    });
     info(`search_tools result: ok=${r.ok}, has clarification=${!!r.data?.clarification_questions}`);
     assert(r.ok === true, 'search_tools returns ok:true');
     queryId = r.data?.query_id;
@@ -159,7 +183,8 @@ async function run() {
       if (r.data.results[0]) info(`Top result: ${r.data.results[0].name}`);
     }
   } catch (e) {
-    fail(`search_tools threw: ${e.message}`); failed++;
+    fail(`search_tools threw: ${e.message}`);
+    failed++;
   }
 
   // ── 4. search_tools_respond (if we have a session) ────────────────────────
@@ -174,7 +199,8 @@ async function run() {
       assert(r.ok === true, 'search_tools_respond returns ok:true');
       assert(typeof r.data?.done === 'boolean', 'Response has done field');
     } catch (e) {
-      fail(`search_tools_respond threw: ${e.message}`); failed++;
+      fail(`search_tools_respond threw: ${e.message}`);
+      failed++;
     }
   }
 
@@ -187,9 +213,10 @@ async function run() {
       limit: 3,
     });
     assert(r.ok === true, 'get_stack with constraints returns ok:true');
-    info(`DB tools: ${r.data?.tools?.map(t => t.name).join(', ') ?? 'none'}`);
+    info(`DB tools: ${r.data?.tools?.map((t) => t.name).join(', ') ?? 'none'}`);
   } catch (e) {
-    fail(`get_stack (constrained) threw: ${e.message}`); failed++;
+    fail(`get_stack (constrained) threw: ${e.message}`);
+    failed++;
   }
 
   // ── 6. check_issue (stub) ─────────────────────────────────────────────────
@@ -203,7 +230,8 @@ async function run() {
     assert(r.ok === false, 'check_issue correctly returns ok:false (stub)');
     assert(r.error === 'not_yet_implemented', 'Returns not_yet_implemented error code');
   } catch (e) {
-    fail(`check_issue threw: ${e.message}`); failed++;
+    fail(`check_issue threw: ${e.message}`);
+    failed++;
   }
 
   // ── 7. check_compatibility (stub) ─────────────────────────────────────────
@@ -217,7 +245,8 @@ async function run() {
     assert(r.ok === false, 'check_compatibility correctly returns ok:false (stub)');
     assert(r.error === 'not_yet_implemented', 'Returns not_yet_implemented error code');
   } catch (e) {
-    fail(`check_compatibility threw: ${e.message}`); failed++;
+    fail(`check_compatibility threw: ${e.message}`);
+    failed++;
   }
 
   // ── 8. report_outcome ─────────────────────────────────────────────────────
@@ -234,7 +263,8 @@ async function run() {
       // Prisma may fail (no DB) but the tool should still respond
       assert(typeof r.ok === 'boolean', 'report_outcome returns a result (ok field present)');
     } catch (e) {
-      fail(`report_outcome threw: ${e.message}`); failed++;
+      fail(`report_outcome threw: ${e.message}`);
+      failed++;
     }
   }
 
@@ -246,20 +276,16 @@ async function run() {
     info(`Validation error: ${r.error ?? r.message}`);
   } catch (e) {
     // An RPC error is also acceptable here
-    ok(`Empty query rejected (RPC error: ${e.message.slice(0, 50)})`); passed++;
+    ok(`Empty query rejected (RPC error: ${e.message.slice(0, 50)})`);
+    _passed++;
   }
-
-  // ── Summary ───────────────────────────────────────────────────────────────
-  console.log('\n' + '─'.repeat(50));
-  console.log(`${C.bold}Results: ${C.green}${passed} passed${C.reset}${C.bold}, ${failed > 0 ? C.red : C.green}${failed} failed${C.reset}`);
-  console.log('─'.repeat(50));
 
   server.stdin.end();
   server.kill();
   process.exit(failed > 0 ? 1 : 0);
 }
 
-run().catch(e => {
+run().catch((e) => {
   console.error('Test runner crashed:', e);
   server.kill();
   process.exit(1);
