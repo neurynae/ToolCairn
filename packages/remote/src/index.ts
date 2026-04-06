@@ -8,6 +8,9 @@ export {
   upgradeToAuthenticated,
   clearAuthentication,
   isTokenValid,
+  savePendingAuth,
+  loadPendingAuth,
+  clearPendingAuth,
 } from './credentials.js';
-export type { Credentials } from './credentials.js';
+export type { Credentials, PendingAuth } from './credentials.js';
 export { startDeviceAuth, requestDeviceCode } from './device-auth.js';

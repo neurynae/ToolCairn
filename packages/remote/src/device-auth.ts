@@ -2,13 +2,17 @@
  * Device authorization flow for the MCP CLI.
  * Implements the OAuth 2.0 Device Authorization Grant (RFC 8628).
  *
- * Flow:
- *   1. POST /v1/auth/device-code  → get device_code, user_code, verification_uri
- *   2. Open browser to verification_uri (spawn + detached, works from stdio child processes)
- *   3. Poll /v1/auth/token until approved, expired, or user cancels
- *   4. Store access_token in ~/.toolcairn/credentials.json
+ * Survives MCP process restarts: the device_code is written to
+ * ~/.toolcairn/pending-auth.json immediately on first request.
+ * On every subsequent startup, if this file exists and hasn't expired,
+ * polling resumes automatically — no need to re-open the browser.
  */
-import { upgradeToAuthenticated } from './credentials.js';
+import {
+  clearPendingAuth,
+  loadPendingAuth,
+  savePendingAuth,
+  upgradeToAuthenticated,
+} from './credentials.js';
 
 interface DeviceCodeResponse {
   device_code: string;
@@ -36,9 +40,7 @@ async function openBrowser(url: string): Promise<void> {
     const platform = process.platform;
     let cmd: string;
     let args: string[];
-
     if (platform === 'win32') {
-      // cmd /c start is more reliable than bare `start` from a child process
       cmd = 'cmd';
       args = ['/c', 'start', '', url];
     } else if (platform === 'darwin') {
@@ -48,51 +50,82 @@ async function openBrowser(url: string): Promise<void> {
       cmd = 'xdg-open';
       args = [url];
     }
-
-    const child = spawn(cmd, args, {
-      detached: true, // detach from parent process group
-      stdio: 'ignore', // don't inherit parent's stdio
-      shell: false,
-    });
-    child.unref(); // let parent process exit independently
+    const child = spawn(cmd, args, { detached: true, stdio: 'ignore', shell: false });
+    child.unref();
   } catch {
-    // Silently fail — URL is always printed to stderr as fallback
+    // URL is printed to stderr as fallback
   }
 }
 
 /**
- * Request a device code and return the code data.
- * Exported separately so callers can surface the URL before blocking on poll.
+ * Request a new device code and persist it to ~/.toolcairn/pending-auth.json.
+ * Exported so index.prod.ts can call it independently to get the URL upfront.
  */
 export async function requestDeviceCode(apiUrl: string): Promise<DeviceCodeResponse> {
   const res = await fetch(`${apiUrl}/v1/auth/device-code`, { method: 'POST' });
   if (!res.ok) throw new Error('Failed to start device auth. Check your internet connection.');
-  return (await res.json()) as DeviceCodeResponse;
+  const data = (await res.json()) as DeviceCodeResponse;
+
+  // Persist immediately so polling can resume if this process is killed
+  await savePendingAuth({
+    device_code: data.device_code,
+    user_code: data.user_code,
+    verification_uri: data.verification_uri,
+    expires_at: new Date(Date.now() + data.expires_in * 1000).toISOString(),
+    api_url: apiUrl,
+  });
+
+  return data;
 }
 
 /**
- * Start the full device auth flow — request code, open browser, poll for token.
- * Returns user info on success, throws on failure/cancellation.
+ * Start the full device auth flow — request code (or resume pending), open browser, poll.
+ * Returns user info on success, throws on failure.
+ *
+ * On restart: if ~/.toolcairn/pending-auth.json exists and hasn't expired,
+ * polling resumes for the same code (browser already opened, user might already
+ * have confirmed — poll will return the token immediately).
  */
 export async function startDeviceAuth(
   apiUrl: string,
 ): Promise<{ userId: string; email: string; name: string | null }> {
-  const codeData = await requestDeviceCode(apiUrl);
+  // Check for a pending auth from a previous (killed) process
+  const pending = await loadPendingAuth();
+  let codeData: DeviceCodeResponse;
 
-  // Print instructions to stderr — visible in terminal and some MCP clients
-  process.stderr.write('\n──────────────────────────────────────────\n');
-  process.stderr.write('  ToolCairn — Sign In Required\n');
-  process.stderr.write('──────────────────────────────────────────\n');
-  process.stderr.write('\n  Opening browser for authentication...\n\n');
-  process.stderr.write(`  URL:  ${codeData.verification_uri}\n`);
-  process.stderr.write(`  Code: ${codeData.user_code}\n`);
-  process.stderr.write('\n  Waiting... (browser should open automatically)\n\n');
+  if (pending && pending.api_url === apiUrl) {
+    // Resume — reuse the existing code, don't re-open browser
+    codeData = {
+      device_code: pending.device_code,
+      user_code: pending.user_code,
+      verification_uri: pending.verification_uri,
+      expires_in: Math.floor((new Date(pending.expires_at).getTime() - Date.now()) / 1000),
+      interval: 5,
+    };
+    process.stderr.write('\n──────────────────────────────────────────\n');
+    process.stderr.write('  ToolCairn — Resuming sign-in\n');
+    process.stderr.write('──────────────────────────────────────────\n');
+    process.stderr.write(`\n  URL:  ${codeData.verification_uri}\n`);
+    process.stderr.write(`  Code: ${codeData.user_code}\n`);
+    process.stderr.write('\n  Waiting for confirmation...\n\n');
+    await openBrowser(codeData.verification_uri);
+  } else {
+    // Fresh start — request new code and open browser
+    codeData = await requestDeviceCode(apiUrl);
+    process.stderr.write('\n──────────────────────────────────────────\n');
+    process.stderr.write('  ToolCairn — Sign In Required\n');
+    process.stderr.write('──────────────────────────────────────────\n');
+    process.stderr.write('\n  Opening browser for authentication...\n\n');
+    process.stderr.write(`  URL:  ${codeData.verification_uri}\n`);
+    process.stderr.write(`  Code: ${codeData.user_code}\n`);
+    process.stderr.write('\n  Waiting... (browser should open automatically)\n\n');
+    await openBrowser(codeData.verification_uri);
+  }
 
-  // Open browser — detached spawn works from MCP stdio child processes
-  await openBrowser(codeData.verification_uri);
+  const result = await pollForToken(apiUrl, codeData.device_code, 5);
 
-  const result = await pollForToken(apiUrl, codeData.device_code, codeData.interval);
-
+  // Clear pending auth — successfully authenticated
+  await clearPendingAuth();
   await upgradeToAuthenticated(result.access_token, result.api_key, result.user);
 
   process.stderr.write(`\n  ✓ Signed in as ${result.user.email}\n\n`);
@@ -123,7 +156,10 @@ async function pollForToken(
     const data = (await res.json()) as TokenResponse;
 
     if (data.error === 'authorization_pending') continue;
-    if (data.error === 'expired_token') throw new Error('Device code expired. Please try again.');
+    if (data.error === 'expired_token') {
+      await clearPendingAuth();
+      throw new Error('Device code expired. Please try again.');
+    }
     if (data.error) throw new Error(`Authorization failed: ${data.error}`);
     if (data.access_token) return data;
   }

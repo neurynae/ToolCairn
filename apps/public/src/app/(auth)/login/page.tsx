@@ -47,7 +47,7 @@ export default function LoginPage() {
       <h1 className="mb-1 text-2xl font-bold text-slate-900">Welcome back</h1>
       <p className="mb-8 text-sm text-slate-500">
         New to ToolCairn?{' '}
-        <Link href="/signup" className="font-medium text-indigo-600 hover:underline">
+        <Link href={`/signup${callbackUrl !== '/explore' ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`} className="font-medium text-indigo-600 hover:underline">
           Create an account
         </Link>
       </p>

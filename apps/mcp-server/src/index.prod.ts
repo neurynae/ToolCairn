@@ -1,20 +1,23 @@
 /**
  * Production-only entry point for the published npm bundle.
  *
- * Auth flow (fully automatic — no tool call needed):
- * - Valid token found → buildProdServer() — all 14 tools immediately
- * - No token / expired:
- *   1. Fetch device code from API
- *   2. Embed verification URL in server instructions (Claude Code shows this)
- *   3. Open browser automatically via detached spawn
- *   4. MCP transport connects immediately — no timeout
- *   5. User confirms in browser, then restarts agent for full access
+ * Auth flow (automatic, survives restarts):
+ * - Valid token → buildProdServer() — all 14 tools immediately
+ * - No token, pending-auth.json exists (previous process was killed mid-poll):
+ *   → Resume polling for the same device code (browser already open)
+ *   → Show URL + code in instructions in case browser needs re-opening
+ * - No token, no pending auth:
+ *   → Request new device code, persist to pending-auth.json
+ *   → Open browser, show URL + code in instructions
+ *   → Poll in background; credentials saved when user confirms
+ *   → On next restart: finds credentials → all 14 tools
  */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { config } from '@toolpilot/config';
 import {
   isTokenValid,
   loadCredentials,
+  loadPendingAuth,
   requestDeviceCode,
   startDeviceAuth,
 } from '@toolpilot/remote';
@@ -24,7 +27,6 @@ import { ensureProjectSetup } from './project-setup.js';
 import { buildProdServer } from './server.prod.js';
 import { createTransport } from './transport.js';
 
-// Force production mode
 process.env.TOOLPILOT_MODE = 'production';
 
 const logger = pino({ name: '@toolcairn/mcp-server' });
@@ -41,17 +43,26 @@ async function main(): Promise<void> {
     logger.info({ user: creds.user_email }, 'Authenticated — starting full server');
     server = await buildProdServer();
   } else {
-    // Not authenticated — fetch a device code first so we can show the URL
-    // in the server instructions (visible in Claude Code's MCP panel).
+    // Get verification URL — either from pending auth (restart case) or fresh request
     let verificationUri = 'https://toolcairn.neurynae.com/signup';
     let userCode = '';
 
     try {
-      const codeData = await requestDeviceCode(config.TOOLPILOT_API_URL);
-      verificationUri = codeData.verification_uri;
-      userCode = codeData.user_code;
+      // Check if there's a pending auth from a previous process that was killed
+      const pending = await loadPendingAuth();
+      if (pending) {
+        verificationUri = pending.verification_uri;
+        userCode = pending.user_code;
+        logger.info({ userCode }, 'Resuming pending sign-in from previous session');
+      } else {
+        // Fresh auth — request new device code
+        const codeData = await requestDeviceCode(config.TOOLPILOT_API_URL);
+        verificationUri = codeData.verification_uri;
+        userCode = codeData.user_code;
+        logger.info({ userCode }, 'New sign-in started');
+      }
 
-      // Start full auth flow in background (opens browser + polls for token)
+      // Start full auth flow in background (opens browser + polls until confirmed)
       startDeviceAuth(config.TOOLPILOT_API_URL)
         .then(() => {
           logger.info('Sign-in complete. Restart your agent to access all ToolCairn tools.');
@@ -63,19 +74,13 @@ async function main(): Promise<void> {
       logger.error({ err }, 'Could not reach ToolCairn API — check your connection');
     }
 
-    // Build a minimal server whose instructions contain the sign-in URL.
-    // Claude Code displays instructions in the MCP panel — this ensures
-    // the user sees where to go even if the browser doesn't open automatically.
-    server = new McpServer(
-      { name: 'toolcairn', version: '0.1.0' },
-      {
-        instructions: userCode
-          ? `# ToolCairn — Sign In Required\n\nA browser window should have opened automatically.\n\n**Sign-in URL:** ${verificationUri}\n**Code to confirm:** \`${userCode}\`\n\nOpen the URL, sign in, and confirm the code shown on the page. Then restart your agent — all 14 tools will be available.`
-          : `# ToolCairn — Sign In Required\n\nVisit ${verificationUri} to create an account, then restart your agent.`,
-      },
-    );
+    // Embed the URL in server instructions so Claude Code shows it in the MCP panel
+    const instructions = userCode
+      ? `# ToolCairn — Sign In Required\n\nA browser window should have opened automatically.\n\n**Sign-in URL:** ${verificationUri}\n**Code to confirm:** \`${userCode}\`\n\nOpen the URL, sign in, and confirm the code. Then **restart your agent** — all 14 tools will be available.`
+      : '# ToolCairn — Sign In Required\n\nVisit https://toolcairn.neurynae.com to create an account, then restart your agent.';
 
-    // Single status tool
+    server = new McpServer({ name: 'toolcairn', version: '0.1.0' }, { instructions });
+
     server.registerTool(
       'toolcairn_auth',
       {
@@ -92,7 +97,7 @@ async function main(): Promise<void> {
               code: userCode || null,
               message: userCode
                 ? `Open ${verificationUri}, confirm code "${userCode}", then restart your agent.`
-                : 'Visit toolcairn.neurynae.com to create an account, then restart your agent.',
+                : 'Visit toolcairn.neurynae.com to sign up, then restart your agent.',
             }),
           },
         ],

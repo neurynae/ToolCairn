@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { GithubIcon, Loader2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 
 export default function SignupPage() {
   const router = useRouter();
+  const params = useSearchParams();
+  const callbackUrl = params.get('callbackUrl') ?? '/explore';
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -43,13 +45,13 @@ export default function SignupPage() {
     if (result?.error) {
       setError('Account created but sign-in failed. Please go to the login page.');
     } else {
-      router.push('/explore');
+      router.push(callbackUrl);
     }
   }
 
   async function handleOAuth(provider: 'google' | 'github') {
     setOauthLoading(provider);
-    await signIn(provider, { callbackUrl: '/explore' });
+    await signIn(provider, { callbackUrl });
   }
 
   return (
@@ -57,7 +59,7 @@ export default function SignupPage() {
       <h1 className="mb-1 text-2xl font-bold text-slate-900">Create your account</h1>
       <p className="mb-8 text-sm text-slate-500">
         Already have one?{' '}
-        <Link href="/login" className="font-medium text-indigo-600 hover:underline">
+        <Link href={`/login${callbackUrl !== '/explore' ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`} className="font-medium text-indigo-600 hover:underline">
           Sign in
         </Link>
       </p>

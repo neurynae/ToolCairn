@@ -8,6 +8,43 @@ import { join } from 'node:path';
 
 const CREDENTIALS_DIR = join(homedir(), '.toolcairn');
 const CREDENTIALS_FILE = join(CREDENTIALS_DIR, 'credentials.json');
+const PENDING_AUTH_FILE = join(CREDENTIALS_DIR, 'pending-auth.json');
+
+export interface PendingAuth {
+  device_code: string;
+  user_code: string;
+  verification_uri: string;
+  expires_at: string; // ISO timestamp
+  api_url: string;
+}
+
+export async function savePendingAuth(data: PendingAuth): Promise<void> {
+  await mkdir(CREDENTIALS_DIR, { recursive: true });
+  await writeFile(PENDING_AUTH_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+export async function loadPendingAuth(): Promise<PendingAuth | null> {
+  try {
+    const raw = await readFile(PENDING_AUTH_FILE, 'utf-8');
+    const data = JSON.parse(raw) as PendingAuth;
+    if (new Date(data.expires_at) < new Date()) {
+      await clearPendingAuth();
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export async function clearPendingAuth(): Promise<void> {
+  try {
+    const { unlink } = await import('node:fs/promises');
+    await unlink(PENDING_AUTH_FILE);
+  } catch {
+    // file didn't exist — that's fine
+  }
+}
 
 export interface Credentials {
   client_id: string;

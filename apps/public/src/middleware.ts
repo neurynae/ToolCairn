@@ -57,7 +57,9 @@ export default function middleware(req: NextRequest) {
 
   if (PROTECTED_PREFIXES.some((p) => pathname.startsWith(p)) && !isLoggedIn) {
     const loginUrl = new URL('/login', req.url);
-    loginUrl.searchParams.set('callbackUrl', pathname);
+    // Preserve query string so /device?code=XXXX roundtrips correctly
+    const fullPath = pathname + req.nextUrl.search;
+    loginUrl.searchParams.set('callbackUrl', fullPath);
     return NextResponse.redirect(loginUrl);
   }
 
