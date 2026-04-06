@@ -41,32 +41,9 @@ async function openBrowser(url: string): Promise<void> {
     let cmd: string;
     let args: string[];
     if (platform === 'win32') {
-      // explorer.exe is more reliable than cmd/start from stdio child processes
-      // Fallback chain: explorer → cmd start → powershell
-      const tried: Array<{ cmd: string; args: string[] }> = [
-        { cmd: 'explorer.exe', args: [url] },
-        { cmd: 'cmd', args: ['/c', 'start', '', url] },
-        {
-          cmd: 'powershell.exe',
-          args: ['-NoProfile', '-Command', `Start-Process '${url}'`],
-        },
-      ];
-      for (const attempt of tried) {
-        try {
-          const child = spawn(attempt.cmd, attempt.args, {
-            detached: true,
-            stdio: 'ignore',
-            shell: false,
-          });
-          child.unref();
-          break; // stop after first success
-        } catch {
-          // try next fallback
-        }
-      }
-      return;
-    }
-    if (platform === 'darwin') {
+      cmd = 'cmd';
+      args = ['/c', 'start', '', url];
+    } else if (platform === 'darwin') {
       cmd = 'open';
       args = [url];
     } else {
