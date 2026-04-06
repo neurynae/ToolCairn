@@ -28,10 +28,14 @@ export function buildAuthConfig(
       Google({
         clientId: process.env.AUTH_GOOGLE_ID ?? '',
         clientSecret: process.env.AUTH_GOOGLE_SECRET ?? '',
+        // Allow linking Google to an existing email/password account
+        allowDangerousEmailAccountLinking: true,
       }),
       GitHub({
         clientId: process.env.AUTH_GITHUB_ID ?? '',
         clientSecret: process.env.AUTH_GITHUB_SECRET ?? '',
+        // Allow linking GitHub to an existing email/password account
+        allowDangerousEmailAccountLinking: true,
       }),
       Credentials({
         credentials: {
