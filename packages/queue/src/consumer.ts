@@ -157,15 +157,30 @@ async function reclaimStalePending(group: string, consumer: string): Promise<voi
   }
 }
 
+export interface ConsumerOptions {
+  /**
+   * If set, the consumer exits after the queue has been continuously empty for
+   * this many milliseconds. Useful for one-shot CI runs.
+   * Default: undefined (run forever until SIGTERM/SIGINT).
+   */
+  idleExitMs?: number;
+}
+
 /**
  * Start the consumer loop — reads messages and dispatches to handlers.
  * Backs off on empty polls (100ms → 1s). Exits cleanly on SIGTERM/SIGINT.
+ * Pass `idleExitMs` to auto-exit after the queue has been empty for that duration
+ * (useful for CI one-shot runs so the job terminates when all work is done).
  */
-export async function startConsumer(handlers: QueueHandlers): Promise<void> {
+export async function startConsumer(
+  handlers: QueueHandlers,
+  options: ConsumerOptions = {},
+): Promise<void> {
   const group = 'toolpilot-consumers';
   const consumer = `consumer-${process.pid}`;
   let running = true;
   let emptyPollCount = 0;
+  let idleStartMs: number | null = null;
 
   const shutdown = () => {
     running = false;
@@ -184,10 +199,27 @@ export async function startConsumer(handlers: QueueHandlers): Promise<void> {
         // Exponential backoff: 100ms base, +50ms per consecutive empty poll, max 1s
         const delay = Math.min(100 + emptyPollCount * 50, 1000);
         emptyPollCount++;
+
+        // Idle-exit: if queue has been empty for idleExitMs, stop the consumer
+        if (options.idleExitMs !== undefined) {
+          if (idleStartMs === null) idleStartMs = Date.now();
+          const idleDuration = Date.now() - idleStartMs;
+          if (idleDuration >= options.idleExitMs) {
+            logger.info(
+              { idleDurationMs: idleDuration, idleExitMs: options.idleExitMs },
+              'Queue idle — consumer exiting (idle-exit mode)',
+            );
+            running = false;
+            break;
+          }
+        }
+
         await new Promise<void>((r) => setTimeout(r, delay));
         continue;
       }
 
+      // Messages received — reset idle tracking
+      idleStartMs = null;
       emptyPollCount = 0;
 
       for (const msg of messages) {

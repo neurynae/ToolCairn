@@ -160,5 +160,17 @@ export async function startIndexWorker(): Promise<void> {
     onRunReindex: runReindex,
   };
 
-  await startConsumer(handlers);
+  // INDEXER_IDLE_EXIT_MINUTES: when set, exit after queue has been empty for this
+  // many minutes. Used by CI one-shot runs so the job terminates once all work drains.
+  // Leave unset for the persistent daemon (never auto-exits on empty queue).
+  const idleExitMinutes = process.env.INDEXER_IDLE_EXIT_MINUTES
+    ? Number(process.env.INDEXER_IDLE_EXIT_MINUTES)
+    : undefined;
+  const idleExitMs = idleExitMinutes ? idleExitMinutes * 60_000 : undefined;
+
+  if (idleExitMs) {
+    logger.info({ idleExitMinutes }, 'Idle-exit mode enabled — will stop when queue is empty');
+  }
+
+  await startConsumer(handlers, { idleExitMs });
 }

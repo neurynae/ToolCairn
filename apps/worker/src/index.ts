@@ -12,7 +12,7 @@
  *   5. Cache response (async, non-blocking)
  *   6. Meter usage (async, non-blocking)
  */
-import { checkRateLimit, meterUsage } from './auth.js';
+import { checkRateLimit, meterUsage, validateRequest } from './auth.js';
 import { getCached, isCacheable, putCached } from './cache.js';
 import type { Env } from './types.js';
 
