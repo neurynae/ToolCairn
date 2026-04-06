@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     'stack builder',
     'toolcairn',
   ],
-  metadataBase: new URL(process.env['NEXT_PUBLIC_APP_URL'] ?? 'http://localhost:3005'),
+  metadataBase: new URL((process.env['NEXT_PUBLIC_APP_URL'] ?? 'http://localhost:3005').trim().replace(/\/$/, '')),
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',

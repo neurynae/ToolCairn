@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     'Graph-powered tool intelligence for AI agents and developers. Find, compare, and build your perfect stack with guided multi-stage discovery across 12,000+ open source tools.',
 };
 
-const BASE_URL = process.env['NEXT_PUBLIC_APP_URL'] ?? 'https://toolcairn.neurynae.com';
+const BASE_URL = (process.env['NEXT_PUBLIC_APP_URL'] ?? 'https://toolcairn.neurynae.com').trim().replace(/\/$/, '');
 
 const websiteSchema = {
   '@context': 'https://schema.org',
