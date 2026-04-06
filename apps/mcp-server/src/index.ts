@@ -1,13 +1,15 @@
 // ToolCairn MCP Server — Primary Product
 // Supports two modes:
 //   dev        → direct Docker DB connections (for contributors, default)
-//   production → thin HTTP client to api.toolpilot.dev (for published npm package)
+//   production → thin HTTP client to api.neurynae.com (for published npm package)
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { config } from '@toolpilot/config';
 import { isTokenValid, loadCredentials, startDeviceAuth } from '@toolpilot/remote';
 import pino from 'pino';
+import { z } from 'zod';
 import { ensureProjectSetup } from './project-setup.js';
 import { buildServer } from './server.js';
 import { buildProdServer } from './server.prod.js';
@@ -35,48 +37,116 @@ if (!process.env.NOMIC_API_KEY) {
 const logger = pino({ name: '@toolcairn/mcp-server' });
 
 /**
- * Ensure the user is authenticated before the server starts.
- *
- * - If a valid token exists → proceed immediately (silent).
- * - If no token or token expired → automatically trigger the device auth flow.
- *   The user sees a URL + code to open in their browser. The process blocks
- *   until they authenticate, then continues.
- * - If auth fails → log the error and exit. The agent will show the error and
- *   the user can re-run after fixing the issue.
+ * Builds a minimal server with only the toolcairn_auth tool.
+ * Used when the user is not yet authenticated so the MCP handshake
+ * completes immediately (no blocking) and the agent can guide the user
+ * to sign in by calling toolcairn_auth { action: "login" }.
  */
-async function ensureAuthenticated(): Promise<void> {
-  const creds = await loadCredentials();
+function buildAuthGateServer(): McpServer {
+  const server = new McpServer(
+    { name: 'toolcairn', version: '0.1.0' },
+    {
+      instructions: `
+# ToolCairn — Sign In Required
 
-  if (creds && isTokenValid(creds)) {
-    // Already authenticated — nothing to do
-    return;
-  }
+You are NOT authenticated. ToolCairn tools are unavailable until you sign in.
 
-  const reason = !creds ? 'first install' : 'token expired or missing';
-  logger.info({ reason }, 'Authentication required — starting sign-in flow');
+## Action Required
 
-  // This blocks until the user completes the browser auth flow
-  await startDeviceAuth(config.TOOLPILOT_API_URL);
+Call: \`toolcairn_auth\` with \`{ "action": "login" }\`
+
+This opens a browser window. The user signs in at toolcairn.neurynae.com/device,
+confirms the code, and the token is saved. After that, tell the user to restart
+their agent — all 14 tools will be available on the next session.
+      `.trim(),
+    },
+  );
+
+  server.registerTool(
+    'toolcairn_auth',
+    {
+      description:
+        'Sign in to ToolCairn. Opens a browser for authentication — required before any other tools are available. Call with action="login" to start.',
+      inputSchema: z.object({
+        action: z
+          .enum(['login', 'status'])
+          .describe('"login" starts sign-in, "status" checks current state'),
+      }),
+    },
+    async ({ action }) => {
+      if (action === 'status') {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                authenticated: false,
+                message: 'Not signed in. Call toolcairn_auth with action="login" to authenticate.',
+              }),
+            },
+          ],
+        };
+      }
+
+      try {
+        const user = await startDeviceAuth(config.TOOLPILOT_API_URL);
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                ok: true,
+                message: `Signed in as ${user.email}. Please restart your agent — all ToolCairn tools will be available on the next session.`,
+                user_email: user.email,
+              }),
+            },
+          ],
+        };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Authentication failed';
+        return {
+          content: [{ type: 'text' as const, text: JSON.stringify({ ok: false, error: msg }) }],
+          isError: true,
+        };
+      }
+    },
+  );
+
+  return server;
 }
 
 async function main(): Promise<void> {
   const mode = config.TOOLPILOT_MODE;
   logger.info({ mode }, 'Starting ToolCairn MCP Server');
 
-  // Auto-create .toolcairn/ in the project root before the agent starts any chat
   await ensureProjectSetup();
 
-  // Production mode requires authentication before tools are available.
-  // On first install or after logout, this automatically opens the browser
-  // for the user to sign in — no manual toolcairn_auth call needed.
+  let server: McpServer;
+
   if (mode === 'production') {
-    await ensureAuthenticated();
+    const creds = await loadCredentials();
+    const authenticated = creds !== null && isTokenValid(creds);
+
+    if (authenticated) {
+      // Fully authenticated — register all tools
+      server = await buildProdServer();
+    } else {
+      // Not authenticated — connect immediately with auth-gate server.
+      // Agent will call toolcairn_auth login, user signs in via browser,
+      // then restarts the agent to get full tool access.
+      logger.info('No valid credentials — starting in auth-gate mode');
+      server = buildAuthGateServer();
+    }
+  } else {
+    server = buildServer();
   }
 
-  const server = mode === 'production' ? await buildProdServer() : buildServer();
   const transport = createTransport();
   await server.connect(transport);
-  logger.info('ToolCairn MCP Server started');
+  logger.info(
+    { mode, authenticated: mode === 'production' ? (await loadCredentials()) !== null : true },
+    'ToolCairn MCP Server started',
+  );
 }
 
 main().catch((error: unknown) => {
