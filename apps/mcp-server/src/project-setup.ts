@@ -77,7 +77,7 @@ export async function ensureProjectSetup(projectRoot = process.cwd()): Promise<v
     'Detected OS — starting project setup',
   );
 
-  const dir = join(projectRoot, '.toolpilot');
+  const dir = join(projectRoot, '.toolcairn');
   const configPath = join(dir, 'config.json');
   const trackerPath = join(dir, 'tracker.html');
   const eventsPath = join(dir, 'events.jsonl');
@@ -94,12 +94,12 @@ export async function ensureProjectSetup(projectRoot = process.cwd()): Promise<v
     // events.jsonl starts empty — populated at runtime when TOOLCAIRN_EVENTS_PATH is set
     await createIfAbsent(eventsPath, '', 'events.jsonl');
 
-    logger.info({ dir, os: os.label }, '.toolpilot setup ready');
+    logger.info({ dir, os: os.label }, '.toolcairn setup ready');
   } catch (e) {
     // Non-fatal — server still starts even if setup fails (read-only fs, permission denied, etc.)
     logger.warn(
       { err: e, dir, os: os.label },
-      'Project setup failed — continuing without .toolpilot files',
+      'Project setup failed — continuing without .toolcairn files',
     );
   }
 }

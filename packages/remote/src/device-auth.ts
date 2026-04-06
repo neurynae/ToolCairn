@@ -6,7 +6,7 @@
  *   1. POST /v1/auth/device-code  → get device_code, user_code, verification_uri
  *   2. Open browser to verification_uri
  *   3. Poll /v1/auth/token until approved, expired, or user cancels
- *   4. Store access_token in ~/.toolpilot/credentials.json
+ *   4. Store access_token in ~/.toolcairn/credentials.json
  */
 import { upgradeToAuthenticated } from './credentials.js';
 

@@ -12,7 +12,9 @@ ToolCairn is an MCP server that helps AI agents and developers discover, compare
 
 ## Quick Start
 
-Add to your MCP config and restart your agent:
+**Step 1** — Create a free account at **https://toolcairn.neurynae.com/signup**
+
+**Step 2** — Add to your MCP config and restart your agent:
 
 ```json
 {
@@ -25,7 +27,7 @@ Add to your MCP config and restart your agent:
 }
 ```
 
-No API key required to get started.
+On first start, a browser window opens automatically for sign-in. Once you confirm, your agent is ready to use all tools — no further setup needed.
 
 ---
 
@@ -112,35 +114,20 @@ Open **Settings → MCP** and add:
 | `init_project_config` | Initialize project tool configuration |
 | `read_project_config` | Read and validate existing project config |
 | `update_project_config` | Add or remove tools from project config |
-| `toolcairn_auth` | Sign in to unlock higher rate limits |
+| `toolcairn_auth` | Check sign-in status or sign out |
 
 ---
 
-## Authentication
+## Session Management
 
-ToolCairn works out of the box with no sign-in — an anonymous session is created automatically on first run.
-
-**Authenticated users** get higher rate limits. To sign in, ask your agent:
+Your sign-in is stored locally in `~/.toolcairn/credentials.json` and lasts 90 days.
 
 ```
-toolcairn_auth login
+toolcairn_auth status   # check if you're signed in
+toolcairn_auth logout   # sign out (next agent restart will prompt sign-in again)
 ```
 
-This opens a browser where you can sign in with Google, GitHub, or email. Once confirmed, all tools are authorized — no per-tool login needed.
-
-```
-toolcairn_auth status   # check current auth state
-toolcairn_auth logout   # revert to anonymous
-```
-
----
-
-## Rate Limits
-
-| | Requests / minute |
-|---|---|
-| Anonymous | 60 |
-| Authenticated | 300 |
+To sign in on a new machine or after signing out, simply restart your agent — the browser sign-in opens automatically.
 
 ---
 

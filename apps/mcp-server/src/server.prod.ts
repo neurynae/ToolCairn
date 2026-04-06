@@ -270,7 +270,7 @@ export async function buildProdServer(): Promise<McpServer> {
     withEventLogging('suggest_graph_update', async (args) => remote.suggestGraphUpdate(args)),
   );
 
-  // ── AUTH tool (local — manages ~/.toolpilot/credentials.json) ─────────────
+  // ── AUTH tool (local — manages ~/.toolcairn/credentials.json) ─────────────
 
   server.registerTool(
     'toolcairn_auth',

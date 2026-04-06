@@ -21,9 +21,9 @@ interface InstructionTemplate {
 }
 
 const TOOLCAIRN_MCP_ENTRY = {
-  toolpilot: {
+  toolcairn: {
     command: 'node',
-    args: ['<path-to-toolpilot>/apps/mcp-server/dist/index.js'],
+    args: ['<path-to-toolcairn>/apps/mcp-server/dist/index.js'],
     env: {
       MEMGRAPH_URL: 'bolt://localhost:7687',
       QDRANT_URL: 'http://localhost:6333',
@@ -157,8 +157,8 @@ export function getInstructionsForAgent(agent: AgentType): InstructionTemplate {
 export function getMcpConfigEntry(serverPath?: string): Record<string, unknown> {
   const entry = { ...TOOLCAIRN_MCP_ENTRY };
   if (serverPath) {
-    entry.toolpilot = {
-      ...entry.toolpilot,
+    entry.toolcairn = {
+      ...entry.toolcairn,
       args: [serverPath],
     };
   }
@@ -167,9 +167,9 @@ export function getMcpConfigEntry(serverPath?: string): Record<string, unknown> 
 
 /** Returns OpenCode-specific MCP config (opencode.json format under "mcp" key). */
 export function getOpenCodeMcpEntry(serverPath?: string): Record<string, unknown> {
-  const resolvedPath = serverPath ?? '<path-to-toolpilot>/apps/mcp-server/dist/index.js';
+  const resolvedPath = serverPath ?? '<path-to-toolcairn>/apps/mcp-server/dist/index.js';
   return {
-    toolpilot: {
+    toolcairn: {
       type: 'local',
       command: ['node', resolvedPath],
       env: {

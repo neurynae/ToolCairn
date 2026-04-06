@@ -1,12 +1,12 @@
 /**
- * Manages authentication credentials stored in ~/.toolpilot/credentials.json.
+ * Manages authentication credentials stored in ~/.toolcairn/credentials.json.
  * Authentication is required — there is no anonymous access.
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-const CREDENTIALS_DIR = join(homedir(), '.toolpilot');
+const CREDENTIALS_DIR = join(homedir(), '.toolcairn');
 const CREDENTIALS_FILE = join(CREDENTIALS_DIR, 'credentials.json');
 
 export interface Credentials {
