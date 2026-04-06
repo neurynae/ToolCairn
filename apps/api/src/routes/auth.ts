@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@toolpilot/db';
 /**
  * Auth routes — device code flow for MCP CLI authentication.
  * These routes do NOT require origin-auth (called before user has a key).

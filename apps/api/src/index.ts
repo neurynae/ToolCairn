@@ -7,12 +7,14 @@
  */
 import { serve } from '@hono/node-server';
 import { config } from '@toolpilot/config';
+import { prisma } from '@toolpilot/db';
 import { createAllHandlers, createDeps } from '@toolpilot/tools';
 import { Hono } from 'hono';
 import { compress } from 'hono/compress';
 import pino from 'pino';
 import { originAuth } from './middleware/origin-auth.js';
 import { adminRoutes } from './routes/admin.js';
+import { authRoutes } from './routes/auth.js';
 import { dataRoutes } from './routes/data.js';
 import { feedbackRoutes } from './routes/feedback.js';
 import { graphRoutes } from './routes/graph.js';
