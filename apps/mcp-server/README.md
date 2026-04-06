@@ -1,18 +1,18 @@
 # @neurynae/toolcairn-mcp
 
-**Graph-powered tool intelligence for AI agents and developers.**
+**Find the right open source tool, every time.**
 
 [![npm version](https://img.shields.io/npm/v/@neurynae/toolcairn-mcp)](https://www.npmjs.com/package/@neurynae/toolcairn-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/NEURYNAE/ToolCairn/blob/main/LICENSE)
 [![npm downloads](https://img.shields.io/npm/dm/@neurynae/toolcairn-mcp)](https://www.npmjs.com/package/@neurynae/toolcairn-mcp)
 
-ToolCairn is an MCP (Model Context Protocol) server that gives your AI agent graph-powered tool intelligence. Search 12,000+ open source tools using a 4-stage pipeline combining BM25 keyword search, vector embeddings, and graph re-ranking — so your agent always recommends the *right* tool.
+ToolCairn is an MCP server that helps AI agents and developers discover, compare, and evaluate open source tools. Search across 12,000+ indexed tools with natural language, get stack recommendations, check compatibility, and more — all directly from your AI agent.
 
 ---
 
 ## Quick Start
 
-No installation required. Add this to your MCP configuration and ToolCairn starts on the next session:
+Add to your MCP config and restart your agent:
 
 ```json
 {
@@ -24,14 +24,20 @@ No installation required. Add this to your MCP configuration and ToolCairn start
   }
 }
 ```
+
+No API key required to get started.
 
 ---
 
-## Installation by Client
+## Setup by Client
 
-### Claude Code (CLI)
+### Claude Code
 
-Add to `~/.claude/claude_desktop_config.json` (or project `.mcp.json`):
+```bash
+claude mcp add toolcairn -- npx @neurynae/toolcairn-mcp
+```
+
+Or add to `~/.claude/claude_desktop_config.json`:
 
 ```json
 {
@@ -42,11 +48,6 @@ Add to `~/.claude/claude_desktop_config.json` (or project `.mcp.json`):
     }
   }
 }
-```
-
-Or via the CLI:
-```bash
-claude mcp add toolcairn -- npx @neurynae/toolcairn-mcp
 ```
 
 ### Cursor
@@ -66,8 +67,6 @@ Open **Settings → MCP** and add:
 
 ### VS Code (Copilot)
 
-Add to `.vscode/settings.json` or user settings:
-
 ```json
 {
   "github.copilot.chat.mcp.servers": {
@@ -82,8 +81,6 @@ Add to `.vscode/settings.json` or user settings:
 
 ### Windsurf
 
-Add to `~/.codeium/windsurf/mcp_config.json`:
-
 ```json
 {
   "mcpServers": {
@@ -95,102 +92,61 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
 }
 ```
 
-### Custom / Other Clients
+---
 
-Any MCP-compatible client supporting stdio transport works:
+## Available Tools
 
-```bash
-npx @neurynae/toolcairn-mcp
-```
+| Tool | What it does |
+|------|-------------|
+| `search_tools` | Search for the best tool for a specific need using natural language |
+| `search_tools_respond` | Answer follow-up questions to refine search results |
+| `get_stack` | Get a curated tool stack recommendation for a project |
+| `compare_tools` | Compare two tools side by side |
+| `check_compatibility` | Check if two tools are known to work together |
+| `check_issue` | Look up known issues for a tool before spending time debugging |
+| `report_outcome` | Report whether a recommended tool worked out |
+| `refine_requirement` | Turn a vague requirement into a specific, searchable need |
+| `verify_suggestion` | Validate a tool your agent suggested |
+| `suggest_graph_update` | Suggest a new tool or relationship to add |
+| `toolcairn_init` | Set up ToolCairn for the current project |
+| `init_project_config` | Initialize project tool configuration |
+| `read_project_config` | Read and validate existing project config |
+| `update_project_config` | Add or remove tools from project config |
+| `toolcairn_auth` | Sign in to unlock higher rate limits |
 
 ---
 
 ## Authentication
 
-ToolCairn works out of the box with no authentication — an anonymous API key is generated on first run and stored in `~/.toolpilot/credentials.json`.
+ToolCairn works out of the box with no sign-in — an anonymous session is created automatically on first run.
 
-**Authenticated users** get higher rate limits (300 req/min vs 60 req/min for anonymous).
-
-To authenticate, ask your agent to run:
+**Authenticated users** get higher rate limits. To sign in, ask your agent:
 
 ```
 toolcairn_auth login
 ```
 
-This opens your browser to `https://toolcairn.neurynae.com/device`, where you sign in with Google, GitHub, or email/password. Once confirmed, your agent is authenticated — no per-tool login needed.
+This opens a browser where you can sign in with Google, GitHub, or email. Once confirmed, all tools are authorized — no per-tool login needed.
 
-Check auth status:
 ```
-toolcairn_auth status
-```
-
-Log out:
-```
-toolcairn_auth logout
-```
-
----
-
-## Available Tools
-
-| Tool | Description |
-|------|-------------|
-| `search_tools` | Natural-language tool search with guided clarification |
-| `search_tools_respond` | Submit clarification answers to refine search results |
-| `get_stack` | Full stack recommendation for a project description |
-| `compare_tools` | Head-to-head comparison of two tools with health metrics |
-| `check_compatibility` | Check if two tools are known to work together |
-| `check_issue` | Look up known GitHub issues for a tool before debugging |
-| `report_outcome` | Report whether a recommended tool worked (improves future results) |
-| `refine_requirement` | Decompose a vague need into searchable tool requirements |
-| `verify_suggestion` | Validate agent-suggested tools against the ToolCairn graph |
-| `suggest_graph_update` | Contribute new tool relationships to the knowledge graph |
-| `toolcairn_init` | Set up ToolCairn integration for the current project |
-| `init_project_config` | Initialize `.toolcairn/config.json` for the project |
-| `read_project_config` | Read and validate the project's tool configuration |
-| `update_project_config` | Add or remove tools from the project config |
-| `toolcairn_auth` | Authenticate with ToolCairn (login / status / logout) |
-
----
-
-## How It Works
-
-ToolCairn uses a **4-stage search pipeline**:
-
-1. **Hybrid Search** — BM25 keyword matching + vector embeddings search 12,000+ indexed tools in parallel
-2. **Graph Re-ranking** — A knowledge graph (Memgraph) re-ranks candidates using ecosystem relationships: integrations, alternatives, co-occurrence signals
-3. **Clarification** — When queries are ambiguous, targeted follow-up questions narrow the results
-4. **Final Selection** — Returns the top 1–2 tools with confidence scores, reasons, and documentation links
-
----
-
-## Project Configuration
-
-On first run, ToolCairn creates `.toolcairn/config.json` in your project root. Your agent reads this file to understand which tools are already confirmed for the project and avoids redundant searches.
-
-```json
-{
-  "project": {
-    "name": "my-project",
-    "language": "TypeScript",
-    "framework": "Next.js"
-  },
-  "confirmed_tools": ["next", "prisma", "tailwindcss"],
-  "pending_evaluation": [],
-  "stale_tools": []
-}
+toolcairn_auth status   # check current auth state
+toolcairn_auth logout   # revert to anonymous
 ```
 
 ---
 
 ## Rate Limits
 
-| Tier | Rate Limit |
-|------|-----------|
-| Anonymous (default) | 60 requests / minute |
-| Authenticated | 300 requests / minute |
+| | Requests / minute |
+|---|---|
+| Anonymous | 60 |
+| Authenticated | 300 |
 
-Rate limits are per API key, enforced at the Cloudflare edge.
+---
+
+## Project Configuration
+
+On first use, ToolCairn creates a `.toolcairn/config.json` file in your project. Your agent reads this to track which tools are confirmed for the project and avoids redundant searches on future sessions.
 
 ---
 
@@ -199,7 +155,6 @@ Rate limits are per API key, enforced at the Cloudflare edge.
 - **Website**: https://toolcairn.neurynae.com
 - **Docs**: https://toolcairn.neurynae.com/docs
 - **GitHub**: https://github.com/NEURYNAE/ToolCairn
-- **npm**: https://www.npmjs.com/package/@neurynae/toolcairn-mcp
 - **Issues**: https://github.com/NEURYNAE/ToolCairn/issues
 
 ---
