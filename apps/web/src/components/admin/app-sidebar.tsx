@@ -27,6 +27,7 @@ import {
   Scale,
   Settings,
 } from 'lucide-react';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 type NavItem = {
